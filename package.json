@@ -1,0 +1,28 @@
+{
+  "name": "nebula",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "lodash": "file:node_modules/lodash"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.106",
+    "css-loader": "^0.28.11",
+    "html-webpack-plugin": "^3.1.0",
+    "node-sass": "^4.8.3",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.20.3",
+    "ts-loader": "^4.1.0",
+    "typescript": "^2.8.1",
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  },
+  "scripts": {
+    "serve-dev": "webpack-dev-server --config webpack.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
