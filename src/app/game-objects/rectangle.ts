@@ -50,20 +50,11 @@ export class Rectangle {
         return this;
     }
 
-    public getVelocity(dimension: AxisDimension) {
-        switch (dimension) {
-            case AxisDimension.X:
-                return this.xVel;
-            case AxisDimension.Y:
-                return this.yVel;
-            case AxisDimension.XY:
-                return {
-                    x: this.xVel,
-                    y: this.yVel
-                };
-            default:
-                throw new Error("Unsupported axis dimension");
-        }
+    public getVelocity() {
+        return {
+            x: this.xVel,
+            y: this.yVel
+        };
     }
 
     public setVelocity(dimension: AxisDimension, value: number) {
@@ -85,13 +76,20 @@ export class Rectangle {
     }
 
     public adjustVelocity(dimension: AxisDimension, value: number) {
-        const velocity = this.getVelocity(dimension);
-        if (_.isNumber(velocity)) {
-            this.setVelocity(dimension, (velocity as number) + value);
-            return;
+        const velocity = this.getVelocity();
+        switch (dimension) {
+            case AxisDimension.X:
+                this.setVelocity(AxisDimension.X, velocity.x + value);
+                break;
+            case AxisDimension.Y:
+                this.setVelocity(AxisDimension.Y, velocity.y + value);
+                break;
+            case AxisDimension.XY:
+                this.setVelocity(AxisDimension.X, velocity.x + value);
+                this.setVelocity(AxisDimension.Y, velocity.y + value);
+            default:
+                throw new Error("Unsupported dimension specifed");
         }
-        this.setVelocity(AxisDimension.X, velocity.x + value);
-        this.setVelocity(AxisDimension.Y, velocity.y + value);
     }
 
     public setWeight(weight: number) {

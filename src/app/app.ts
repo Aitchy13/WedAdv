@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import { Rectangle, AxisDimension } from "./game-objects/rectangle";
 import { FrameRenderer } from "./rendering/frame-renderer";
 import { Logger } from "./utilities/logger";
@@ -18,12 +20,12 @@ export class App {
         this.canvas.height = this.window.innerHeight;
 
         // TESTING
-        const obj1 = new Rectangle(50, 50, 0, 0);
-        obj1.setVelocity(AxisDimension.X, 0)
+        const greenCube = new Rectangle(50, 50, 100, 0);
+        greenCube.setVelocity(AxisDimension.X, 0)
             .setColor("green");
 
-        const obj2 = new Rectangle(50, 50, this.canvas.width - 50, 0);
-        obj2.setVelocity(AxisDimension.X, -5)
+        const redCube = new Rectangle(50, 50, this.canvas.width - 50, 100);
+        redCube.setVelocity(AxisDimension.X, -5)
             .setColor("red");
 
         const logger = new Logger();
@@ -33,30 +35,53 @@ export class App {
             switch (evt.event.key) {
                 case "w":
                 case "ArrowUp":
-                    obj1.adjustVelocity(AxisDimension.Y, -sensitivity);
+                    greenCube.adjustVelocity(AxisDimension.Y, -sensitivity);
                     break;
                 case "s":
                 case "ArrowDown":
-                    obj1.adjustVelocity(AxisDimension.Y, sensitivity);
+                    greenCube.adjustVelocity(AxisDimension.Y, sensitivity);
                     break;
                 case "a":
                 case "ArrowLeft":
-                    obj1.adjustVelocity(AxisDimension.X, -sensitivity);
+                    greenCube.adjustVelocity(AxisDimension.X, -sensitivity);
                     break;
                 case "d":
                 case "ArrowRight":
-                    obj1.adjustVelocity(AxisDimension.X, sensitivity);
+                    greenCube.adjustVelocity(AxisDimension.X, sensitivity);
                     break;
             }
         });
 
         const renderer = new FrameRenderer(this.getContext(), this.window, logger);
 
-        renderer.addObject(obj1, [new CollisionDetector(obj1, obj2, (x, y) => {
-            x.setVelocity(AxisDimension.XY, 0);
-            y.setVelocity(AxisDimension.XY, 0);
-        })]);
-        renderer.addObject(obj2);
+        renderer.addObject(greenCube, {
+            beforeRender: [
+                (next, currentObj) => {
+                    const collidedObjects = new CollisionDetector(currentObj, redCube, (detectingObject, collidedObject) => {
+                        const currentVelocity = detectingObject.getVelocity();
+                        if (currentVelocity.x < 0) {
+                            detectingObject.x = detectingObject.x - 1;
+                        } else {
+                            detectingObject.x = detectingObject.x + 1;
+                        }
+                        if (currentVelocity.y < 0) {
+                            detectingObject.y = detectingObject.y - 1;
+                        } else {
+                            detectingObject.y = detectingObject.y + 1;
+                        }
+                        detectingObject.setVelocity(AxisDimension.XY, 0);
+                        collidedObject.setVelocity(AxisDimension.XY, 0);
+                    }).detect();
+                    if (collidedObjects.length > 0) return;
+                    next(currentObj);
+                },
+                (next, currentObj) => {
+                    logger.log(currentObj.getPosition());
+                    next();
+                }
+            ]
+        });
+        renderer.addObject(redCube);
         renderer.start();
     }
 

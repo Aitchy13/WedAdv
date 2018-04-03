@@ -3,10 +3,16 @@ import * as _ from "lodash";
 import { Rectangle, AxisDimension } from "../game-objects/rectangle";
 import { Logger } from "../utilities/logger";
 import { IDetector } from "../detectors/detector.interface";
+import { Middleware } from "../utilities/middleware";
 
 export interface IRenderable {
     object: Rectangle;
-    detectors?: IDetector[];
+    beforeRender?: IRenderMiddleware[];
+    afterRender?: IRenderMiddleware[];
+}
+
+export interface IRenderMiddleware {
+    (next: Function, obj: Rectangle): void;
 }
 
 export class FrameRenderer {
@@ -19,10 +25,11 @@ export class FrameRenderer {
         this.animationFrame = this.window.requestAnimationFrame;
     }
 
-    public addObject(obj: Rectangle, detector?: IDetector[]) {
+    public addObject(obj: Rectangle, hooks?: { beforeRender?: IRenderMiddleware[], afterRender?: IRenderMiddleware[] }) {
         this.renderables.push({
             object: obj,
-            detectors: detector
+            beforeRender: _.isObject(hooks) ? hooks.beforeRender : undefined,
+            afterRender: _.isObject(hooks) ? hooks.afterRender : undefined
         });
     }
 
@@ -49,12 +56,32 @@ export class FrameRenderer {
         this.renderables.forEach(x => {
             const position = x.object.getPosition();
             const dimensions = x.object.getDimensions();
+
+            const middleware = new Middleware();
+
             this.context.fillStyle = x.object.getColor();
             this.context.fillRect(position.x, position.y, dimensions.width, dimensions.height);
-            if (_.isArray(x.detectors)) {
-                x.detectors.forEach(y => y.detect())
+
+            middleware.use((next: Function) => {
+                next(x.object);
+            });
+
+            if (_.isArray(x.beforeRender) && x.beforeRender.length > 0) {
+                x.beforeRender.forEach(y => middleware.use(y))
             }
-            x.object.update();
+
+            middleware.use((next: Function) => {
+                x.object.update();
+                next(x.object);
+            });
+
+            if (_.isArray(x.afterRender) && x.afterRender.length > 0) {
+                x.afterRender.forEach(y => middleware.use(y))
+            }
+
+            middleware.go(() => {
+                
+            });
         });
     }
 }
