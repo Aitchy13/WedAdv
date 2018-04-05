@@ -59,9 +59,6 @@ export class FrameRenderer {
 
             const middleware = new Middleware();
 
-            this.context.fillStyle = x.object.getColor();
-            this.context.fillRect(position.x, position.y, dimensions.width, dimensions.height);
-
             middleware.use((next: Function) => {
                 next(x.object);
             });
@@ -71,7 +68,7 @@ export class FrameRenderer {
             }
 
             middleware.use((next: Function) => {
-                x.object.update();
+                x.object.render(this.context);
                 next(x.object);
             });
 
@@ -79,9 +76,7 @@ export class FrameRenderer {
                 x.afterRender.forEach(y => middleware.use(y))
             }
 
-            middleware.go(() => {
-                
-            });
+            middleware.go(() => {});
         });
     }
 }

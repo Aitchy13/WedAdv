@@ -88,7 +88,7 @@ export class Rectangle {
                 this.setVelocity(AxisDimension.X, velocity.x + value);
                 this.setVelocity(AxisDimension.Y, velocity.y + value);
             default:
-                throw new Error("Unsupported dimension specifed");
+                throw new Error("Unsupported dimension specified");
         }
     }
 
@@ -97,9 +97,11 @@ export class Rectangle {
         return this;
     }
 
-    public update() {
+    public render(canvas: CanvasRenderingContext2D) {
         this.x += this.xVel;
         this.y += this.yVel;
+        canvas.fillStyle = this.color;
+        canvas.fillRect(this.x, this.y, this.width, this.height);
     }
 
 }
