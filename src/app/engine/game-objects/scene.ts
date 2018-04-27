@@ -1,8 +1,12 @@
-export class Scene {
+export abstract class Scene {
 
     constructor() {}
 
-    public render() {
+    public preload(): Promise<any> {
+        return Promise.resolve();
+    }
+
+    public render(): void {
 
     }
 

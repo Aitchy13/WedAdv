@@ -1,71 +1,67 @@
+import * as _ from "lodash";
+
 import { Scene } from "../engine/game-objects/scene";
-import { Rectangle, AxisDimension } from "../engine/game-objects/rectangle";
+import { Shape} from "../engine/game-objects/shape";
 import { Game } from "../engine/game-objects/game";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
+import { Rectangle } from "../engine/game-objects/rectangle";
+import { AxisDimension, PositionStrategy } from "../engine/physics/moveable";
+import { Vector } from "../engine/game-objects/vector";
+import { TextureLoader } from "../engine/textures/texture-loader";
+import { SpriteSheetTexture } from "../engine/textures/sprite-texture";
 
 export class TestScene extends Scene {
 
-    constructor(private readonly game: Game) {
+    private spriteSheets: SpriteSheetTexture[];
+
+    constructor(private readonly game: Game, private readonly textureLoader: TextureLoader) {
         super();
     }
 
-    public render() {
-        const greenCube = new Rectangle(50, 50, 100, 0);
-        greenCube.setVelocity(AxisDimension.X, 0)
-            .setColor("green");
+    public preload() {
+        return Promise.all<SpriteSheetTexture>([
+            this.textureLoader.loadSpriteSheet("fighter", "/src/sprites/fighter.png", [
+                {
+                    key: "stand-face-down",
+                    x: 7,
+                    y: 7,
+                    width: 16,
+                    height: 36
+                }
+            ])
+        ]).then(response => {
+            this.spriteSheets = response;
+        });
+    }
 
-        const redCube = new Rectangle(50, 50, this.game.canvas.width - 50, 100);
-        redCube.setVelocity(AxisDimension.X, -5)
-            .setColor("red");
+    public render() {
+        const playerSprite = new Rectangle(16, 36, 200, 200);
+        playerSprite.spriteSheet = _.find(this.spriteSheets, x => x.key === "fighter");
+        playerSprite.spriteKey = "stand-face-down";
+
+        this.game.renderer.addObject(playerSprite);
 
         this.game.keyboardInput.onKeyDown((evt) => {
-                const sensitivity = 1;
-                switch (evt.event.key) {
-                    case "w":
-                    case "ArrowUp":
-                        greenCube.adjustVelocity(AxisDimension.Y, -sensitivity);
-                        break;
-                    case "s":
-                    case "ArrowDown":
-                        greenCube.adjustVelocity(AxisDimension.Y, sensitivity);
-                        break;
-                    case "a":
-                    case "ArrowLeft":
-                        greenCube.adjustVelocity(AxisDimension.X, -sensitivity);
-                        break;
-                    case "d":
-                    case "ArrowRight":
-                        greenCube.adjustVelocity(AxisDimension.X, sensitivity);
-                        break;
-                }
-            });
-
-            this.game.renderer.addObject(greenCube, {
-                beforeRender: [
-                    (next, currentObj) => {
-                        const collidedObjects = new CollisionDetector(currentObj, redCube, (detectingObject, collidedObject) => {
-    
-                            const velocity = detectingObject.getVelocity();
-                            if (velocity.x > 0) {
-                                detectingObject.x = detectingObject.x - detectingObject.getVelocity().x + collidedObject.getVelocity().x;
-                            } else if (velocity.x < 0) {
-                                detectingObject.x = detectingObject.x - detectingObject.getVelocity().x - collidedObject.getVelocity().x;
-                            }
-    
-                            if (velocity.y > 0) {
-                                detectingObject.y = detectingObject.y - detectingObject.getVelocity().y + collidedObject.getVelocity().y;
-                            } else if (velocity.y < 0) {
-                                detectingObject.y = detectingObject.y - detectingObject.getVelocity().y - collidedObject.getVelocity().y;
-                            }
-                            
-                            detectingObject.setVelocity(AxisDimension.XY, 0);
-                            collidedObject.setVelocity(AxisDimension.XY, 0);
-                        }).detect();
-                        next(currentObj);
-                    }
-                ]
-            });
-            this.game.renderer.addObject(redCube);
+            const sensitivity = 2;
+            switch (evt.event.key) {
+                case "w":
+                case "ArrowUp":
+                    playerSprite.adjustVelocity(AxisDimension.Y, -sensitivity);
+                    break;
+                case "s":
+                case "ArrowDown":
+                    playerSprite.adjustVelocity(AxisDimension.Y, sensitivity);
+                    break;
+                case "a":
+                case "ArrowLeft":
+                    playerSprite.adjustVelocity(AxisDimension.X, -sensitivity);
+                    break;
+                case "d":
+                case "ArrowRight":
+                    playerSprite.adjustVelocity(AxisDimension.X, sensitivity);
+                    break;
+            }
+        });
     }
 
 }

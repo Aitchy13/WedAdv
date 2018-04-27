@@ -4,13 +4,14 @@ import { Scene } from "./scene";
 import { Type, IMap } from "../core/core.models";
 import { Logger } from "../utilities/logger";
 import { Game } from "./game";
+import { TextureLoader } from "../textures/texture-loader";
 
 export class SceneManager {
 
     private scenes: Type<Scene>[];
     private activeScene: Scene;
 
-    constructor(private readonly logger: Logger, private readonly game: Game) {
+    constructor(private readonly logger: Logger, private readonly game: Game, private readonly textureLoader: TextureLoader) {
         this.scenes = [];
     }
 
@@ -27,8 +28,10 @@ export class SceneManager {
         if (!registeredScene) {
             throw new Error(`Cannot load scene '${(scene as any).name}', since it hasn't been registered. Please register before loading.`);
         }
-        this.activeScene = new registeredScene(this.game);
-        this.activeScene.render();
+        this.activeScene = new registeredScene(this.game, this.textureLoader);
+        this.activeScene.preload().then(() => {
+            this.activeScene.render();
+        })
     }
 
 }

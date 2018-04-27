@@ -1,31 +1,36 @@
 import * as _ from "lodash";
 
-import { Rectangle, AxisDimension } from "../game-objects/rectangle";
+import { Shape } from "../game-objects/shape";
 import { Logger } from "../utilities/logger";
 import { IDetector } from "../detectors/detector.interface";
 import { Middleware } from "../utilities/middleware";
+import { Time } from "../utilities/time";
 
-export interface IRenderable {
-    object: Rectangle;
+export interface IRenderConfig {
+    object: IRenderable;
     beforeRender?: IRenderMiddleware[];
     afterRender?: IRenderMiddleware[];
 }
 
+export interface IRenderable {
+    render(...args: any[]): void;
+}
+
 export interface IRenderMiddleware {
-    (next: Function, obj: Rectangle): void;
+    (next: Function, obj: Shape): void;
 }
 
 export class FrameRenderer {
 
-    private renderables: IRenderable[] = [];
+    private renderables: IRenderConfig[] = [];
     private animationFrame: (x: FrameRequestCallback) => number;
     private animationFrameLoopId: number;
 
-    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger) {
+    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time) {
         this.animationFrame = this.window.requestAnimationFrame;
     }
 
-    public addObject(obj: Rectangle, hooks?: { beforeRender?: IRenderMiddleware[], afterRender?: IRenderMiddleware[] }) {
+    public addObject(obj: IRenderable, hooks?: { beforeRender?: IRenderMiddleware[], afterRender?: IRenderMiddleware[] }) {
         this.renderables.push({
             object: obj,
             beforeRender: _.isObject(hooks) ? hooks.beforeRender : undefined,
@@ -33,7 +38,7 @@ export class FrameRenderer {
         });
     }
 
-    public removeObject(obj: Rectangle) {
+    public removeObject(obj: IRenderable) {
         const index = _.findIndex(this.renderables, x => x.object === obj);
         this.renderables.splice(index, 1);
     }
@@ -54,9 +59,6 @@ export class FrameRenderer {
     private render() {
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.renderables.forEach(x => {
-            const position = x.object.getPosition();
-            const dimensions = x.object.getDimensions();
-
             const middleware = new Middleware();
 
             middleware.use((next: Function) => {
@@ -68,7 +70,7 @@ export class FrameRenderer {
             }
 
             middleware.use((next: Function) => {
-                x.object.render(this.context);
+                x.object.render(this.context, this.time.setDelta());
                 next(x.object);
             });
 

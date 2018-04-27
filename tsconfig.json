@@ -1,12 +1,13 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2015",
         "allowJs": true,
         "module": "es6",
         "noImplicitAny": true,
         "removeComments": false,
         "sourceMap": true,
-        "outDir": "./dist/"
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     }
 }

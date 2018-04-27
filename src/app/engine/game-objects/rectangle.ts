@@ -1,107 +1,65 @@
-import * as _ from "lodash";
+import { Shape } from "./shape";
+import { Vector } from "./vector";
+import { Moveable, IMoveable, PositionStrategy, AxisDimension } from "../physics/moveable";
+import { Time } from "../utilities/time";
+import { SpriteSheetTexture } from "../textures/sprite-texture";
 
-export enum AxisDimension {
-    None,
-    X,
-    Y,
-    XY
-}
+export interface IRectangle extends IMoveable {}
 
-export class Rectangle {
+@Moveable()
+export class Rectangle implements IRectangle {
 
-    public x: number = 0;
-    public y: number = 0;
+    public color: string = "red";
+    public spriteSheet: SpriteSheetTexture;
+    public spriteKey: string;
 
+    public degree: number = 0;
+    public degreeVel: number = 0;
+
+    // Applied by @Moveable decorator
     public xVel: number = 0;
     public yVel: number = 0;
+    public origin: Vector;
+    public vertices: Vector[];
+    public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
+    public getVelocity: () => { x: number, y: number };
+    public setVelocity: (dimension: AxisDimension, value: number) => this;
+    public adjustVelocity: (dimension: AxisDimension, value: number) => this;
 
-    public weight: number = 1000;
-    private color: string = "#000";
+    constructor(public width: number, public height: number, x: number, y: number) {
+        this.origin = new Vector(x, y);
+        this.vertices = [
+            this.origin, // top left
+            this.origin.add(new Vector(this.width, 0)), // top right
+            this.origin.add(new Vector(this.width, this.height)), // bottom right
+            this.origin.add(new Vector(0, this.height)) // bottom left
+        ];
+    }
 
-    constructor(public width: number, public height: number, x?: number, y?: number) {
-        if (_.isNumber(x)) {
-            this.x = x;
+    public render(ctx: CanvasRenderingContext2D, time: Time) {
+        this.move(this.xVel * time.delta, this.yVel * time.delta, PositionStrategy.Relative);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(this.origin.x, this.origin.y);
+        this.vertices.forEach(vector => ctx.lineTo(vector.x, vector.y));
+        ctx.closePath();
+
+        if (this.color) {
+            ctx.fillStyle = this.color;
+            ctx.fill();
         }
-        if (_.isNumber(y)) {
-            this.y = y;
+
+        // TODO: Fix clip warping effect
+
+        if (this.spriteSheet && this.spriteKey) {
+            ctx.clip();
+            const sprite = this.spriteSheet.getSprite(this.spriteKey);
+            if (!sprite) {
+                throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
+            }
+            ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.origin.x, this.origin.y, this.width, this.height);
         }
-    }
-
-    public getPosition() {
-        return {
-            x: this.x,
-            y: this.y
-        };
-    }
-
-    public getDimensions() {
-        return {
-            width: this.width,
-            height: this.height
-        }
-    }
-
-    public getColor() {
-        return this.color;
-    }
-
-    public setColor(color: string) {
-        this.color = color;
-        return this;
-    }
-
-    public getVelocity() {
-        return {
-            x: this.xVel,
-            y: this.yVel
-        };
-    }
-
-    public setVelocity(dimension: AxisDimension, value: number) {
-        switch (dimension) {
-            case AxisDimension.X:
-                this.xVel = value;
-                break;
-            case AxisDimension.Y:
-                this.yVel = value;
-                break;
-            case AxisDimension.XY:
-                this.xVel = value;
-                this.yVel = value;
-                break;
-            default:
-                throw new Error("Unsupported axis dimension");
-        }
-        return this;
-    }
-
-    public adjustVelocity(dimension: AxisDimension, value: number) {
-        const velocity = this.getVelocity();
-        switch (dimension) {
-            case AxisDimension.X:
-                this.setVelocity(AxisDimension.X, velocity.x + value);
-                break;
-            case AxisDimension.Y:
-                this.setVelocity(AxisDimension.Y, velocity.y + value);
-                break;
-            case AxisDimension.XY:
-                this.setVelocity(AxisDimension.X, velocity.x + value);
-                this.setVelocity(AxisDimension.Y, velocity.y + value);
-            default:
-                throw new Error("Unsupported dimension specified");
-        }
-    }
-
-    public setWeight(weight: number) {
-        this.weight = weight;
-        return this;
-    }
-
-    public render(canvas: CanvasRenderingContext2D) {
-        this.x += this.xVel;
-        this.y += this.yVel;
-        canvas.fillStyle = this.color;
-        canvas.fillRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
     }
 
 }
