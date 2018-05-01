@@ -27,6 +27,13 @@ export class TestScene extends Scene {
                     y: 7,
                     width: 16,
                     height: 36
+                },
+                {
+                    key: "stand-face-up",
+                    x: 7,
+                    y: 7,
+                    width: 16,
+                    height: 36
                 }
             ])
         ]).then(response => {
@@ -37,7 +44,7 @@ export class TestScene extends Scene {
     public render() {
         const playerSprite = new Rectangle(16, 36, 200, 200);
         playerSprite.spriteSheet = _.find(this.spriteSheets, x => x.key === "fighter");
-        playerSprite.spriteKey = "stand-face-down";
+        playerSprite.spriteKey = "stand-face-up";
 
         this.game.renderer.addObject(playerSprite);
 

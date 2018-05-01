@@ -9,7 +9,7 @@ export interface IRectangle extends IMoveable {}
 @Moveable()
 export class Rectangle implements IRectangle {
 
-    public color: string = "red";
+    public color: string;
     public spriteSheet: SpriteSheetTexture;
     public spriteKey: string;
 
@@ -48,8 +48,6 @@ export class Rectangle implements IRectangle {
             ctx.fillStyle = this.color;
             ctx.fill();
         }
-
-        // TODO: Fix clip warping effect
 
         if (this.spriteSheet && this.spriteKey) {
             ctx.clip();

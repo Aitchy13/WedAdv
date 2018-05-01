@@ -38,13 +38,11 @@ export function Moveable() {
                 case PositionStrategy.Absolute:
                     const differenceX = x - this.vertices[0].x;
                     const differenceY = y - this.vertices[0].y;
-                    this.origin = new Vector(x, y);
                     this.vertices = _.map(this.vertices, v => {
                         return v.addMerge(new Vector(differenceX, differenceY));
                     });
                     break;
                 case PositionStrategy.Relative:
-                    this.origin = this.origin ? this.origin.addMerge(new Vector(x, y)) : new Vector(x, y);
                     this.vertices = _.map(this.vertices, v => v.addMerge(new Vector(x, y)));
                     break;
                 default:
