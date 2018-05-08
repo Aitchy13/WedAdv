@@ -40,6 +40,9 @@ export class FrameRenderer {
 
     public removeObject(obj: IRenderable) {
         const index = _.findIndex(this.renderables, x => x.object === obj);
+        if (index === -1) {
+            return;
+        }
         this.renderables.splice(index, 1);
     }
 

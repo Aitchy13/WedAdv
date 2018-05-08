@@ -36,7 +36,7 @@ export class TextureLoader {
         if (existingSpriteSheet) {
             return Promise.resolve(existingSpriteSheet);
         }
-        const existingRequest = _.find(this.retrievalStack, x => x.key);
+        const existingRequest = _.find(this.retrievalStack, x => x.key === key);
         const promise = existingRequest ? existingRequest.promise : this.retrieveImage(key, path);
         return promise.then(image => {
             const texture = new SpriteSheetTexture(key, image, sprites);
