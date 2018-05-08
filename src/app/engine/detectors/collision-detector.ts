@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import { Shape } from "../game-objects/shape";
 import { IDetector } from "./detector.interface";
 import { Vector } from "../game-objects/vector";
+import { Rectangle } from "../game-objects/rectangle";
 
 export interface ICollidable {
     vertices: Vector[];
@@ -21,13 +22,12 @@ export class CollisionDetector<T> implements IDetector {
 
     constructor(
         private detectingObject: ICollidable,
-        collidableObject: ICollidable,
-        private onCollision?: (collision: ICollision<T>) => void
+        collidableObject: ICollidable
     ) {
         this.collidableObject = collidableObject;
     }
 
-    public detect(): ICollidable {
+    public detect(onCollision?: (collision: ICollision<T>) => void): ICollidable {
 
         let collidedObject: ICollidable;
 
@@ -35,10 +35,10 @@ export class CollisionDetector<T> implements IDetector {
             if (collidedObject) {
                 return;
             }
-            if (this.hasCollision(detectingVector, this.collidableObject.vertices)) {
+            if (CollisionDetector.hasCollision(detectingVector, this.collidableObject.vertices)) {
                 collidedObject = this.collidableObject;
-                if (_.isFunction(this.onCollision)) {
-                    this.onCollision({
+                if (_.isFunction(onCollision)) {
+                    onCollision({
                         detectingObject: this.detectingObject,
                         collidedObject: this.collidableObject
                     });
@@ -49,7 +49,7 @@ export class CollisionDetector<T> implements IDetector {
         return collidedObject;
     }
 
-    private hasCollision(vector: Vector, vertices: Vector[]) {
+    public static hasCollision(vector: Vector, vertices: Vector[]) {
         const px = vector.x;
         const py = vector.y;
 
@@ -68,6 +68,13 @@ export class CollisionDetector<T> implements IDetector {
             }
         }
         return collision;
+    }
+
+    public static rectangleHasCollision(rect1: Rectangle, rect2: Rectangle) {
+        return rect1.origin.x < rect2.origin.x + rect2.width &&
+        rect1.origin.x + rect1.width > rect2.origin.x &&
+        rect1.origin.y < rect2.origin.y + rect2.height &&
+        rect1.height + rect1.origin.y > rect2.origin.y
     }
 
 }

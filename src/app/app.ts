@@ -1,5 +1,5 @@
 import { Game } from "./engine/game-objects/game";
-import { TestScene } from "./scenes/test-scene";
+import { InsideScene } from "./scenes/inside.scene";
 
 export class App {
 
@@ -8,9 +8,9 @@ export class App {
             width: 600,
             height: 400,
             scenes: [
-                TestScene
+                InsideScene
             ],
-            bootstrap: TestScene
+            bootstrap: InsideScene
         });
     }
 

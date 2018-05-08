@@ -5,7 +5,6 @@ describe("Collision detector", () => {
 
     let detector: CollisionDetector<ICollidable>;
     let shapeA: ICollidable;
-    let shapeB: ICollidable;
 
     beforeEach(() => {
         shapeA = {
@@ -15,9 +14,13 @@ describe("Collision detector", () => {
                 new Vector(5, 5),
                 new Vector(4, 5)
             ]
-        };;
-        shapeB = undefined;
+        };
         detector = undefined;
+    });
+
+    it("must detect a collision given a vector that collides with a vertice", () => {
+        let point = new Vector(4.5, 4);
+        expect(CollisionDetector.hasCollision(point, shapeA.vertices)).toBe(true);
     });
 
 });

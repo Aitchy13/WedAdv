@@ -1,10 +1,10 @@
 export class MouseInputEvent implements EventListenerObject {
 
-    public event: KeyboardEvent;
+    public event: MouseEvent;
 
     constructor(private callback: (evt: MouseInputEvent) => void) {}
 
-    public handleEvent(evt: KeyboardEvent) {
+    public handleEvent(evt: MouseEvent) {
         this.event = evt;
         this.callback(this);
     }

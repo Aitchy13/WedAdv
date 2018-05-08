@@ -1,5 +1,4 @@
 import { Scene } from "./scene";
-import { TestScene } from "../../scenes/test-scene";
 import { Type } from "../core/core.models";
 
 

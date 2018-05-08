@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { Maths } from "../utilities/maths";
+import { MathsUtility } from "../utilities/maths";
 
 export class Vector {
 
@@ -87,7 +87,7 @@ export class Vector {
     }
 
     public static rotate(origin: Vector, point: Vector, angle: number) {
-        const radian = Maths.degreeToRadian(angle);
+        const radian = MathsUtility.degreeToRadian(angle);
         const x = (Math.cos(radian) * (point.x - origin.x) -
                      (Math.sin(radian) * (point.y - origin.y)) +
                      origin.x);
