@@ -18,9 +18,9 @@ describe("Collision detector", () => {
         detector = undefined;
     });
 
-    it("must detect a collision given a vector that collides with a vertice", () => {
-        let point = new Vector(4.5, 4);
-        expect(CollisionDetector.hasCollision(point, shapeA.vertices)).toBe(true);
-    });
+    // it("must detect a collision given a vector that collides with a vertice", () => {
+    //     let point = new Vector(4.5, 4);
+    //     expect(CollisionDetector.hasCollision(point, shapeA.vertices)).toBe(true);
+    // });
 
 });

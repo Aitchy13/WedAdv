@@ -14,8 +14,12 @@ export class MathsUtility {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    public static roundToNearestMultiple(value: number, multiple: number) {
-        return Math.ceil(value / multiple) * multiple; 
+    public static roundUpToNearestMultiple(value: number, multiple: number) {
+        return Math.ceil(value / multiple) * multiple;
+    }
+
+    public static roundDownToNearestMultiple(value: number, multiple: number) {
+        return Math.floor(value / multiple) * multiple;
     }
 
 }

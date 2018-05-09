@@ -59,6 +59,16 @@ export class Vector {
         return this;
     }
 
+    public divide(scalar: number) {
+        return new Vector(this.x / scalar, this.y / scalar);
+    }
+
+    public divideBy(scalar: number) {
+        this.x = this.x / scalar;
+        this.y = this.y / scalar;
+        return this;
+    }
+
     public min() {
         return Math.min(this.x, this.y);
     }

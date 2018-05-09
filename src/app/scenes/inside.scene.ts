@@ -11,6 +11,8 @@ import { TextureLoader } from "../engine/textures/texture-loader";
 import { SpriteSheetTexture } from "../engine/textures/sprite-texture";
 import { IRenderMiddleware } from "../engine/rendering/frame-renderer";
 import { MathsUtility } from "../engine/utilities/maths";
+import { NavGrid } from "../engine/navigation/nav-grid";
+import { PathFinder } from "../engine/navigation/pathfinder";
 
 export class InsideScene extends Scene {
 
@@ -53,6 +55,7 @@ export class InsideScene extends Scene {
         const tableHeight = 80;
 
         const table1 = new Rectangle(tableWidth, tableHeight, 100, 100);
+        table1.key = "table1";
         table1.color = "blue";
         hideableLocations.push(table1);
         this.game.renderer.addObject(table1, {
@@ -65,6 +68,7 @@ export class InsideScene extends Scene {
         });
 
         const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
+        table2.key = "table2";
         table2.color = "blue";
         hideableLocations.push(table2);
         this.game.renderer.addObject(table2, {
@@ -77,6 +81,7 @@ export class InsideScene extends Scene {
         });
 
         const table3 = new Rectangle(tableWidth, tableHeight, 380, 100);
+        table3.key = "table3";
         table3.color = "blue";
         hideableLocations.push(table3);
         this.game.renderer.addObject(table3, {
@@ -89,6 +94,7 @@ export class InsideScene extends Scene {
         });
 
         const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
+        table4.key = "table4";
         table4.color = "blue";
         hideableLocations.push(table4);
         this.game.renderer.addObject(table4, {
@@ -101,6 +107,7 @@ export class InsideScene extends Scene {
         });
 
         const table5 = new Rectangle(tableWidth, tableHeight, 240, 240);
+        table5.key = "table5";
         table5.color = "blue";
         hideableLocations.push(table5);
         this.game.renderer.addObject(table5, {
@@ -113,6 +120,7 @@ export class InsideScene extends Scene {
         });
 
         const table6 = new Rectangle(tableWidth, tableHeight, 380, 240);
+        table6.key = "table6";
         table6.color = "blue";
         hideableLocations.push(table6);
         this.game.renderer.addObject(table6, {
@@ -125,6 +133,7 @@ export class InsideScene extends Scene {
         });
 
         const cakeTable = new Rectangle(tableWidth, 60, 240, 0);
+        cakeTable.key = "cakeTable";
         cakeTable.color = "blue";
         hideableLocations.push(cakeTable);
         this.game.renderer.addObject(cakeTable, {
@@ -135,6 +144,34 @@ export class InsideScene extends Scene {
                 }
             ]
         });
+
+        const navGrid = new NavGrid({
+            width: this.game.config.width,
+            height: this.game.config.height
+        });
+        hideableLocations.forEach(x => navGrid.addBlockedGeometry(x.key, x));
+
+        const generatedNavGrid = navGrid.generate();
+        generatedNavGrid.forEach(row => {
+            row.forEach(cell => {
+                if (cell.blockedBy) {
+                    this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, cell.x, cell.y).setColor("grey"));
+                }
+            });
+        });
+
+        const startOrigin = new Vector(0, 0);
+        const endOrigin = new Vector(480, 380);
+
+        const pathfinder = new PathFinder(navGrid);
+        const path = pathfinder.findPath(startOrigin, endOrigin);
+        path.forEach(vector => {
+            this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, vector.x, vector.y).setColor("yellow"));
+        });
+
+        this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, startOrigin.x, startOrigin.y).setColor("purple"));
+        this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, endOrigin.x, endOrigin.y).setColor("orange"));
+
 
         const exit = new Rectangle(20, 160, 580, 120);
         exit.color = "green";
@@ -179,7 +216,7 @@ export class InsideScene extends Scene {
                     break;
             }
         });
-        this.game.keyboardInput.onKeyUp(evt => {
+        this.game.keyboardInput.onKeyUp(evt => { 
             player.setVelocity(AxisDimension.XY, 0);
         });
         this.game.mouseInput.onClick(evt => {
@@ -198,9 +235,10 @@ export class InsideScene extends Scene {
         }
     }
 
+
     private getNearestGridCell(x: number, y: number, cellSize: number) {
         // TODO: WIP - need a system that will map rectangle coords to a 20x20 map
-        this.game.logger.log(MathsUtility.roundToNearestMultiple(x, cellSize), MathsUtility.roundToNearestMultiple(y, cellSize))
+        // this.game.logger.log(MathsUtility.roundToNearestMultiple(x, cellSize), MathsUtility.roundToNearestMultiple(y, cellSize))
     }
 
 }

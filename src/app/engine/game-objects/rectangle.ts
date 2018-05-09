@@ -9,6 +9,8 @@ export interface IRectangle extends IMoveable {}
 @Moveable()
 export class Rectangle implements IRectangle {
 
+    public key: string;
+
     public color: string;
     public spriteSheet: SpriteSheetTexture;
     public spriteKey: string;
@@ -58,6 +60,11 @@ export class Rectangle implements IRectangle {
             ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.origin.x, this.origin.y, this.width, this.height);
         }
         ctx.restore();
+    }
+
+    public setColor(color: string) {
+        this.color = color;
+        return this;
     }
 
 }
