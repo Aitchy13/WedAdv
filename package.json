@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "@tweenjs/tween.js": "^17.2.0",
     "lodash": "file:node_modules/lodash",
     "pathfinding": "^0.4.18"
   },
@@ -11,6 +12,7 @@
     "@types/jasmine": "^2.8.6",
     "@types/lodash": "^4.14.106",
     "@types/pathfinding": "0.0.2",
+    "@types/tween.js": "^16.9.0",
     "css-loader": "^0.28.11",
     "html-webpack-plugin": "^3.1.0",
     "jasmine-core": "^3.1.0",

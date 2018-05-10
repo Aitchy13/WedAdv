@@ -38,8 +38,8 @@ export class Rectangle implements IRectangle {
         ];
     }
 
-    public render(ctx: CanvasRenderingContext2D, time: Time) {
-        this.move(this.xVel * time.delta, this.yVel * time.delta, PositionStrategy.Relative);
+    public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
+        this.move(this.xVel * timeDelta, this.yVel * timeDelta, PositionStrategy.Relative);
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(this.origin.x, this.origin.y);

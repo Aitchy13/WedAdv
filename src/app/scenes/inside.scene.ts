@@ -13,6 +13,7 @@ import { IRenderMiddleware } from "../engine/rendering/frame-renderer";
 import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
 import { PathFinder } from "../engine/navigation/pathfinder";
+import { Tween } from "../engine/animation/tween";
 
 export class InsideScene extends Scene {
 
@@ -28,28 +29,28 @@ export class InsideScene extends Scene {
 
         const hideableLocations = [];
         
-        const cellSize: number = 20;
-        const gridLineColor: string = "#dcdcdc";
-        const gridLineThickness: number = 1;
-        const minCols = Math.ceil(this.game.config.width / cellSize);
-        const minRows = Math.ceil(this.game.config.height / cellSize);
+        // const cellSize: number = 20;
+        // const gridLineColor: string = "#dcdcdc";
+        // const gridLineThickness: number = 1;
+        // const minCols = Math.ceil(this.game.config.width / cellSize);
+        // const minRows = Math.ceil(this.game.config.height / cellSize);
 
-        const gridRows: Rectangle[] = _.chain(_.range(minRows))
-            .map(i => {
-                const line = new Rectangle(this.game.config.width, gridLineThickness, 0, i * cellSize);
-                line.color = gridLineColor;
-                return line;
-            })
-            .each(x => this.game.renderer.addObject(x))
-            .value();
-        const gridCols: Rectangle[] = _.chain(_.range(minCols))
-            .map(i => {
-                const line = new Rectangle(gridLineThickness, this.game.config.height, i * cellSize, 0);
-                line.color = gridLineColor;
-                return line;
-            })
-            .each(x => this.game.renderer.addObject(x))
-            .value();
+        // const gridRows: Rectangle[] = _.chain(_.range(minRows))
+        //     .map(i => {
+        //         const line = new Rectangle(this.game.config.width, gridLineThickness, 0, i * cellSize);
+        //         line.color = gridLineColor;
+        //         return line;
+        //     })
+        //     .each(x => this.game.renderer.addObject(x))
+        //     .value();
+        // const gridCols: Rectangle[] = _.chain(_.range(minCols))
+        //     .map(i => {
+        //         const line = new Rectangle(gridLineThickness, this.game.config.height, i * cellSize, 0);
+        //         line.color = gridLineColor;
+        //         return line;
+        //     })
+        //     .each(x => this.game.renderer.addObject(x))
+        //     .value();
             
         const tableWidth = 80;
         const tableHeight = 80;
@@ -66,6 +67,7 @@ export class InsideScene extends Scene {
                 }
             ]
         });
+        
 
         const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
         table2.key = "table2";
@@ -80,6 +82,8 @@ export class InsideScene extends Scene {
             ]
         });
 
+        
+
         const table3 = new Rectangle(tableWidth, tableHeight, 380, 100);
         table3.key = "table3";
         table3.color = "blue";
@@ -92,6 +96,8 @@ export class InsideScene extends Scene {
                 }
             ]
         });
+
+        // new Tween(table1).to(new Vector(0, 100)).chain(new Tween(table2).to(new Vector(0, 200)).chain(new Tween(table3).to(new Vector(0, 300)))).start();
 
         const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
         table4.key = "table4";
@@ -151,27 +157,45 @@ export class InsideScene extends Scene {
         });
         hideableLocations.forEach(x => navGrid.addBlockedGeometry(x.key, x));
 
-        const generatedNavGrid = navGrid.generate();
-        generatedNavGrid.forEach(row => {
-            row.forEach(cell => {
-                if (cell.blockedBy) {
-                    this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, cell.x, cell.y).setColor("grey"));
-                }
-            });
-        });
+        // const generatedNavGrid = navGrid.generate();
+        // generatedNavGrid.forEach(row => {
+        //     row.forEach(cell => {
+        //         if (cell.blockedBy) {
+        //             this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, cell.x, cell.y).setColor("grey"));
+        //         }
+        //     });
+        // });
 
-        const startOrigin = new Vector(0, 0);
+        const startOrigin = new Vector(60, 0);
         const endOrigin = new Vector(480, 380);
 
         const pathfinder = new PathFinder(navGrid);
         const path = pathfinder.findPath(startOrigin, endOrigin);
+
         path.forEach(vector => {
             this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, vector.x, vector.y).setColor("yellow"));
         });
 
+        const objectOnPath = new Rectangle(navGrid.cellSize, navGrid.cellSize, startOrigin.x, startOrigin.y).setColor("pink");
+        const objectOnPathTween = new Tween(objectOnPath);
+
+        const tweenChain = _.reduce(path, (tween: Tween, v) => {
+            if (!tween) {
+                return new Tween(objectOnPath).to(path[0])
+            }
+            const newTween = new Tween(objectOnPath).to(v);
+            tween.chain(newTween);
+            return newTween;
+        }, undefined);
+
+        this.game.renderer.addObject(objectOnPath);
+        tweenChain.start();
+
         this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, startOrigin.x, startOrigin.y).setColor("purple"));
         this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, endOrigin.x, endOrigin.y).setColor("orange"));
 
+        
+        
 
         const exit = new Rectangle(20, 160, 580, 120);
         exit.color = "green";
@@ -184,7 +208,7 @@ export class InsideScene extends Scene {
             ]
         });
 
-        const randomLocation = hideableLocations[MathsUtility.randomIntegerRange(0, hideableLocations.length)];
+        const randomLocation = hideableLocations[MathsUtility.randomIntegerRange(0, hideableLocations.length - 1)];
         const target = new Rectangle(15, 15, randomLocation.origin.x, randomLocation.origin.y);
         target.color = "pink";
         this.game.renderer.addObject(target);
@@ -219,10 +243,10 @@ export class InsideScene extends Scene {
         this.game.keyboardInput.onKeyUp(evt => { 
             player.setVelocity(AxisDimension.XY, 0);
         });
-        this.game.mouseInput.onClick(evt => {
-            this.game.logger.log(evt.event.offsetX, evt.event.offsetY);
-            this.getNearestGridCell(evt.event.offsetX, evt.event.offsetY, cellSize);
-        });
+        // this.game.mouseInput.onClick(evt => {
+        //     this.game.logger.log(evt.event.offsetX, evt.event.offsetY);
+        //     this.getNearestGridCell(evt.event.offsetX, evt.event.offsetY, cellSize);
+        // });
     }
 
     private stopObjectOnCollision(objectToStop: Rectangle, current: Rectangle): void {

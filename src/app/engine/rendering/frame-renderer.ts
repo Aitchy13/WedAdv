@@ -5,6 +5,7 @@ import { Logger } from "../utilities/logger";
 import { IDetector } from "../detectors/detector.interface";
 import { Middleware } from "../utilities/middleware";
 import { Time } from "../utilities/time";
+import { Tween } from "../animation/tween";
 
 export interface IRenderConfig {
     object: IRenderable;
@@ -60,6 +61,8 @@ export class FrameRenderer {
     }
 
     private render() {
+        const timeDelta = this.time.setDelta().delta;
+        Tween.update(timeDelta);
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.renderables.forEach(x => {
             const middleware = new Middleware();
@@ -73,7 +76,7 @@ export class FrameRenderer {
             }
 
             middleware.use((next: Function) => {
-                x.object.render(this.context, this.time.setDelta());
+                x.object.render(this.context, timeDelta);
                 next(x.object);
             });
 
