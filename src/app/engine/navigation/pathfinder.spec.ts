@@ -1,6 +1,6 @@
 import { PathFinder } from "./pathfinder";
 import { NavGrid } from "./nav-grid";
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 import { Rectangle } from "../game-objects/rectangle";
 
 describe("PathFinder", () => {

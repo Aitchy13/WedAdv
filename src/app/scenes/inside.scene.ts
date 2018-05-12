@@ -6,7 +6,7 @@ import { Game } from "../engine/game-objects/game";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Rectangle } from "../engine/game-objects/rectangle";
 import { AxisDimension, PositionStrategy } from "../engine/physics/moveable";
-import { Vector } from "../engine/game-objects/vector";
+import { Vector } from "../engine/core/vector";
 import { TextureLoader } from "../engine/textures/texture-loader";
 import { SpriteSheetTexture } from "../engine/textures/sprite-texture";
 import { IRenderMiddleware } from "../engine/rendering/frame-renderer";
@@ -14,6 +14,7 @@ import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { Tween } from "../engine/animation/tween";
+import { Easing } from "../engine/animation/easing";
 
 export class InsideScene extends Scene {
 
@@ -59,28 +60,12 @@ export class InsideScene extends Scene {
         table1.key = "table1";
         table1.color = "blue";
         hideableLocations.push(table1);
-        this.game.renderer.addObject(table1, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
         
 
         const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
         table2.key = "table2";
         table2.color = "blue";
         hideableLocations.push(table2);
-        this.game.renderer.addObject(table2, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
 
         
 
@@ -88,74 +73,72 @@ export class InsideScene extends Scene {
         table3.key = "table3";
         table3.color = "blue";
         hideableLocations.push(table3);
-        this.game.renderer.addObject(table3, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
-
-        // new Tween(table1).to(new Vector(0, 100)).chain(new Tween(table2).to(new Vector(0, 200)).chain(new Tween(table3).to(new Vector(0, 300)))).start();
 
         const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
         table4.key = "table4";
         table4.color = "blue";
         hideableLocations.push(table4);
-        this.game.renderer.addObject(table4, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
 
         const table5 = new Rectangle(tableWidth, tableHeight, 240, 240);
         table5.key = "table5";
         table5.color = "blue";
         hideableLocations.push(table5);
-        this.game.renderer.addObject(table5, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
 
         const table6 = new Rectangle(tableWidth, tableHeight, 380, 240);
         table6.key = "table6";
         table6.color = "blue";
         hideableLocations.push(table6);
-        this.game.renderer.addObject(table6, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
 
         const cakeTable = new Rectangle(tableWidth, 60, 240, 0);
         cakeTable.key = "cakeTable";
         cakeTable.color = "blue";
         hideableLocations.push(cakeTable);
-        this.game.renderer.addObject(cakeTable, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
 
         const navGrid = new NavGrid({
             width: this.game.config.width,
             height: this.game.config.height
         });
-        hideableLocations.forEach(x => navGrid.addBlockedGeometry(x.key, x));
+        const pathfinder = new PathFinder(navGrid);
+
+
+        const hiddenLocation = hideableLocations[MathsUtility.randomIntegerRange(0, hideableLocations.length - 1)];
+
+        const target = new Rectangle(15, 15, hiddenLocation.origin.x, hiddenLocation.origin.y);
+        target.color = "pink";
+        target.key = "target";
+        let caught = false;
+        this.game.renderer.addObject(target, {
+            beforeRender: [
+                (next: Function, current: any) => {
+                    if (!caught && CollisionDetector.rectangleHasCollision(player, current as Rectangle)) {
+                        current.setVelocity(AxisDimension.XY, 0);
+                        alert("You caught Noah!");
+                    }
+                    next(current);
+                }
+            ]
+        });
+
+        let revealed = false;
+        hideableLocations.forEach(x => {
+            this.game.renderer.addObject(x, {
+                beforeRender: [
+                    (next: Function, current: any) => {
+                        if (hiddenLocation === current && !revealed && CollisionDetector.rectangleHasCollision(player, current)) {
+                            revealed = true;
+                            target.move(0, -20, PositionStrategy.Relative);
+                            this.runAway(target, pathfinder);
+                        }
+                        next(current);
+                    },
+                    (next: Function, current: any) => {
+                        this.stopObjectOnCollision(player, current);
+                        next(current);
+                    }
+                ]
+            });
+            navGrid.addBlockedGeometry(x.key, x)
+        });
 
         // const generatedNavGrid = navGrid.generate();
         // generatedNavGrid.forEach(row => {
@@ -165,37 +148,6 @@ export class InsideScene extends Scene {
         //         }
         //     });
         // });
-
-        const startOrigin = new Vector(60, 0);
-        const endOrigin = new Vector(480, 380);
-
-        const pathfinder = new PathFinder(navGrid);
-        const path = pathfinder.findPath(startOrigin, endOrigin);
-
-        path.forEach(vector => {
-            this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, vector.x, vector.y).setColor("yellow"));
-        });
-
-        const objectOnPath = new Rectangle(navGrid.cellSize, navGrid.cellSize, startOrigin.x, startOrigin.y).setColor("pink");
-        const objectOnPathTween = new Tween(objectOnPath);
-
-        const tweenChain = _.reduce(path, (tween: Tween, v) => {
-            if (!tween) {
-                return new Tween(objectOnPath).to(path[0])
-            }
-            const newTween = new Tween(objectOnPath).to(v);
-            tween.chain(newTween);
-            return newTween;
-        }, undefined);
-
-        this.game.renderer.addObject(objectOnPath);
-        tweenChain.start();
-
-        this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, startOrigin.x, startOrigin.y).setColor("purple"));
-        this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, endOrigin.x, endOrigin.y).setColor("orange"));
-
-        
-        
 
         const exit = new Rectangle(20, 160, 580, 120);
         exit.color = "green";
@@ -208,15 +160,13 @@ export class InsideScene extends Scene {
             ]
         });
 
-        const randomLocation = hideableLocations[MathsUtility.randomIntegerRange(0, hideableLocations.length - 1)];
-        const target = new Rectangle(15, 15, randomLocation.origin.x, randomLocation.origin.y);
-        target.color = "pink";
-        this.game.renderer.addObject(target);
+        const hiddenRenderable = this.game.renderer.findRenderable(hiddenLocation);
+        hiddenRenderable.beforeRender.push()
         
         this.game.renderer.addObject(player);
 
         this.game.keyboardInput.onKeyDown(evt => {
-            const sensitivity = 4;
+            const sensitivity = 2;
             switch (evt.event.key) {
                 case "w":
                 case "ArrowUp":
@@ -257,6 +207,15 @@ export class InsideScene extends Scene {
             objectToStop.setVelocity(AxisDimension.XY, 0);
             objectToStop.move(currentXVel, currentYVel, PositionStrategy.Relative);
         }
+    }
+
+    private runAway(target: Rectangle, pathFinder: PathFinder) {
+        const unblockedCells = pathFinder.getAvailableCoordinates();
+        const randomAvailableCell = unblockedCells[MathsUtility.randomIntegerRange(0, unblockedCells.length - 1)];
+        const path = pathFinder.findPath(target.origin, new Vector(randomAvailableCell.x, randomAvailableCell.y));
+        target.movePath(path, 100, undefined, () => {
+            this.runAway(target, pathFinder);
+        });
     }
 
 

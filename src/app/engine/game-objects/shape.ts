@@ -1,7 +1,9 @@
 import * as _ from "lodash";
-import { Vector } from "./vector";
+import { Vector } from "../core/vector";
 import { Time } from "../utilities/time";
 import { Moveable, PositionStrategy, IMoveable, AxisDimension } from "../physics/moveable";
+import { Tween } from "../animation/tween";
+import { IEasingFunc } from "../animation/easing";
 
 interface IShape extends IMoveable { }
 
@@ -20,6 +22,7 @@ export class Shape implements IShape {
     public yVel: number = 0;
     public origin: Vector;
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
+    public movePath: (path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function) => void;
     public getVelocity: () => { x: number, y: number };
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;

@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 import { MathsUtility } from "../utilities/maths";
 import { Rectangle } from "../game-objects/rectangle";
 import { CollisionDetector } from "../detectors/collision-detector";
@@ -31,6 +31,8 @@ export class NavGrid {
     private blockedRectangles: {
         [key: string]: Rectangle
     } = {};
+
+    private generatedMatrix: ICell[][];
 
     constructor(config: INavGridConfig) {
         if (!_.isNumber(config.width) || config.width <= 0) {
@@ -66,6 +68,8 @@ export class NavGrid {
             matrix.push(row);
         }
 
+        this.generatedMatrix = matrix;
+
         return matrix;
     }
 
@@ -81,9 +85,20 @@ export class NavGrid {
 
     public addBlockedGeometry(key: string, rect: Rectangle) {
         if (this.blockedRectangles[key]) {
-            throw new Error("A geometry with that key has already been specified. Please use the update function to update the geometry");
+            throw new Error("A geometry with that key has already been specified");
         }
         this.blockedRectangles[key] = rect;
+    }
+
+    public getUnblockedCells(): ICell[] {
+        if (!this.generatedMatrix) {
+            this.generate();
+        }
+        
+        return _.chain(this.generatedMatrix)
+            .flatten()
+            .filter(x => !x.blockedBy)
+            .value();
     }
 
     private createCell(cellIndex: number, rowIndex: number): ICell {

@@ -2,7 +2,7 @@ import * as _ from "lodash";
 
 import { Shape } from "../game-objects/shape";
 import { IDetector } from "./detector.interface";
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 import { Rectangle } from "../game-objects/rectangle";
 
 export interface ICollidable {

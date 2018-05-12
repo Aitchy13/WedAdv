@@ -1,8 +1,10 @@
 import { Shape } from "./shape";
-import { Vector } from "./vector";
+import { Vector } from "../core/vector";
 import { Moveable, IMoveable, PositionStrategy, AxisDimension } from "../physics/moveable";
 import { Time } from "../utilities/time";
 import { SpriteSheetTexture } from "../textures/sprite-texture";
+import { Tween } from "../animation/tween";
+import { IEasingFunc } from "../animation/easing";
 
 export interface IRectangle extends IMoveable {}
 
@@ -24,6 +26,7 @@ export class Rectangle implements IRectangle {
     public origin: Vector;
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
+    public movePath: (path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function) => void;
     public getVelocity: () => { x: number, y: number };
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;

@@ -1,7 +1,7 @@
 import * as PF from "pathfinding";
 
 import { NavGrid } from "./nav-grid";
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 
 export enum PathFinderAlgorithm {
     None,
@@ -30,6 +30,10 @@ export class PathFinder {
             scaledUpPath.push(vector);
         }
         return scaledUpPath;
+    }
+
+    public getAvailableCoordinates() {
+        return this.grid.getUnblockedCells();
     }
 
     private setFinder(algorithm: PathFinderAlgorithm): void {

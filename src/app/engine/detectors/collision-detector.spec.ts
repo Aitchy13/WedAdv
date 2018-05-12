@@ -1,5 +1,5 @@
 import { CollisionDetector, ICollidable } from "./collision-detector";
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 
 describe("Collision detector", () => {
 

@@ -47,6 +47,10 @@ export class FrameRenderer {
         this.renderables.splice(index, 1);
     }
 
+    public findRenderable(obj: IRenderable) {
+        return _.find(this.renderables, x => x.object === obj);
+    }
+
     public start() {
         this.animationFrameLoopId = this.window.requestAnimationFrame(this.start.bind(this));
         this.render();

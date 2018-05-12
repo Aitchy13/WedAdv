@@ -1,22 +1,18 @@
 import * as TWEEN from "@tweenjs/tween.js";
 
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 import { IMoveable, PositionStrategy } from "../physics/moveable";
-import { Easing } from "./easing";
-
-export enum TweenEasing {
-    Linear
-};
+import { Easing, IEasingFunc } from "./easing";
 
 export type TweenEventName = "start" | "stop" | "update" | "complete";
 
 export class Tween {
 
     public extTweenObj: TWEEN.Tween;
-    private position: Vector;
+    public position: Vector;
 
-    constructor(private moveable: IMoveable) {
-        this.position = this.moveable.origin;
+    constructor(private moveable: IMoveable, startingPosition?: Vector) {
+        this.position = startingPosition ? startingPosition.copy() : this.moveable.origin.copy();
         this.extTweenObj = new TWEEN.Tween(this.position);
     }
 
@@ -30,7 +26,7 @@ export class Tween {
         return this;
     }
 
-    public to(coord: Vector, duration: number = 700, easing: (t: number) => number = Easing.linear) {
+    public to(coord: Vector, duration: number = 700, easing: IEasingFunc = Easing.linear) {
         this.extTweenObj
             .to({ x: coord.x, y: coord.y }, duration)
             .easing(easing);
@@ -52,7 +48,7 @@ export class Tween {
                 this.extTweenObj.onUpdate(callback);
                 break;
             case "complete":
-                this.extTweenObj.onUpdate(callback);
+                this.extTweenObj.onComplete(callback);
                 break;
             default:
                 throw new Error(`${eventName} is not a supported event`);

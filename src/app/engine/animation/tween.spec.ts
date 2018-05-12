@@ -1,6 +1,6 @@
 import { Tween } from "./tween";
 import { IMoveable } from "../physics/moveable";
-import { Vector } from "../game-objects/vector";
+import { Vector } from "../core/vector";
 import { Rectangle } from "../game-objects/rectangle";
 
 describe("Tween", () => {
@@ -14,7 +14,7 @@ describe("Tween", () => {
     });
 
     it ("must do something", () => {
-        
+
     });
 
 });

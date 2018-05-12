@@ -1,5 +1,9 @@
 import * as TWEEN from "@tweenjs/tween.js";
 
+export interface IEasingFunc {
+    (k: number): number
+}
+
 export class Easing {
 
     public static linear(t: number): number {
@@ -16,6 +20,18 @@ export class Easing {
 
     public static easeInOutQuad(t: number): number {
         return TWEEN.Easing.Quadratic.InOut(t);
+    }
+
+    public static easeQuarticIn(t: number): number {
+        return TWEEN.Easing.Quartic.In(t);
+    }
+
+    public static easeQuarticOut(t: number): number {
+        return TWEEN.Easing.Quartic.Out(t);
+    }
+
+    public static easeQuarticInOut(t: number): number {
+        return TWEEN.Easing.Quartic.InOut(t);
     }
 
 }
