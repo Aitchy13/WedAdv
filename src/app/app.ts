@@ -5,8 +5,8 @@ export class App {
 
     constructor(window: Window, canvas: HTMLCanvasElement) {
         const game = new Game(canvas, {
-            width: 600,
-            height: 400,
+            width: 480,
+            height: 320,
             scenes: [
                 InsideScene
             ],

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 
 import { ImageTexture } from "./image-texture";
-import { SpriteSheetTexture, ISprite } from "./sprite-texture";
+import { SpriteSheet, IFrame } from "./sprite-texture";
 
 interface IRetrievalStack {
     key: string;
@@ -11,7 +11,7 @@ interface IRetrievalStack {
 export class TextureLoader {
 
     private images: ImageTexture[] = [];
-    private spriteSheets: SpriteSheetTexture[] = [];
+    private spriteSheets: SpriteSheet[] = [];
 
     private retrievalStack: IRetrievalStack[] = [];
 
@@ -31,7 +31,7 @@ export class TextureLoader {
         });
     }
 
-    public loadSpriteSheet(key: string, path: string, sprites: ISprite[]) {
+    public loadSpriteSheet(key: string, path: string, sprites: IFrame[]) {
         const existingSpriteSheet = _.find(this.spriteSheets, x => x.key === key);
         if (existingSpriteSheet) {
             return Promise.resolve(existingSpriteSheet);
@@ -39,10 +39,14 @@ export class TextureLoader {
         const existingRequest = _.find(this.retrievalStack, x => x.key === key);
         const promise = existingRequest ? existingRequest.promise : this.retrieveImage(key, path);
         return promise.then(image => {
-            const texture = new SpriteSheetTexture(key, image, sprites);
+            const texture = new SpriteSheet(key, image, sprites);
             this.spriteSheets.push(texture);
             return texture;
         });
+    }
+
+    public getSpriteSheet(key: string) {
+        return _.find(this.spriteSheets, x => x.key === key);
     }
 
     private retrieveImage(key: string, path: string): Promise<HTMLImageElement> {

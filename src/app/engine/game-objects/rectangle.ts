@@ -2,7 +2,7 @@ import { Shape } from "./shape";
 import { Vector } from "../core/vector";
 import { Moveable, IMoveable, PositionStrategy, AxisDimension } from "../physics/moveable";
 import { Time } from "../utilities/time";
-import { SpriteSheetTexture } from "../textures/sprite-texture";
+import { SpriteSheet } from "../textures/sprite-texture";
 import { Tween } from "../animation/tween";
 import { IEasingFunc } from "../animation/easing";
 
@@ -14,7 +14,7 @@ export class Rectangle implements IRectangle {
     public key: string;
 
     public color: string;
-    public spriteSheet: SpriteSheetTexture;
+    public spriteSheet: SpriteSheet;
     public spriteKey: string;
 
     public degree: number = 0;
@@ -56,7 +56,7 @@ export class Rectangle implements IRectangle {
 
         if (this.spriteSheet && this.spriteKey) {
             ctx.clip();
-            const sprite = this.spriteSheet.getSprite(this.spriteKey);
+            const sprite = this.spriteSheet.getFrame(this.spriteKey);
             if (!sprite) {
                 throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
             }

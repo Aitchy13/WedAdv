@@ -8,7 +8,7 @@ import { Rectangle } from "../engine/game-objects/rectangle";
 import { AxisDimension, PositionStrategy } from "../engine/physics/moveable";
 import { Vector } from "../engine/core/vector";
 import { TextureLoader } from "../engine/textures/texture-loader";
-import { SpriteSheetTexture } from "../engine/textures/sprite-texture";
+import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { IRenderMiddleware } from "../engine/rendering/frame-renderer";
 import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
@@ -18,15 +18,51 @@ import { Easing } from "../engine/animation/easing";
 
 export class InsideScene extends Scene {
 
-    private spriteSheets: SpriteSheetTexture[];
+    private spriteSheets: SpriteSheet[];
 
     constructor(private readonly game: Game, private readonly textureLoader: TextureLoader) {
         super();
     }
 
+    public preload() {
+        return Promise.all([
+            this.textureLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", [
+                {
+                    key: "south-stand",
+                    x: 3,
+                    y: 2,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "north-stand",
+                    x: 65,
+                    y: 2,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "east-stand",
+                    x: 122,
+                    y: 2,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "west-stand",
+                    x: 182,
+                    y: 2,
+                    width: 36,
+                    height: 77
+                }
+            ])
+        ])
+    }
+
     public render() {
-        const player = new Rectangle(20, 30, 200, 200);
-        player.color = "red";
+        const player = new Rectangle(36, 77, 50, 50);
+        player.spriteKey = "south-stand";
+        player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
 
         const hideableLocations = [];
         
@@ -171,22 +207,22 @@ export class InsideScene extends Scene {
                 case "w":
                 case "ArrowUp":
                     player.setVelocity(AxisDimension.Y, -sensitivity);
-                    player.spriteKey = "stand-face-up";
+                    player.spriteKey = "north-stand";
                     break;
                 case "s":
                 case "ArrowDown":
                     player.setVelocity(AxisDimension.Y, sensitivity);
-                    player.spriteKey = "stand-face-down";
+                    player.spriteKey = "south-stand";
                     break;
                 case "a":
                 case "ArrowLeft":
                     player.setVelocity(AxisDimension.X, -sensitivity);
-                    player.spriteKey = "stand-face-left";
+                    player.spriteKey = "west-stand";
                     break;
                 case "d":
                 case "ArrowRight":
                     player.setVelocity(AxisDimension.X, sensitivity);
-                    player.spriteKey = "stand-face-right";
+                    player.spriteKey = "east-stand";
                     break;
             }
         });
