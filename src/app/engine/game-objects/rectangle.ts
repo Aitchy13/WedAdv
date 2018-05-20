@@ -54,9 +54,11 @@ export class Rectangle implements IRectangle {
             ctx.fill();
         }
 
-        if (this.spriteSheet && this.spriteKey) {
+        if (this.spriteSheet) {
             ctx.clip();
-            const sprite = this.spriteSheet.getFrame(this.spriteKey);
+            this.spriteSheet.renderContext = ctx;
+            this.spriteSheet.triggerAnimationTick();
+            const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.getFrame(this.spriteKey);
             if (!sprite) {
                 throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
             }

@@ -6,6 +6,7 @@ import { IDetector } from "../detectors/detector.interface";
 import { Middleware } from "../utilities/middleware";
 import { Time } from "../utilities/time";
 import { Tween } from "../animation/tween";
+import { Camera } from "./camera";
 
 export interface IRenderConfig {
     object: IRenderable;
@@ -27,8 +28,9 @@ export class FrameRenderer {
     private animationFrame: (x: FrameRequestCallback) => number;
     private animationFrameLoopId: number;
 
-    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time) {
+    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera: Camera) {
         this.animationFrame = this.window.requestAnimationFrame;
+        this.camera.ctx = this.context;
     }
 
     public addObject(obj: IRenderable, hooks?: { beforeRender?: IRenderMiddleware[], afterRender?: IRenderMiddleware[] }) {
@@ -67,7 +69,9 @@ export class FrameRenderer {
     private render() {
         const timeDelta = this.time.setDelta().delta;
         Tween.update(timeDelta);
+        this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+        this.camera.update();
         this.renderables.forEach(x => {
             const middleware = new Middleware();
 

@@ -6,6 +6,7 @@ import { KeyboardInput } from "../input/keyboard-input";
 import { Time } from "../utilities/time";
 import { TextureLoader } from "../textures/texture-loader";
 import { MouseInput } from "../input/mouse-input";
+import { Camera } from "../rendering/camera";
 
 export class Game {
 
@@ -17,6 +18,7 @@ export class Game {
     public window: Window;
     public time: Time;
     public textureLoader: TextureLoader;
+    public camera: Camera;
 
     constructor(public readonly canvas: HTMLCanvasElement, public config: IGameConfig) {
         this.canvas = canvas;
@@ -28,7 +30,10 @@ export class Game {
         this.keyboardInput = new KeyboardInput();
         this.mouseInput = new MouseInput(this.canvas);
         this.time = new Time();
-        this.renderer = new FrameRenderer(this.canvas.getContext("2d"), this.window, this.logger, this.time);
+        this.camera = new Camera(this.canvas.width, this.canvas.height);
+        this.camera.setBoundaries(0, 10000, 0, 10000);
+
+        this.renderer = new FrameRenderer(this.canvas.getContext("2d"), this.window, this.logger, this.time, this.camera);
         this.textureLoader = new TextureLoader();
 
         this.sceneManager = new SceneManager(this.logger, this, this.textureLoader);

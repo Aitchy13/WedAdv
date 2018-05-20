@@ -35,6 +35,20 @@ export class InsideScene extends Scene {
                     height: 77
                 },
                 {
+                    key: "south-left-foot-forward",
+                    x: 3,
+                    y: 82,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "south-right-foot-forward",
+                    x: 3,
+                    y: 161,
+                    width: 36,
+                    height: 77
+                },
+                {
                     key: "north-stand",
                     x: 65,
                     y: 2,
@@ -42,9 +56,37 @@ export class InsideScene extends Scene {
                     height: 77
                 },
                 {
+                    key: "north-right-foot-forward",
+                    x: 65,
+                    y: 82,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "north-left-foot-forward",
+                    x: 65,
+                    y: 161,
+                    width: 36,
+                    height: 77
+                },
+                {
                     key: "east-stand",
-                    x: 122,
+                    x: 123,
                     y: 2,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "east-right-foot-forward",
+                    x: 123,
+                    y: 82,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "east-left-foot-forward",
+                    x: 123,
+                    y: 161,
                     width: 36,
                     height: 77
                 },
@@ -52,6 +94,20 @@ export class InsideScene extends Scene {
                     key: "west-stand",
                     x: 182,
                     y: 2,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "west-right-foot-forward",
+                    x: 182,
+                    y: 82,
+                    width: 36,
+                    height: 77
+                },
+                {
+                    key: "west-left-foot-forward",
+                    x: 182,
+                    y: 161,
                     width: 36,
                     height: 77
                 }
@@ -63,8 +119,25 @@ export class InsideScene extends Scene {
         const player = new Rectangle(36, 77, 50, 50);
         player.spriteKey = "south-stand";
         player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
+        player.spriteSheet.addAnimation("walk-south", [
+            "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward",
+            "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward"], true);
+
+        player.spriteSheet.addAnimation("walk-north", [
+            "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward",
+            "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward"], true);
+
+        player.spriteSheet.addAnimation("walk-east", [
+            "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward",
+            "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward"], true);
+
+        player.spriteSheet.addAnimation("walk-west", [
+            "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
+            "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
 
         const hideableLocations = [];
+
+        this.game.camera.follow(player.origin);
         
         // const cellSize: number = 20;
         // const gridLineColor: string = "#dcdcdc";
@@ -208,26 +281,31 @@ export class InsideScene extends Scene {
                 case "ArrowUp":
                     player.setVelocity(AxisDimension.Y, -sensitivity);
                     player.spriteKey = "north-stand";
+                    player.spriteSheet.playAnimation("walk-north");
                     break;
                 case "s":
                 case "ArrowDown":
                     player.setVelocity(AxisDimension.Y, sensitivity);
                     player.spriteKey = "south-stand";
+                    player.spriteSheet.playAnimation("walk-south");
                     break;
                 case "a":
                 case "ArrowLeft":
                     player.setVelocity(AxisDimension.X, -sensitivity);
                     player.spriteKey = "west-stand";
+                    player.spriteSheet.playAnimation("walk-west");
                     break;
                 case "d":
                 case "ArrowRight":
                     player.setVelocity(AxisDimension.X, sensitivity);
                     player.spriteKey = "east-stand";
+                    player.spriteSheet.playAnimation("walk-east");
                     break;
             }
         });
         this.game.keyboardInput.onKeyUp(evt => { 
             player.setVelocity(AxisDimension.XY, 0);
+            player.spriteSheet.stopAnimation();
         });
         // this.game.mouseInput.onClick(evt => {
         //     this.game.logger.log(evt.event.offsetX, evt.event.offsetY);
