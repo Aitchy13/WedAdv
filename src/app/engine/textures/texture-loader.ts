@@ -24,7 +24,7 @@ export class TextureLoader {
         if (existingImage) {
             return Promise.resolve(existingImage);
         }
-        const existingRequest = _.find(this.retrievalStack, x => x.key);
+        const existingRequest = _.find(this.retrievalStack, x => x.key === key);
         const promise = existingRequest ? existingRequest.promise : this.retrieveImage(key, path);
         return promise.then(image => {
             const texture = new ImageTexture(key, image);

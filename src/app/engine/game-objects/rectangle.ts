@@ -17,7 +17,7 @@ export class Rectangle implements IRectangle {
     public color: string;
     public spriteSheet: SpriteSheet;
     public spriteKey: string;
-    public imageKey: ImageTexture;
+    public imageTexture: ImageTexture;
 
     public degree: number = 0;
     public degreeVel: number = 0;
@@ -65,6 +65,9 @@ export class Rectangle implements IRectangle {
                 throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
             }
             ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.origin.x, this.origin.y, this.width, this.height);
+        } else if (this.imageTexture) {
+            ctx.clip();
+            ctx.drawImage(this.imageTexture.image, this.origin.x, this.origin.y, this.imageTexture.width, this.imageTexture.height);
         }
         ctx.restore();
     }

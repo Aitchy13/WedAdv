@@ -33,7 +33,7 @@ export class InsideScene extends Scene {
     }
 
     public render() {
-        const player = new Rectangle(39, 75, 200, 200);
+        const player = new Rectangle(39, 75, 650, 300);
         player.spriteKey = "south-stand";
         // player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
         // player.spriteSheet.addAnimation("walk-south", [
@@ -96,13 +96,38 @@ export class InsideScene extends Scene {
         //     .each(x => this.game.renderer.addObject(x))
         //     .value();
             
-        const tableWidth = 80;
-        const tableHeight = 80;
+        const tableWidth = 154;
+        const tableHeight = 142;
 
-        const table1 = new Rectangle(tableWidth, tableHeight, 300, 300);
+        const table1 = new Rectangle(tableWidth, tableHeight, 200, 400);
         table1.key = "table1";
-        table1.color = "blue";
+        table1.imageTexture = this.textureLoader.getImage("indoor-table");
         hideableLocations.push(table1);
+
+        const table2 = new Rectangle(tableWidth, tableHeight, 200, 650);
+        table2.key = "table2";
+        table2.imageTexture = this.textureLoader.getImage("indoor-table");
+        hideableLocations.push(table2);
+
+        const table3 = new Rectangle(tableWidth, tableHeight, 550, 400);
+        table3.key = "table3";
+        table3.imageTexture = this.textureLoader.getImage("indoor-table");
+        hideableLocations.push(table3);
+
+        const table4 = new Rectangle(tableWidth, tableHeight, 550, 650);
+        table4.key = "table4";
+        table4.imageTexture = this.textureLoader.getImage("indoor-table");
+        hideableLocations.push(table4);
+
+        const table5 = new Rectangle(tableWidth, tableHeight, 900, 400);
+        table5.key = "table5";
+        table5.imageTexture = this.textureLoader.getImage("indoor-table");
+        hideableLocations.push(table5);
+
+        const table6 = new Rectangle(tableWidth, tableHeight, 900, 650);
+        table6.key = "table6";
+        table6.imageTexture = this.textureLoader.getImage("indoor-table");
+        hideableLocations.push(table6);
         
 
         // const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
