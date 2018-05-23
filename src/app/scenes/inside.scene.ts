@@ -15,10 +15,9 @@ import { NavGrid } from "../engine/navigation/nav-grid";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { Tween } from "../engine/animation/tween";
 import { Easing } from "../engine/animation/easing";
+import { Layer } from "../engine/rendering/layer";
 
 export class InsideScene extends Scene {
-
-    private spriteSheets: SpriteSheet[];
 
     constructor(private readonly game: Game, private readonly textureLoader: TextureLoader) {
         super();
@@ -26,118 +25,53 @@ export class InsideScene extends Scene {
 
     public preload() {
         return Promise.all([
-            this.textureLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", [
-                {
-                    key: "south-stand",
-                    x: 3,
-                    y: 2,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "south-left-foot-forward",
-                    x: 3,
-                    y: 82,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "south-right-foot-forward",
-                    x: 3,
-                    y: 161,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "north-stand",
-                    x: 65,
-                    y: 2,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "north-right-foot-forward",
-                    x: 65,
-                    y: 82,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "north-left-foot-forward",
-                    x: 65,
-                    y: 161,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "east-stand",
-                    x: 123,
-                    y: 2,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "east-right-foot-forward",
-                    x: 123,
-                    y: 82,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "east-left-foot-forward",
-                    x: 123,
-                    y: 161,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "west-stand",
-                    x: 182,
-                    y: 2,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "west-right-foot-forward",
-                    x: 182,
-                    y: 82,
-                    width: 36,
-                    height: 77
-                },
-                {
-                    key: "west-left-foot-forward",
-                    x: 182,
-                    y: 161,
-                    width: 36,
-                    height: 77
-                }
-            ])
-        ])
+            this.textureLoader.loadImage("indoor-scene-background", "src/sprites/indoor-scene.png"),
+            this.textureLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
+            this.textureLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
+            this.textureLoader.loadImage("indoor-table", "src/sprites/indoor-table.png")
+        ]);
     }
 
     public render() {
-        const player = new Rectangle(36, 77, 50, 50);
+        const player = new Rectangle(39, 75, 200, 200);
         player.spriteKey = "south-stand";
-        player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
+        // player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
+        // player.spriteSheet.addAnimation("walk-south", [
+        //     "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward",
+        //     "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward"], true);
+
+        // player.spriteSheet.addAnimation("walk-north", [
+        //     "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward",
+        //     "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward"], true);
+
+        // player.spriteSheet.addAnimation("walk-east", [
+        //     "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward",
+        //     "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward"], true);
+
+        // player.spriteSheet.addAnimation("walk-west", [
+        //     "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
+        //     "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
+
+        player.spriteSheet = this.textureLoader.getSpriteSheet("bride");
         player.spriteSheet.addAnimation("walk-south", [
-            "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward",
-            "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward"], true);
-
+            "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm",
+            "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm", "south-right-arm"], true);
         player.spriteSheet.addAnimation("walk-north", [
-            "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward",
-            "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward"], true);
-
+            "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm", "north-left-arm",
+            "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm", "north-right-arm"], true);
         player.spriteSheet.addAnimation("walk-east", [
-            "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward",
-            "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward"], true);
-
+            "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm", "east-left-arm",
+            "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm", "east-right-arm"], true);
         player.spriteSheet.addAnimation("walk-west", [
-            "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
-            "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
+            "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm",
+            "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm"], true);
 
         const hideableLocations = [];
 
+        this.game.camera.setBoundaries(-1440, 0, -960, 0);
         this.game.camera.follow(player.origin);
+
+        this.game.renderer.addObject(new Layer("background", 0, 0, this.textureLoader.getImage("indoor-scene-background")));
         
         // const cellSize: number = 20;
         // const gridLineColor: string = "#dcdcdc";
@@ -165,43 +99,43 @@ export class InsideScene extends Scene {
         const tableWidth = 80;
         const tableHeight = 80;
 
-        const table1 = new Rectangle(tableWidth, tableHeight, 100, 100);
+        const table1 = new Rectangle(tableWidth, tableHeight, 300, 300);
         table1.key = "table1";
         table1.color = "blue";
         hideableLocations.push(table1);
         
 
-        const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
-        table2.key = "table2";
-        table2.color = "blue";
-        hideableLocations.push(table2);
+        // const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
+        // table2.key = "table2";
+        // table2.color = "blue";
+        // hideableLocations.push(table2);
 
         
 
-        const table3 = new Rectangle(tableWidth, tableHeight, 380, 100);
-        table3.key = "table3";
-        table3.color = "blue";
-        hideableLocations.push(table3);
+        // const table3 = new Rectangle(tableWidth, tableHeight, 380, 100);
+        // table3.key = "table3";
+        // table3.color = "blue";
+        // hideableLocations.push(table3);
 
-        const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
-        table4.key = "table4";
-        table4.color = "blue";
-        hideableLocations.push(table4);
+        // const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
+        // table4.key = "table4";
+        // table4.color = "blue";
+        // hideableLocations.push(table4);
 
-        const table5 = new Rectangle(tableWidth, tableHeight, 240, 240);
-        table5.key = "table5";
-        table5.color = "blue";
-        hideableLocations.push(table5);
+        // const table5 = new Rectangle(tableWidth, tableHeight, 240, 240);
+        // table5.key = "table5";
+        // table5.color = "blue";
+        // hideableLocations.push(table5);
 
-        const table6 = new Rectangle(tableWidth, tableHeight, 380, 240);
-        table6.key = "table6";
-        table6.color = "blue";
-        hideableLocations.push(table6);
+        // const table6 = new Rectangle(tableWidth, tableHeight, 380, 240);
+        // table6.key = "table6";
+        // table6.color = "blue";
+        // hideableLocations.push(table6);
 
-        const cakeTable = new Rectangle(tableWidth, 60, 240, 0);
-        cakeTable.key = "cakeTable";
-        cakeTable.color = "blue";
-        hideableLocations.push(cakeTable);
+        // const cakeTable = new Rectangle(tableWidth, 60, 240, 0);
+        // cakeTable.key = "cakeTable";
+        // cakeTable.color = "blue";
+        // hideableLocations.push(cakeTable);
 
         const navGrid = new NavGrid({
             width: this.game.config.width,
@@ -258,24 +192,13 @@ export class InsideScene extends Scene {
         //     });
         // });
 
-        const exit = new Rectangle(20, 160, 580, 120);
-        exit.color = "green";
-        this.game.renderer.addObject(exit, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    this.stopObjectOnCollision(player, current);
-                    next(current);
-                }
-            ]
-        });
-
         const hiddenRenderable = this.game.renderer.findRenderable(hiddenLocation);
         hiddenRenderable.beforeRender.push()
         
         this.game.renderer.addObject(player);
 
         this.game.keyboardInput.onKeyDown(evt => {
-            const sensitivity = 2;
+            const sensitivity = 2.5;
             switch (evt.event.key) {
                 case "w":
                 case "ArrowUp":

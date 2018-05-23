@@ -4,6 +4,7 @@
         "target": "es2015",
         "allowJs": true,
         "module": "es6",
+        "moduleResolution": "node",
         "noImplicitAny": true,
         "removeComments": false,
         "sourceMap": true,

@@ -15,7 +15,7 @@ export interface IRenderConfig {
 }
 
 export interface IRenderable {
-    render(...args: any[]): void;
+    render(ctx?: CanvasRenderingContext2D, delta?: number): void;
 }
 
 export interface IRenderMiddleware {
@@ -71,6 +71,7 @@ export class FrameRenderer {
         Tween.update(timeDelta);
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+        // this.context.fillStyle = "";
         this.camera.update();
         this.renderables.forEach(x => {
             const middleware = new Middleware();

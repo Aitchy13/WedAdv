@@ -1,0 +1,86 @@
+[
+    {
+        "key": "south-stand",
+        "x": 3,
+        "y": 2,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "south-left-foot-forward",
+        "x": 3,
+        "y": 82,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "south-right-foot-forward",
+        "x": 3,
+        "y": 161,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "north-stand",
+        "x": 65,
+        "y": 2,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "north-right-foot-forward",
+        "x": 65,
+        "y": 82,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "north-left-foot-forward",
+        "x": 65,
+        "y": 161,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "east-stand",
+        "x": 123,
+        "y": 2,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "east-right-foot-forward",
+        "x": 123,
+        "y": 82,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "east-left-foot-forward",
+        "x": 123,
+        "y": 161,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "west-stand",
+        "x": 182,
+        "y": 2,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "west-right-foot-forward",
+        "x": 182,
+        "y": 82,
+        "width": 36,
+        "height": 77
+    },
+    {
+        "key": "west-left-foot-forward",
+        "x": 182,
+        "y": 161,
+        "width": 36,
+        "height": 77
+    }
+]

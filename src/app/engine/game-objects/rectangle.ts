@@ -5,6 +5,7 @@ import { Time } from "../utilities/time";
 import { SpriteSheet } from "../textures/sprite-texture";
 import { Tween } from "../animation/tween";
 import { IEasingFunc } from "../animation/easing";
+import { ImageTexture } from "../textures/image-texture";
 
 export interface IRectangle extends IMoveable {}
 
@@ -16,6 +17,7 @@ export class Rectangle implements IRectangle {
     public color: string;
     public spriteSheet: SpriteSheet;
     public spriteKey: string;
+    public imageKey: ImageTexture;
 
     public degree: number = 0;
     public degreeVel: number = 0;

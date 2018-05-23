@@ -36,19 +36,19 @@ export class SpriteSheet {
         if (overwrite !== true && _.find(this.frames, x => x.key === newFrame.key)) {
             throw new Error(`A frame with the key ${newFrame.key} has already been defined`);
         }
-        if (_.isArray(this.frames)) {
-            const overlappingFrame = _.chain(this.frames)
-                .find(existingFrame => {
-                    return !(((newFrame.y + newFrame.height) < (existingFrame.y)) ||
-                    (newFrame.y > (existingFrame.y + existingFrame.height)) ||
-                    ((newFrame.x + newFrame.width) < existingFrame.x) ||
-                    (newFrame.x > (existingFrame.x + existingFrame.width)));
-                })
-                .value();
-            if (overlappingFrame) {
-                throw new Error(`A frame with the key ${overlappingFrame} already exists in this position. ${JSON.stringify(overlappingFrame)}`);
-            }
-        }
+        // if (_.isArray(this.frames)) {
+        //     const overlappingFrame = _.chain(this.frames)
+        //         .find(existingFrame => {
+        //             return !(((newFrame.y + newFrame.height) < (existingFrame.y)) ||
+        //             (newFrame.y > (existingFrame.y + existingFrame.height)) ||
+        //             ((newFrame.x + newFrame.width) < existingFrame.x) ||
+        //             (newFrame.x > (existingFrame.x + existingFrame.width)));
+        //         })
+        //         .value();
+        //     if (overlappingFrame) {
+        //         throw new Error(`A frame with the key ${overlappingFrame.key} already exists in this position. ${JSON.stringify(overlappingFrame)}`);
+        //     }
+        // }
         this.frames.push(newFrame);
     }
 

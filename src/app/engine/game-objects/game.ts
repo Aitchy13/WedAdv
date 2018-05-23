@@ -31,10 +31,9 @@ export class Game {
         this.mouseInput = new MouseInput(this.canvas);
         this.time = new Time();
         this.camera = new Camera(this.canvas.width, this.canvas.height);
-        this.camera.setBoundaries(0, 10000, 0, 10000);
 
         this.renderer = new FrameRenderer(this.canvas.getContext("2d"), this.window, this.logger, this.time, this.camera);
-        this.textureLoader = new TextureLoader();
+        this.textureLoader = new TextureLoader(this.logger);
 
         this.sceneManager = new SceneManager(this.logger, this, this.textureLoader);
         this.config.scenes.forEach(x => this.sceneManager.registerScene(x));
