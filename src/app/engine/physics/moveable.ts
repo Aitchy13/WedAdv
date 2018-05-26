@@ -23,7 +23,7 @@ export interface IMoveable {
     origin: Vector;
     vertices: Vector[];
     move(x: number, y: number, positionStrategy: PositionStrategy): void;
-    movePath(path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function): void;
+    movePath(path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function): void;
     getVelocity(): { x: number, y: number };
     setVelocity(dimension: AxisDimension, value: number): this;
     adjustVelocity(dimension: AxisDimension, value: number): this;
@@ -53,9 +53,13 @@ export function Moveable() {
             }
         }
 
-        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function): void {
+        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function): void {
             let i = path.length;
             const lastTween = new Tween(this, path[path.length - 1]).to(path[path.length - 2], speed, easing);
+            if (_.isFunction(onUpdate)) {
+                lastTween.on("complete", onUpdate);
+                lastTween.on("start", onUpdate);
+            }
             if (_.isFunction(onComplete)) {
                 lastTween.on("complete", onComplete);
             }
@@ -63,6 +67,12 @@ export function Moveable() {
                 if (i === path.length || i <= 0) {
                     i--;
                     return rightTween;
+                }
+                if (_.isFunction(onUpdate)) {
+                    rightTween.on("start", onUpdate);
+                }
+                if (_.isFunction(onUpdate)) {
+                    rightTween.on("complete", onUpdate);
                 }
                 const leftTween = new Tween(this, startingPosition).to(path[i--], speed, easing);
                 leftTween.chain(rightTween);

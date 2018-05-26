@@ -6,11 +6,10 @@ import { SpriteSheet } from "../textures/sprite-texture";
 import { Tween } from "../animation/tween";
 import { IEasingFunc } from "../animation/easing";
 import { ImageTexture } from "../textures/image-texture";
-
-export interface IRectangle extends IMoveable {}
+import { IRenderable } from "../rendering/frame-renderer";
 
 @Moveable()
-export class Rectangle implements IRectangle {
+export class Rectangle implements IMoveable, IRenderable {
 
     public key: string;
 
@@ -28,7 +27,7 @@ export class Rectangle implements IRectangle {
     public origin: Vector;
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
-    public movePath: (path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function) => void;
+    public movePath: (path: Vector[], duration?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function) => void;
     public getVelocity: () => { x: number, y: number };
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
@@ -60,7 +59,7 @@ export class Rectangle implements IRectangle {
             ctx.clip();
             this.spriteSheet.renderContext = ctx;
             this.spriteSheet.triggerAnimationTick();
-            const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.getFrame(this.spriteKey);
+            const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.getFrame(this.spriteKey) ? this.spriteSheet.getFrame(this.spriteKey) : this.spriteSheet.frames[0];
             if (!sprite) {
                 throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
             }
@@ -75,6 +74,14 @@ export class Rectangle implements IRectangle {
     public setColor(color: string) {
         this.color = color;
         return this;
+    }
+
+    public beforeRender() {
+
+    }
+
+    public afterRender() {
+
     }
 
 }

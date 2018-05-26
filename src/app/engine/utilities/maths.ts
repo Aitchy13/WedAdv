@@ -22,4 +22,8 @@ export class MathsUtility {
         return Math.floor(value / multiple) * multiple;
     }
 
+    public static probability(chanceRatio: number) {
+        return !!chanceRatio && Math.random() <= chanceRatio;
+    }
+
 }

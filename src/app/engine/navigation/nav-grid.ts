@@ -90,6 +90,14 @@ export class NavGrid {
         this.blockedRectangles[key] = rect;
     }
 
+    public getCells(): ICell[] {
+        if (!this.generatedMatrix) {
+            this.generate();
+        }
+
+        return _.flatten(this.generatedMatrix);
+    }
+
     public getUnblockedCells(): ICell[] {
         if (!this.generatedMatrix) {
             this.generate();

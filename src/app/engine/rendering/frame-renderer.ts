@@ -8,14 +8,10 @@ import { Time } from "../utilities/time";
 import { Tween } from "../animation/tween";
 import { Camera } from "./camera";
 
-export interface IRenderConfig {
-    object: IRenderable;
-    beforeRender?: IRenderMiddleware[];
-    afterRender?: IRenderMiddleware[];
-}
-
 export interface IRenderable {
     render(ctx?: CanvasRenderingContext2D, delta?: number): void;
+    beforeRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
+    afterRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
 }
 
 export interface IRenderMiddleware {
@@ -24,7 +20,7 @@ export interface IRenderMiddleware {
 
 export class FrameRenderer {
 
-    private renderables: IRenderConfig[] = [];
+    private renderables: IRenderable[] = [];
     private animationFrame: (x: FrameRequestCallback) => number;
     private animationFrameLoopId: number;
 
@@ -33,16 +29,12 @@ export class FrameRenderer {
         this.camera.ctx = this.context;
     }
 
-    public addObject(obj: IRenderable, hooks?: { beforeRender?: IRenderMiddleware[], afterRender?: IRenderMiddleware[] }) {
-        this.renderables.push({
-            object: obj,
-            beforeRender: _.isObject(hooks) ? hooks.beforeRender : undefined,
-            afterRender: _.isObject(hooks) ? hooks.afterRender : undefined
-        });
+    public addObject(obj: IRenderable) {
+        this.renderables.push(obj);
     }
 
     public removeObject(obj: IRenderable) {
-        const index = _.findIndex(this.renderables, x => x.object === obj);
+        const index = _.findIndex(this.renderables, x => x === obj);
         if (index === -1) {
             return;
         }
@@ -50,7 +42,7 @@ export class FrameRenderer {
     }
 
     public findRenderable(obj: IRenderable) {
-        return _.find(this.renderables, x => x.object === obj);
+        return _.find(this.renderables, x => x === obj);
     }
 
     public start() {
@@ -71,29 +63,11 @@ export class FrameRenderer {
         Tween.update(timeDelta);
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-        // this.context.fillStyle = "";
         this.camera.update();
         this.renderables.forEach(x => {
-            const middleware = new Middleware();
-
-            middleware.use((next: Function) => {
-                next(x.object);
-            });
-
-            if (_.isArray(x.beforeRender) && x.beforeRender.length > 0) {
-                x.beforeRender.forEach(y => middleware.use(y))
-            }
-
-            middleware.use((next: Function) => {
-                x.object.render(this.context, timeDelta);
-                next(x.object);
-            });
-
-            if (_.isArray(x.afterRender) && x.afterRender.length > 0) {
-                x.afterRender.forEach(y => middleware.use(y))
-            }
-
-            middleware.go(() => {});
+            x.beforeRender(this.context, timeDelta);
+            x.render(this.context, timeDelta);
+            x.afterRender(this.context, timeDelta);
         });
     }
 }

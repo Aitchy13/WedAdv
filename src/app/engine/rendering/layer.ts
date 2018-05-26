@@ -11,4 +11,12 @@ export class Layer implements IRenderable {
         ctx.drawImage(this.texture.image, this.x, this.y, this.texture.width, this.texture.height);
     }
 
+    public beforeRender() {
+
+    }
+
+    public afterRender() {
+        
+    }
+
 }

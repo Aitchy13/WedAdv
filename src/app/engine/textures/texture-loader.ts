@@ -68,8 +68,12 @@ export class TextureLoader {
         });        
     }
 
-    public getSpriteSheet(key: string) {
-        return _.find(this.spriteSheets, x => x.key === key);
+    public getSpriteSheet(key: string, returnCopy?: boolean) {
+        const spriteSheet = _.find(this.spriteSheets, x => x.key === key);
+        if (returnCopy && spriteSheet) {
+            return new SpriteSheet(spriteSheet.key, spriteSheet.image, spriteSheet.frames);
+        }
+        return spriteSheet;
     }
 
     public getImage(key: string) {

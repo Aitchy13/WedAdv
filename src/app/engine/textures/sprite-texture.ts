@@ -19,7 +19,7 @@ export class SpriteSheet {
     public renderContext: CanvasRenderingContext2D;
     public currentFrame: IFrame;
 
-    private frames: IFrame[] = [];
+    public frames: IFrame[] = [];
     private animationManager: AnimationManager;
 
     constructor(public key: string, public image: HTMLImageElement, frames?: IFrame[]) {
@@ -36,6 +36,7 @@ export class SpriteSheet {
         if (overwrite !== true && _.find(this.frames, x => x.key === newFrame.key)) {
             throw new Error(`A frame with the key ${newFrame.key} has already been defined`);
         }
+        // TODO: Investigate why this isn't working
         // if (_.isArray(this.frames)) {
         //     const overlappingFrame = _.chain(this.frames)
         //         .find(existingFrame => {
@@ -60,23 +61,27 @@ export class SpriteSheet {
         this.animationManager.play(key);
     }
 
-    public stopAnimation() {
+    public stopAnimation(): void {
         this.animationManager.stop();
     }
 
-    public addAnimation(key: string, frameSequence: string[], repeat?: boolean) {
+    public addAnimation(key: string, frameSequence: string[], repeat?: boolean): void {
         this.animationManager.add(key, frameSequence, repeat);
     }
 
-    public updateAnimation(key: string, frameSequence: string[], repeat?: boolean) {
+    public updateAnimation(key: string, frameSequence: string[], repeat?: boolean): void {
         this.animationManager.update(key, frameSequence, repeat);
     }
 
-    public removeAnimation(key: string) {
+    public hasAnimation(key: string): boolean {
+        return this.animationManager.has(key);
+    }
+
+    public removeAnimation(key: string): void {
         this.animationManager.remove(key);
     }
 
-    public triggerAnimationTick() {
+    public triggerAnimationTick(): void {
         this.animationManager.tick();
         this.currentFrame = this.animationManager.activeAnimation ? this.animationManager.activeAnimation.currentFrame : undefined;
     }
@@ -91,7 +96,7 @@ export class AnimationManager {
 
     constructor(private readonly spriteSheet: SpriteSheet) { }
 
-    public add(key: string, sequence: string[], repeat: boolean = false) {
+    public add(key: string, sequence: string[], repeat: boolean = false): void {
         const animation = _.find(this.animations, x => x.key === key);
         if (animation) {
             throw new Error(`An animation with the key '${key}' already exists.`);
@@ -99,7 +104,7 @@ export class AnimationManager {
         this.animations.push(new Animation(key, _.map(sequence, x => this.spriteSheet.getFrame(x)), repeat));
     }
 
-    public update(key: string, sequence: string[], repeat?: boolean) {
+    public update(key: string, sequence: string[], repeat?: boolean): void {
         const animation = _.find(this.animations, x => x.key === key);
         if (!animation) {
             throw new Error(`An animation with the key '${key}' cannot be found.`);
@@ -110,7 +115,7 @@ export class AnimationManager {
         }
     }
 
-    public remove(key: string) {
+    public remove(key: string): void {
         const index = _.findIndex(this.animations, x => x.key === key);
         if (index === -1) {
             throw new Error(`An animation with the key '${key}' cannot be found.`);
@@ -118,8 +123,8 @@ export class AnimationManager {
         this.animations.splice(index, 1);
     }
 
-    public play(key: string) {
-        const newAnimation = _.find(this.animations, x => x.key === key);
+    public play(key: string): void {
+        const newAnimation = this.find(key);
         if (!newAnimation) {
             throw new Error(`Cannot find an animation named '${key}'`);
         }
@@ -130,18 +135,26 @@ export class AnimationManager {
         newAnimation.play();
     }
 
-    public stop() {
+    public stop(): void {
         if (this.activeAnimation) {
             this.activeAnimation.stop();
         }
         this.activeAnimation = undefined;
     }
 
-    public tick() {
+    public tick(): void {
         if (!this.activeAnimation) {
             return;
         }
         this.activeAnimation.tick();
+    }
+
+    public find(key: string): Animation {
+        return _.find(this.animations, x => x.key === key);
+    }
+
+    public has(key: string): boolean {
+        return this.find(key) instanceof Animation;
     }
     
 }
@@ -156,15 +169,15 @@ export class Animation {
 
     }
 
-    public play() {
+    public play(): void {
         this.shouldPlay = true;
     }
 
-    public stop() {
+    public stop(): void {
         this.shouldPlay = false;
     }
 
-    public tick() {
+    public tick(): void {
         if (this.shouldPlay === false) {
             return;
         }

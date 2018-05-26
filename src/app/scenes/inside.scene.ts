@@ -16,8 +16,12 @@ import { PathFinder } from "../engine/navigation/pathfinder";
 import { Tween } from "../engine/animation/tween";
 import { Easing } from "../engine/animation/easing";
 import { Layer } from "../engine/rendering/layer";
+import { Guest } from "../models/guest";
 
 export class InsideScene extends Scene {
+
+    public width: number = 1440;
+    public height: number = 960;
 
     constructor(private readonly game: Game, private readonly textureLoader: TextureLoader) {
         super();
@@ -35,22 +39,6 @@ export class InsideScene extends Scene {
     public render() {
         const player = new Rectangle(39, 75, 650, 300);
         player.spriteKey = "south-stand";
-        // player.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue");
-        // player.spriteSheet.addAnimation("walk-south", [
-        //     "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward", "south-left-foot-forward",
-        //     "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward", "south-right-foot-forward"], true);
-
-        // player.spriteSheet.addAnimation("walk-north", [
-        //     "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward", "north-left-foot-forward",
-        //     "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward", "north-right-foot-forward"], true);
-
-        // player.spriteSheet.addAnimation("walk-east", [
-        //     "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward", "east-left-foot-forward",
-        //     "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward", "east-right-foot-forward"], true);
-
-        // player.spriteSheet.addAnimation("walk-west", [
-        //     "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
-        //     "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
 
         player.spriteSheet = this.textureLoader.getSpriteSheet("bride");
         player.spriteSheet.addAnimation("walk-south", [
@@ -66,35 +54,21 @@ export class InsideScene extends Scene {
             "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm", "west-left-arm",
             "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm", "west-right-arm"], true);
 
+        
+
         const hideableLocations = [];
 
-        this.game.camera.setBoundaries(-1440, 0, -960, 0);
+        this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
         this.game.camera.follow(player.origin);
 
         this.game.renderer.addObject(new Layer("background", 0, 0, this.textureLoader.getImage("indoor-scene-background")));
-        
-        // const cellSize: number = 20;
-        // const gridLineColor: string = "#dcdcdc";
-        // const gridLineThickness: number = 1;
-        // const minCols = Math.ceil(this.game.config.width / cellSize);
-        // const minRows = Math.ceil(this.game.config.height / cellSize);
 
-        // const gridRows: Rectangle[] = _.chain(_.range(minRows))
-        //     .map(i => {
-        //         const line = new Rectangle(this.game.config.width, gridLineThickness, 0, i * cellSize);
-        //         line.color = gridLineColor;
-        //         return line;
-        //     })
-        //     .each(x => this.game.renderer.addObject(x))
-        //     .value();
-        // const gridCols: Rectangle[] = _.chain(_.range(minCols))
-        //     .map(i => {
-        //         const line = new Rectangle(gridLineThickness, this.game.config.height, i * cellSize, 0);
-        //         line.color = gridLineColor;
-        //         return line;
-        //     })
-        //     .each(x => this.game.renderer.addObject(x))
-        //     .value();
+        const navGrid = new NavGrid({
+            width: this.width,
+            height: this.height
+        });
+
+        const pathfinder = new PathFinder(navGrid);
             
         const tableWidth = 154;
         const tableHeight = 142;
@@ -128,45 +102,30 @@ export class InsideScene extends Scene {
         table6.key = "table6";
         table6.imageTexture = this.textureLoader.getImage("indoor-table");
         hideableLocations.push(table6);
-        
 
-        // const table2 = new Rectangle(tableWidth, tableHeight, 240, 100);
-        // table2.key = "table2";
-        // table2.color = "blue";
-        // hideableLocations.push(table2);
+        const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
+        navGrid.addBlockedGeometry("top-wall", topWallBoundary);
 
-        
+        new Guest({
+            name: "James Aitchison",
+            clothing: "blue-suit",
+            x: 200,
+            y: 200
+        }, this.textureLoader, this.game.renderer, pathfinder);
 
-        // const table3 = new Rectangle(tableWidth, tableHeight, 380, 100);
-        // table3.key = "table3";
-        // table3.color = "blue";
-        // hideableLocations.push(table3);
+        new Guest({
+            name: "Some Guest",
+            clothing: "blue-suit",
+            x: 500,
+            y: 500
+        }, this.textureLoader, this.game.renderer, pathfinder);
 
-        // const table4 = new Rectangle(tableWidth, tableHeight, 100, 240);
-        // table4.key = "table4";
-        // table4.color = "blue";
-        // hideableLocations.push(table4);
-
-        // const table5 = new Rectangle(tableWidth, tableHeight, 240, 240);
-        // table5.key = "table5";
-        // table5.color = "blue";
-        // hideableLocations.push(table5);
-
-        // const table6 = new Rectangle(tableWidth, tableHeight, 380, 240);
-        // table6.key = "table6";
-        // table6.color = "blue";
-        // hideableLocations.push(table6);
-
-        // const cakeTable = new Rectangle(tableWidth, 60, 240, 0);
-        // cakeTable.key = "cakeTable";
-        // cakeTable.color = "blue";
-        // hideableLocations.push(cakeTable);
-
-        const navGrid = new NavGrid({
-            width: this.game.config.width,
-            height: this.game.config.height
-        });
-        const pathfinder = new PathFinder(navGrid);
+        new Guest({
+            name: "Another Guest",
+            clothing: "blue-suit",
+            x: 700,
+            y: 700
+        }, this.textureLoader, this.game.renderer, pathfinder);
 
 
         const hiddenLocation = hideableLocations[MathsUtility.randomIntegerRange(0, hideableLocations.length - 1)];
@@ -174,51 +133,29 @@ export class InsideScene extends Scene {
         const target = new Rectangle(15, 15, hiddenLocation.origin.x, hiddenLocation.origin.y);
         target.color = "pink";
         target.key = "target";
+
         let caught = false;
-        this.game.renderer.addObject(target, {
-            beforeRender: [
-                (next: Function, current: any) => {
-                    if (!caught && CollisionDetector.rectangleHasCollision(player, current as Rectangle)) {
-                        current.setVelocity(AxisDimension.XY, 0);
-                        alert("You caught Noah!");
-                    }
-                    next(current);
-                }
-            ]
-        });
+        target.beforeRender = () => {
+            if (!caught && CollisionDetector.rectangleHasCollision(player, target as Rectangle)) {
+                target.setVelocity(AxisDimension.XY, 0);
+                alert("You caught Noah!");
+            }
+        }
+        this.game.renderer.addObject(target);
 
         let revealed = false;
-        hideableLocations.forEach(x => {
-            this.game.renderer.addObject(x, {
-                beforeRender: [
-                    (next: Function, current: any) => {
-                        if (hiddenLocation === current && !revealed && CollisionDetector.rectangleHasCollision(player, current)) {
-                            revealed = true;
-                            target.move(0, -20, PositionStrategy.Relative);
-                            this.runAway(target, pathfinder);
-                        }
-                        next(current);
-                    },
-                    (next: Function, current: any) => {
-                        this.stopObjectOnCollision(player, current);
-                        next(current);
-                    }
-                ]
-            });
-            navGrid.addBlockedGeometry(x.key, x)
+        hideableLocations.forEach(hideableLocation => {
+            hideableLocation.beforeRender = () => {
+                if (hiddenLocation === hideableLocation && !revealed && CollisionDetector.rectangleHasCollision(player, hideableLocation)) {
+                    revealed = true;
+                    target.move(0, -20, PositionStrategy.Relative);
+                    this.runAway(target, pathfinder);
+                }
+                this.stopObjectOnCollision(player, hideableLocation);
+            }
+            navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation);
+            this.game.renderer.addObject(hideableLocation);
         });
-
-        // const generatedNavGrid = navGrid.generate();
-        // generatedNavGrid.forEach(row => {
-        //     row.forEach(cell => {
-        //         if (cell.blockedBy) {
-        //             this.game.renderer.addObject(new Rectangle(navGrid.cellSize, navGrid.cellSize, cell.x, cell.y).setColor("grey"));
-        //         }
-        //     });
-        // });
-
-        const hiddenRenderable = this.game.renderer.findRenderable(hiddenLocation);
-        hiddenRenderable.beforeRender.push()
         
         this.game.renderer.addObject(player);
 

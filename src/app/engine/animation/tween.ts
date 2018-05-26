@@ -10,10 +10,19 @@ export class Tween {
 
     public extTweenObj: TWEEN.Tween;
     public position: Vector;
+    public destination: Vector;
+
+    private eventHandlers: {
+        "start": Function[];
+        "stop": Function[];
+        "update": Function[];
+        "complete": Function[];
+    };
 
     constructor(private moveable: IMoveable, startingPosition?: Vector) {
         this.position = startingPosition ? startingPosition.copy() : this.moveable.origin.copy();
         this.extTweenObj = new TWEEN.Tween(this.position);
+        this.bindEventHandlers();
     }
 
     public start() {
@@ -27,6 +36,7 @@ export class Tween {
     }
 
     public to(coord: Vector, duration: number = 700, easing: IEasingFunc = Easing.linear) {
+        this.destination = coord.copy();
         this.extTweenObj
             .to({ x: coord.x, y: coord.y }, duration)
             .easing(easing);
@@ -36,23 +46,8 @@ export class Tween {
         return this;
     }
 
-    public on(eventName: TweenEventName, callback: (object?: any) => void) {
-        switch (eventName) {
-            case "start":
-                this.extTweenObj.onStart(callback);
-                break;
-            case "stop":
-                this.extTweenObj.onStop(callback);
-                break;
-            case "update":
-                this.extTweenObj.onUpdate(callback);
-                break;
-            case "complete":
-                this.extTweenObj.onComplete(callback);
-                break;
-            default:
-                throw new Error(`${eventName} is not a supported event`);
-        }
+    public on(eventName: TweenEventName, callback: (...args: any[]) => void) {
+        this.eventHandlers[eventName].push(callback);
         return this;
     }
 
@@ -83,6 +78,35 @@ export class Tween {
 
     public static update(delta?: number) {
         TWEEN.update();
+    }
+
+    private bindEventHandlers() {
+        this.eventHandlers = {
+            "start": [],
+            "stop": [],
+            "update": [],
+            "complete": []
+        };
+        const triggerEventHandlers = (eventName: TweenEventName, evtObj: any) => {
+            if (this.eventHandlers[eventName].length === 0) {
+                return;
+            }
+            for (const handler of this.eventHandlers[eventName]) {
+                handler(evtObj, this.destination);
+            }
+        }
+        this.extTweenObj.onStart((currentPosition) => {
+            triggerEventHandlers("start", currentPosition);
+        });
+        this.extTweenObj.onUpdate((currentPosition) => {
+            triggerEventHandlers("update", currentPosition);
+        });
+        this.extTweenObj.onComplete((currentPosition) => {
+            triggerEventHandlers("complete", currentPosition);
+        });
+        this.extTweenObj.onStop((currentPosition) => {
+            triggerEventHandlers("stop", currentPosition);
+        });
     }
 
 }
