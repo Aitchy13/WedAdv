@@ -173,7 +173,7 @@ export class NavGrid {
             if (cell.blockedBy) {
                 rect.stroke = "#FF0000";
                 rect.fill = "grey";
-                rect.text = cell.blockedBy;
+                rect.text = `(${cell.x}, ${cell.y})`;
             } else {
                 rect.stroke = "#FF0000";
             }

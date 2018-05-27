@@ -1,7 +1,8 @@
 import * as _ from "lodash";
 import { MathsUtility } from "../utilities/maths";
+import { ICoordinate } from "./core.models";
 
-export class Vector {
+export class Vector implements ICoordinate {
 
     constructor(public x: number = 0, public y: number = 0) {
 

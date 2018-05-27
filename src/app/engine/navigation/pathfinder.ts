@@ -1,8 +1,11 @@
 import * as PF from "pathfinding";
+import * as _ from "lodash";
 
 import { NavGrid } from "./nav-grid";
 import { Vector } from "../core/vector";
 import { Renderer } from "../rendering/renderer";
+import { MathsUtility } from "../utilities/maths";
+import { ICoordinate } from "../core/core.models";
 
 export enum PathFinderAlgorithm {
     None,
@@ -19,9 +22,9 @@ export class PathFinder {
         this.setFinder(this.algorithm);
     }
 
-    public findPath(from: Vector, to: Vector): Vector[] {
-        const scaledDownFrom = from.divide(this.grid.cellSize);
-        const scaledDownTo = to.divide(this.grid.cellSize);
+    public findPath(from: ICoordinate, to: ICoordinate): Vector[] {
+        const scaledDownFrom = new Vector(from.x, from.y).divide(this.grid.cellSize);
+        const scaledDownTo = new Vector(to.x, to.y).divide(this.grid.cellSize);
 
         const path = this.finder.findPath(Math.floor(scaledDownFrom.x), Math.floor(scaledDownFrom.y), Math.floor(scaledDownTo.x), Math.floor(scaledDownTo.y), new PF.Grid(this.grid.generateBinaryMatrix()));
         if (path.length < 2) {
@@ -39,6 +42,15 @@ export class PathFinder {
 
     public getAvailableCoordinates() {
         return this.grid.getUnblockedCells();
+    }
+
+    public getCellClosestTo(coord: ICoordinate, includeBlocked?: boolean) {
+        const minX = MathsUtility.roundDownToNearestMultiple(coord.x, this.grid.cellSize);
+        const minY = MathsUtility.roundDownToNearestMultiple(coord.y, this.grid.cellSize);
+
+        const cells = includeBlocked ? this.grid.getCells() : this.grid.getUnblockedCells();
+        const closestCell = _.find(cells, d => d.x === minX && d.y === minY);
+        return closestCell;
     }
 
     public debug(enable: boolean) {

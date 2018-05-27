@@ -5,6 +5,7 @@ import { IEasingFunc } from "../engine/animation/easing";
 import { Vector } from "../engine/core/vector";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
+import { ICoordinate } from "../engine/core/core.models";
 
 export class ICharacterOptions {
     name: string;
@@ -27,8 +28,10 @@ export class Character implements IRenderable, IMoveable {
     // Applied by @Moveable decorator
     public xVel: number = 0;
     public yVel: number = 0;
+
     public x: number;
     public y: number;
+    
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
     public movePath: (path: Vector[], duration?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function) => void;
@@ -95,7 +98,7 @@ export class Character implements IRenderable, IMoveable {
         
     }
 
-    public walk(coordinate: Vector, duration: number = 200, onComplete?: () => void) {
+    public goTo(coordinate: ICoordinate, duration: number = 200, onComplete?: () => void) {
         if (this.isWalking) {
             return;
         }
@@ -111,15 +114,19 @@ export class Character implements IRenderable, IMoveable {
                 switch (this.getDirection(currentPosition, destination)) {
                     case "east":
                         this.spriteSheet.playAnimation("walk-east");
+                        this.defaultSpriteFrame = "east-stand";
                         break;
                     case "west":
                         this.spriteSheet.playAnimation("walk-west");
+                        this.defaultSpriteFrame = "west-stand";
                         break;
                     case "north":
                         this.spriteSheet.playAnimation("walk-north");
+                        this.defaultSpriteFrame = "north-stand";
                         break;
                     case "south":
                         this.spriteSheet.playAnimation("walk-south");
+                        this.defaultSpriteFrame = "south-stand";
                         break;
                     case "none":
                         this.spriteSheet.stopAnimation();

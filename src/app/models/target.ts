@@ -5,6 +5,8 @@ import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
 import { Vector } from "../engine/core/vector";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
+import { ICoordinate } from "../engine/core/core.models";
+import { PositionStrategy } from "../engine/physics/moveable";
 
 export interface ITargetOptions extends ICharacterOptions {
     name: string;
@@ -25,7 +27,7 @@ export class Target extends Character implements IRenderable {
 
     private player: Character;
     private hidingSpots: IHidingSpot[];
-    private hidingIn: IHidingSpot;
+    private hidingSpot: IHidingSpot;
     private caught: boolean;
 
     constructor(public options: ITargetOptions, public textureLoader: TextureLoader, public renderer: Renderer, public pathFinder: PathFinder) {
@@ -41,39 +43,56 @@ export class Target extends Character implements IRenderable {
 
         this.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue", true);
         this.setAnimations();
-        this.hideInSpot(this.hidingSpots[MathsUtility.randomIntegerRange(0, this.hidingSpots.length - 1)]);
+        this.hideIn();
     }
 
-    public beforeRender() {
-        // const walkRecursion = () => {
-        //     if (!this.isWalking && this.wantsToWalk()) {
-        //         const availableCells = this.pathFinder.getAvailableCoordinates();
-        //         const cell = availableCells[MathsUtility.randomIntegerRange(0, availableCells.length - 1)];
-        //         this.walk(new Vector(cell.x, cell.y), () => {
-        //             walkRecursion();
-        //         });
-        //     }
-        // }
-        // walkRecursion();
-        
+    public beforeRender() {       
         if (!this.caught && CollisionDetector.hasCollision(this.player, this)) {
             this.remove();
+            this.caught = true;
             alert("You caught Noah!");
+        }
+        if (this.hidingSpot && CollisionDetector.hasCollision(this.player, this.hidingSpot)) {
+            this.y = this.hidingSpot.y - 50;
+            this.hidingSpot = undefined;
+            this.runAway();
         }
     }
 
-    public hideInSpot(hidingSpot: IHidingSpot) {
-        this.hidingIn = hidingSpot;
-        this.x = hidingSpot.x;
-        this.y = hidingSpot.y;
+    public hideIn(animate?: boolean) {
+        this.hidingSpot = this.hidingSpots[MathsUtility.randomIntegerRange(0, this.hidingSpots.length - 1)];
+        if (animate) {
+            this.runTo({ x: this.hidingSpot.x - 1, y: this.hidingSpot.y - 1 });
+        } else {
+            this.move(this.hidingSpot.x, this.hidingSpot.y, PositionStrategy.Absolute);
+        }        
     }
 
     public runAway() {
         const unblockedCells = this.pathFinder.getAvailableCoordinates();
         const randomAvailableCell = unblockedCells[MathsUtility.randomIntegerRange(0, unblockedCells.length - 1)];
-        this.walk(new Vector(randomAvailableCell.x, randomAvailableCell.y), 100, () => {
-            this.runAway();
+        this.runTo(randomAvailableCell, () => {
+            if (MathsUtility.probability(0.1)) {
+                this.hideIn()
+            } else {
+                this.runAway();
+            }
         });
+    }
+
+    public runTo(coordinate: ICoordinate, onComplete?: () => void) {
+        this.goTo(coordinate, 100, () => {
+            if (onComplete) {
+                onComplete();
+            }
+        });
+    }
+
+    private findCoordAwayFrom(awayFrom: Vector) {
+        const unblockedCells = this.pathFinder.getAvailableCoordinates();
+        const playerCell = this.pathFinder.getCellClosestTo(this.player);
+
+        
     }
 
     private setAnimations() {

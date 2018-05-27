@@ -66,32 +66,32 @@ export class InsideScene extends Scene {
         const tableWidth = 154;
         const tableHeight = 142;
 
-        const table1 = new Rectangle(tableWidth, tableHeight, 200, 400);
+        const table1 = new Rectangle(tableWidth, tableHeight, 120, 400);
         table1.key = "table1";
         table1.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table1);
 
-        const table2 = new Rectangle(tableWidth, tableHeight, 200, 650);
+        const table2 = new Rectangle(tableWidth, tableHeight, 120, 650);
         table2.key = "table2";
         table2.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table2);
 
-        const table3 = new Rectangle(tableWidth, tableHeight, 550, 400);
+        const table3 = new Rectangle(tableWidth, tableHeight, 460, 400);
         table3.key = "table3";
         table3.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table3);
 
-        const table4 = new Rectangle(tableWidth, tableHeight, 550, 650);
+        const table4 = new Rectangle(tableWidth, tableHeight, 460, 650);
         table4.key = "table4";
         table4.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table4);
 
-        const table5 = new Rectangle(tableWidth, tableHeight, 900, 400);
+        const table5 = new Rectangle(tableWidth, tableHeight, 820, 400);
         table5.key = "table5";
         table5.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table5);
 
-        const table6 = new Rectangle(tableWidth, tableHeight, 900, 650);
+        const table6 = new Rectangle(tableWidth, tableHeight, 820, 650);
         table6.key = "table6";
         table6.imageTexture = this.textureLoader.getImage("indoor-table");
         hidingSpots.push(table6);
@@ -110,7 +110,7 @@ export class InsideScene extends Scene {
             name: "Some Guest",
             clothing: "blue-suit",
             x: 500,
-            y: 500
+            y: 550
         }, this.textureLoader, this.game.renderer, pathfinder);
 
         new Guest({
@@ -130,28 +130,10 @@ export class InsideScene extends Scene {
             player: player,
             hidingSpots: hidingSpots
         }, this.textureLoader, this.game.renderer, pathfinder);
-        
-        // const target = new Rectangle(15, 15, hiddenLocation.origin.x, hiddenLocation.origin.y);
-        // target.color = "pink";
-        // target.key = "target";
-
-        // let caught = false;
-        // target.beforeRender = () => {
-        //     if (!caught && CollisionDetector.rectangleHasCollision(player, target as Rectangle)) {
-        //         target.setVelocity(AxisDimension.XY, 0);
-        //         alert("You caught Noah!");
-        //     }
-        // }
-        // this.game.renderer.addObject(target);
 
         let revealed = false;
         hidingSpots.forEach(hideableLocation => {
             hideableLocation.beforeRender = () => {
-                if (hiddenLocation === hideableLocation && !revealed && CollisionDetector.hasCollision(player, hideableLocation)) {
-                    revealed = true;
-                    target.move(0, -50, PositionStrategy.Relative);
-                    target.runAway();
-                }
                 this.stopObjectOnCollision(player, hideableLocation);
             }
             navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation);
@@ -203,10 +185,6 @@ export class InsideScene extends Scene {
         });
 
         // pathfinder.debug(true);
-        // this.game.mouseInput.onClick(evt => {
-        //     this.game.logger.log(evt.event.offsetX, evt.event.offsetY);
-        //     this.getNearestGridCell(evt.event.offsetX, evt.event.offsetY, cellSize);
-        // });
     }
 
     private stopObjectOnCollision(objectToStop: any, current: any): void {

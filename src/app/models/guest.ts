@@ -4,6 +4,7 @@ import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
 import { Vector } from "../engine/core/vector";
+import { ICoordinate } from "../engine/core/core.models";
 
 export type GuestClothing = "blue-suit";
 
@@ -34,12 +35,20 @@ export class Guest extends Character implements IRenderable {
             if (!this.isWalking && this.wantsToWalk()) {
                 const availableCells = this.pathFinder.getAvailableCoordinates();
                 const cell = availableCells[MathsUtility.randomIntegerRange(0, availableCells.length - 1)];
-                this.walk(new Vector(cell.x, cell.y), 200, () => {
+                this.walkTo(cell, () => {
                     walkRecursion();
                 });
             }
         }
         walkRecursion();
+    }
+
+    public walkTo(coordinate: ICoordinate, onComplete?: () => void) {
+        this.goTo(coordinate, 200, () => {
+            if (onComplete) {
+                onComplete();
+            }
+        });
     }
 
     private setSpriteSheet(clothing: GuestClothing) {
