@@ -17,6 +17,7 @@ import { Tween } from "../engine/animation/tween";
 import { Easing } from "../engine/animation/easing";
 import { Layer } from "../engine/rendering/layer";
 import { Guest } from "../models/guest";
+import { Sound } from "../engine/audio/sound";
 
 export class InsideScene extends Scene {
 
@@ -159,6 +160,9 @@ export class InsideScene extends Scene {
         
         this.game.renderer.addObject(player);
 
+        const walkSound = new Sound("src/sounds/footstep10.wav");
+        walkSound.load();
+
         this.game.keyboardInput.onKeyDown(evt => {
             const sensitivity = 2.5;
             switch (evt.event.key) {
@@ -167,30 +171,35 @@ export class InsideScene extends Scene {
                     player.setVelocity(AxisDimension.Y, -sensitivity);
                     player.spriteKey = "north-stand";
                     player.spriteSheet.playAnimation("walk-north");
+                    walkSound.loop();
                     break;
                 case "s":
                 case "ArrowDown":
                     player.setVelocity(AxisDimension.Y, sensitivity);
                     player.spriteKey = "south-stand";
                     player.spriteSheet.playAnimation("walk-south");
+                    walkSound.loop();
                     break;
                 case "a":
                 case "ArrowLeft":
                     player.setVelocity(AxisDimension.X, -sensitivity);
                     player.spriteKey = "west-stand";
                     player.spriteSheet.playAnimation("walk-west");
+                    walkSound.loop();
                     break;
                 case "d":
                 case "ArrowRight":
                     player.setVelocity(AxisDimension.X, sensitivity);
                     player.spriteKey = "east-stand";
                     player.spriteSheet.playAnimation("walk-east");
+                    walkSound.loop();
                     break;
             }
         });
         this.game.keyboardInput.onKeyUp(evt => { 
             player.setVelocity(AxisDimension.XY, 0);
             player.spriteSheet.stopAnimation();
+            walkSound.stop();
         });
         // this.game.mouseInput.onClick(evt => {
         //     this.game.logger.log(evt.event.offsetX, evt.event.offsetY);
