@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 
-import { Shape } from "../game-objects/shape";
 import { Logger } from "../utilities/logger";
 import { IDetector } from "../detectors/detector.interface";
 import { Middleware } from "../utilities/middleware";
@@ -14,11 +13,7 @@ export interface IRenderable {
     afterRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
 }
 
-export interface IRenderMiddleware {
-    (next: Function, obj: Shape): void;
-}
-
-export class FrameRenderer {
+export class Renderer {
 
     private renderables: IRenderable[] = [];
     private animationFrame: (x: FrameRequestCallback) => number;

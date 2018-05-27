@@ -1,4 +1,3 @@
-import { Shape } from "./shape";
 import { Vector } from "../core/vector";
 import { Moveable, IMoveable, PositionStrategy, AxisDimension } from "../physics/moveable";
 import { Time } from "../utilities/time";
@@ -6,14 +5,20 @@ import { SpriteSheet } from "../textures/sprite-texture";
 import { Tween } from "../animation/tween";
 import { IEasingFunc } from "../animation/easing";
 import { ImageTexture } from "../textures/image-texture";
-import { IRenderable } from "../rendering/frame-renderer";
+import { IRenderable } from "../rendering/renderer";
 
 @Moveable()
 export class Rectangle implements IMoveable, IRenderable {
 
     public key: string;
 
-    public color: string;
+    public fill: string;
+    public stroke: string;
+    
+    public text: string;
+    public textColor: string = "red";
+    public textAlign: string = "center";
+
     public spriteSheet: SpriteSheet;
     public spriteKey: string;
     public imageTexture: ImageTexture;
@@ -24,7 +29,6 @@ export class Rectangle implements IMoveable, IRenderable {
     // Applied by @Moveable decorator
     public xVel: number = 0;
     public yVel: number = 0;
-    public origin: Vector;
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
     public movePath: (path: Vector[], duration?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function) => void;
@@ -32,27 +36,37 @@ export class Rectangle implements IMoveable, IRenderable {
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
 
-    constructor(public width: number, public height: number, x: number, y: number) {
-        this.origin = new Vector(x, y);
+    constructor(public width: number, public height: number, public x: number, public y: number) {
+        const origin = new Vector(x, y);
         this.vertices = [
-            this.origin, // top left
-            this.origin.add(new Vector(this.width, 0)), // top right
-            this.origin.add(new Vector(this.width, this.height)), // bottom right
-            this.origin.add(new Vector(0, this.height)) // bottom left
+            origin, // top left
+            origin.add(new Vector(this.width, 0)), // top right
+            origin.add(new Vector(this.width, this.height)), // bottom right
+            origin.add(new Vector(0, this.height)) // bottom left
         ];
+    }
+
+    public rotate(degree: number) {
+        this.degree = degree;
+        this.vertices.forEach(vector => Vector.rotate(new Vector(this.x, this.y), vector, degree));
+        return this;
     }
 
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
         this.move(this.xVel * timeDelta, this.yVel * timeDelta, PositionStrategy.Relative);
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(this.origin.x, this.origin.y);
+        ctx.moveTo(this.x, this.y);
         this.vertices.forEach(vector => ctx.lineTo(vector.x, vector.y));
         ctx.closePath();
 
-        if (this.color) {
-            ctx.fillStyle = this.color;
+        if (this.fill) {
+            ctx.fillStyle = this.fill;
             ctx.fill();
+        }
+        if (this.stroke) {
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.strokeStyle = this.stroke;
         }
 
         if (this.spriteSheet) {
@@ -63,16 +77,24 @@ export class Rectangle implements IMoveable, IRenderable {
             if (!sprite) {
                 throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
             }
-            ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.origin.x, this.origin.y, this.width, this.height);
+            ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, this.width, this.height);
         } else if (this.imageTexture) {
             ctx.clip();
-            ctx.drawImage(this.imageTexture.image, this.origin.x, this.origin.y, this.imageTexture.width, this.imageTexture.height);
+            ctx.drawImage(this.imageTexture.image, this.x, this.y, this.imageTexture.width, this.imageTexture.height);
         }
+
+        if (this.text) {
+            ctx.font = "10px Arial";
+            ctx.fillStyle = this.textColor;
+            ctx.textAlign = this.textAlign;
+            ctx.fillText(this.text, this.x + (this.width / 2), this.y + (this.height / 2));
+        }
+
         ctx.restore();
     }
 
     public setColor(color: string) {
-        this.color = color;
+        this.fill = color;
         return this;
     }
 

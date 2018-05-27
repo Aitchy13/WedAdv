@@ -10,7 +10,7 @@ describe("Rectangle game object", () => {
     });
 
     it("must set the default origin as the starting x and y values", () => {
-        expect([rectangle.origin.x, rectangle.origin.y]).toEqual([100, 100]);
+        expect([rectangle.x, rectangle.y]).toEqual([100, 100]);
     });
 
     it("must set 4 correct vertices when instantiated", () => {

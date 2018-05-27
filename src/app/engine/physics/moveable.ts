@@ -18,9 +18,10 @@ export enum AxisDimension {
 }
 
 export interface IMoveable {
+    x: number;
+    y: number;
     xVel: number;
     yVel: number;
-    origin: Vector;
     vertices: Vector[];
     move(x: number, y: number, positionStrategy: PositionStrategy): void;
     movePath(path: Vector[], speed?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function): void;
@@ -51,10 +52,15 @@ export function Moveable() {
                 default:
                     throw new Error("Unsupported position strategy");
             }
+            this.x = this.vertices[0].x;
+            this.y = this.vertices[0].y;
         }
 
         target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function): void {
             let i = path.length;
+            if (!path || path.length < 2) {
+                throw new Error("Path invalid");
+            }
             const lastTween = new Tween(this, path[path.length - 1]).to(path[path.length - 2], speed, easing);
             if (_.isFunction(onUpdate)) {
                 lastTween.on("complete", onUpdate);

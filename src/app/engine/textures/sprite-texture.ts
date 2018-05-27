@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { IRenderable } from "../rendering/frame-renderer";
+import { IRenderable } from "../rendering/renderer";
 
 export interface IFrame {
     key: string;

@@ -1,5 +1,5 @@
 import { ImageTexture } from "../textures/image-texture";
-import { IRenderable } from "./frame-renderer";
+import { IRenderable } from "./renderer";
 
 export class Layer implements IRenderable {
 

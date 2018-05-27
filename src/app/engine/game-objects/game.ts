@@ -1,7 +1,7 @@
 import { IGameConfig } from "./game.models";
 import { SceneManager } from "./scene-manager";
 import { Logger } from "../utilities/logger";
-import { FrameRenderer } from "../rendering/frame-renderer";
+import { Renderer } from "../rendering/renderer";
 import { KeyboardInput } from "../input/keyboard-input";
 import { Time } from "../utilities/time";
 import { TextureLoader } from "../textures/texture-loader";
@@ -14,7 +14,7 @@ export class Game {
     public logger: Logger;
     public keyboardInput: KeyboardInput;
     public mouseInput: MouseInput;
-    public renderer: FrameRenderer;
+    public renderer: Renderer;
     public window: Window;
     public time: Time;
     public textureLoader: TextureLoader;
@@ -32,7 +32,7 @@ export class Game {
         this.time = new Time();
         this.camera = new Camera(this.canvas.width, this.canvas.height);
 
-        this.renderer = new FrameRenderer(this.canvas.getContext("2d"), this.window, this.logger, this.time, this.camera);
+        this.renderer = new Renderer(this.canvas.getContext("2d"), this.window, this.logger, this.time, this.camera);
         this.textureLoader = new TextureLoader(this.logger);
 
         this.sceneManager = new SceneManager(this.logger, this, this.textureLoader);

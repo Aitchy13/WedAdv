@@ -4,19 +4,31 @@ import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
 import { Vector } from "../engine/core/vector";
+import { CollisionDetector } from "../engine/detectors/collision-detector";
 
-export type GuestClothing = "blue-suit";
-
-export class IGuestOptions extends ICharacterOptions {
+export interface ITargetOptions extends ICharacterOptions {
     name: string;
-    clothing: GuestClothing;
     x: number;
     y: number;
+    player: Character;
+    hidingSpots: IHidingSpot[];
 }
 
-export class Guest extends Character implements IRenderable {
+export interface IHidingSpot {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 
-    constructor(public options: IGuestOptions, public textureLoader: TextureLoader, public renderer: Renderer, public pathFinder: PathFinder) {
+export class Target extends Character implements IRenderable {
+
+    private player: Character;
+    private hidingSpots: IHidingSpot[];
+    private hidingIn: IHidingSpot;
+    private caught: boolean;
+
+    constructor(public options: ITargetOptions, public textureLoader: TextureLoader, public renderer: Renderer, public pathFinder: PathFinder) {
         super(renderer, pathFinder, {
             name: options.name,
             width: 36,
@@ -24,32 +36,44 @@ export class Guest extends Character implements IRenderable {
             x: options.x,
             y: options.y
         } as ICharacterOptions);
+        this.player = options.player;
+        this.hidingSpots = options.hidingSpots;
 
-        this.setSpriteSheet(options.clothing);
+        this.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue", true);
         this.setAnimations();
+        this.hideInSpot(this.hidingSpots[MathsUtility.randomIntegerRange(0, this.hidingSpots.length - 1)]);
     }
 
     public beforeRender() {
-        const walkRecursion = () => {
-            if (!this.isWalking && this.wantsToWalk()) {
-                const availableCells = this.pathFinder.getAvailableCoordinates();
-                const cell = availableCells[MathsUtility.randomIntegerRange(0, availableCells.length - 1)];
-                this.walk(new Vector(cell.x, cell.y), 200, () => {
-                    walkRecursion();
-                });
-            }
+        // const walkRecursion = () => {
+        //     if (!this.isWalking && this.wantsToWalk()) {
+        //         const availableCells = this.pathFinder.getAvailableCoordinates();
+        //         const cell = availableCells[MathsUtility.randomIntegerRange(0, availableCells.length - 1)];
+        //         this.walk(new Vector(cell.x, cell.y), () => {
+        //             walkRecursion();
+        //         });
+        //     }
+        // }
+        // walkRecursion();
+        
+        if (!this.caught && CollisionDetector.hasCollision(this.player, this)) {
+            this.remove();
+            alert("You caught Noah!");
         }
-        walkRecursion();
     }
 
-    private setSpriteSheet(clothing: GuestClothing) {
-        switch (clothing) {
-            case "blue-suit":
-                this.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue", true);
-                break;
-            default:
-                throw new Error("Unsupported clothing");
-        }
+    public hideInSpot(hidingSpot: IHidingSpot) {
+        this.hidingIn = hidingSpot;
+        this.x = hidingSpot.x;
+        this.y = hidingSpot.y;
+    }
+
+    public runAway() {
+        const unblockedCells = this.pathFinder.getAvailableCoordinates();
+        const randomAvailableCell = unblockedCells[MathsUtility.randomIntegerRange(0, unblockedCells.length - 1)];
+        this.walk(new Vector(randomAvailableCell.x, randomAvailableCell.y), 100, () => {
+            this.runAway();
+        });
     }
 
     private setAnimations() {
@@ -68,10 +92,6 @@ export class Guest extends Character implements IRenderable {
         this.spriteSheet.addAnimation("walk-west", [
             "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
             "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
-    }
-
-    private wantsToWalk() {
-        return MathsUtility.probability(0.002);
     }
 
 }

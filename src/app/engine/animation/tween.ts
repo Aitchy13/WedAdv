@@ -20,7 +20,7 @@ export class Tween {
     };
 
     constructor(private moveable: IMoveable, startingPosition?: Vector) {
-        this.position = startingPosition ? startingPosition.copy() : this.moveable.origin.copy();
+        this.position = startingPosition ? startingPosition.copy() : new Vector(moveable.x, moveable.y);
         this.extTweenObj = new TWEEN.Tween(this.position);
         this.bindEventHandlers();
     }

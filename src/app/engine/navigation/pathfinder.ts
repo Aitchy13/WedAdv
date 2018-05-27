@@ -2,6 +2,7 @@ import * as PF from "pathfinding";
 
 import { NavGrid } from "./nav-grid";
 import { Vector } from "../core/vector";
+import { Renderer } from "../rendering/renderer";
 
 export enum PathFinderAlgorithm {
     None,
@@ -11,8 +12,9 @@ export enum PathFinderAlgorithm {
 export class PathFinder {
 
     private finder: PF.Finder;
+    private debugEnabled: boolean = false;
 
-    constructor(private grid: NavGrid, private algorithm?: PathFinderAlgorithm) {
+    constructor(private grid: NavGrid, private renderer: Renderer, private algorithm?: PathFinderAlgorithm) {
         this.algorithm = !algorithm ? PathFinderAlgorithm.AStarFinder : algorithm;
         this.setFinder(this.algorithm);
     }
@@ -21,7 +23,10 @@ export class PathFinder {
         const scaledDownFrom = from.divide(this.grid.cellSize);
         const scaledDownTo = to.divide(this.grid.cellSize);
 
-        const path = this.finder.findPath(scaledDownFrom.x, scaledDownFrom.y, scaledDownTo.x, scaledDownTo.y, new PF.Grid(this.grid.generateBinaryMatrix()));
+        const path = this.finder.findPath(Math.floor(scaledDownFrom.x), Math.floor(scaledDownFrom.y), Math.floor(scaledDownTo.x), Math.floor(scaledDownTo.y), new PF.Grid(this.grid.generateBinaryMatrix()));
+        if (path.length < 2) {
+            throw new Error("No path found");
+        }
         
         const scaledUpPath: Vector[] = [];
         for (const coord of path) {
@@ -34,6 +39,11 @@ export class PathFinder {
 
     public getAvailableCoordinates() {
         return this.grid.getUnblockedCells();
+    }
+
+    public debug(enable: boolean) {
+        this.debugEnabled = enable;
+        this.grid.debug(enable);
     }
 
     private setFinder(algorithm: PathFinderAlgorithm): void {

@@ -4,6 +4,7 @@ import { Vector } from "../core/vector";
 import { MathsUtility } from "../utilities/maths";
 import { Rectangle } from "../game-objects/rectangle";
 import { CollisionDetector } from "../detectors/collision-detector";
+import { Renderer } from "../rendering/renderer";
 
 export interface INavGridConfig {
     width: number;
@@ -26,7 +27,7 @@ export class NavGrid {
     public height: number;
     public x: number = 0;
     public y: number = 0;
-    public cellSize: number = 20;
+    public cellSize: number = 40;
 
     private blockedRectangles: {
         [key: string]: Rectangle
@@ -34,7 +35,10 @@ export class NavGrid {
 
     private generatedMatrix: ICell[][];
 
-    constructor(config: INavGridConfig) {
+    private debugEnabled: boolean = false;
+    private debugGrid: Rectangle[] = [];
+
+    constructor(config: INavGridConfig, private renderer: Renderer) {
         if (!_.isNumber(config.width) || config.width <= 0) {
             throw new Error("Invalid width specified");
         }
@@ -70,6 +74,10 @@ export class NavGrid {
 
         this.generatedMatrix = matrix;
 
+        if (this.debugEnabled) {
+            this.showGrid();
+        }
+
         return matrix;
     }
 
@@ -88,6 +96,7 @@ export class NavGrid {
             throw new Error("A geometry with that key has already been specified");
         }
         this.blockedRectangles[key] = rect;
+        this.generate();
     }
 
     public getCells(): ICell[] {
@@ -109,6 +118,15 @@ export class NavGrid {
             .value();
     }
 
+    public debug(enable: boolean) {
+        this.debugEnabled = enable;
+        if (enable && this.generatedMatrix) {
+            this.showGrid();
+        } else {
+            this.removeGrid();
+        }
+    }
+
     private createCell(cellIndex: number, rowIndex: number): ICell {
         const xCoordinate = cellIndex * this.cellSize;
         const yCoordinate = rowIndex * this.cellSize;
@@ -122,7 +140,18 @@ export class NavGrid {
                 return;
             }
             const blockedRectangle = this.blockedRectangles[key];
-            if (CollisionDetector.rectangleHasCollision(transposedCell, blockedRectangle)) {
+            const collides = CollisionDetector.hasCollision({
+                x: transposedCell.x,
+                y: transposedCell.y,
+                width: transposedCell.width,
+                height: transposedCell.height
+            }, {
+                x: blockedRectangle.x,
+                y: blockedRectangle.y,
+                width: blockedRectangle.width,
+                height: blockedRectangle.height
+            })
+            if (collides) {
                 blockedBy = key;
             }
         });
@@ -133,6 +162,32 @@ export class NavGrid {
             x: xCoordinate,
             matrixCoords: [rowIndex, cellIndex]
         };
+    }
+
+    private showGrid() {
+        const cells = this.getCells();
+
+        for (const cell of cells) {
+            const rect = new Rectangle(this.cellSize, this.cellSize, cell.x, cell.y);
+            
+            if (cell.blockedBy) {
+                rect.stroke = "#FF0000";
+                rect.fill = "grey";
+                rect.text = cell.blockedBy;
+            } else {
+                rect.stroke = "#FF0000";
+            }
+            this.debugGrid.push(rect);
+            this.renderer.addObject(rect);
+        }
+    }
+
+    private removeGrid() {
+        if (this.debugGrid && this.debugGrid.length > 0) {
+            for (const obj of this.debugGrid) {
+                this.renderer.removeObject(obj);
+            }
+        }
     }
  
 }
