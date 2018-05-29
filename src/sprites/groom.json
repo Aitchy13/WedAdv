@@ -1,0 +1,86 @@
+[
+    {
+        "key": "south-stand",
+        "x": 148,
+        "y": 3,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "south-left-arm",
+        "x": 148,
+        "y": 82,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "south-right-arm",
+        "x": 148,
+        "y": 162,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "north-stand",
+        "x": 98,
+        "y": 3,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "north-left-arm",
+        "x": 98,
+        "y": 82,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "north-right-arm",
+        "x": 98,
+        "y": 162,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "east-stand",
+        "x": 52,
+        "y": 3,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "east-left-leg",
+        "x": 52,
+        "y": 82,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "east-right-leg",
+        "x": 52,
+        "y": 162,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "west-stand",
+        "x": 2,
+        "y": 3,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "west-left-leg",
+        "x": 2,
+        "y": 82,
+        "width": 36,
+        "height": 79
+    },
+    {
+        "key": "west-right-leg",
+        "x": 2,
+        "y": 162,
+        "width": 36,
+        "height": 79
+    }
+]

@@ -33,6 +33,7 @@ export class InsideScene extends Scene {
             this.textureLoader.loadImage("indoor-scene-background", "src/sprites/indoor-scene.png"),
             this.textureLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
             this.textureLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
+            this.textureLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
             this.textureLoader.loadImage("indoor-table", "src/sprites/indoor-table.png")
         ]);
     }
@@ -48,8 +49,7 @@ export class InsideScene extends Scene {
         const hidingSpots = [];
 
         const player = new Player({
-            name: "Hannah",
-            model: "bride",
+            model: "groom",
             x: 650,
             y: 300
         }, this.textureLoader, this.game.renderer, pathfinder);

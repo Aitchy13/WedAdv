@@ -8,6 +8,7 @@ import { Tween } from "../animation/tween";
 import { Camera } from "./camera";
 
 export interface IRenderable {
+    y: number;
     render(ctx?: CanvasRenderingContext2D, delta?: number): void;
     beforeRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
     afterRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
@@ -59,6 +60,7 @@ export class Renderer {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.camera.update();
+        this.renderables = _.orderBy(this.renderables, d => d.y);
         this.renderables.forEach(x => {
             x.beforeRender(this.context, timeDelta);
             x.render(this.context, timeDelta);

@@ -8,7 +8,7 @@ import { PathFinder } from "../engine/navigation/pathfinder";
 import { ICoordinate } from "../engine/core/core.models";
 
 export class ICharacterOptions {
-    name: string;
+    name?: string;
     width?: number;
     height?: number;
     x?: number;
@@ -42,7 +42,7 @@ export class Character implements IRenderable, IMoveable {
     private visible: boolean;
 
     constructor(public renderer: Renderer, public pathFinder: PathFinder, public options: ICharacterOptions) {
-        this.name = options.name;
+        this.name = options.name ? options.name : "No name";
         this.width = options.width;
         this.height = options.height;
 
