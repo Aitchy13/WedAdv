@@ -9,7 +9,7 @@ export class Sound {
 
     private playing: boolean = false;
 
-    constructor(public readonly path: string) {
+    constructor(public readonly key: string, public readonly path: string) {
         (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
         this.context = new AudioContext();
     }

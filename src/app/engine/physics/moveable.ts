@@ -62,6 +62,9 @@ export function Moveable() {
                 throw new Error("Path invalid");
             }
             const lastTween = new Tween(this, path[path.length - 1]).to(path[path.length - 2], speed, easing);
+            lastTween.on("update", () => {
+                target.prototype.move(target.prototype.x, target.prototype.y, PositionStrategy.Absolute);
+            });
             if (_.isFunction(onUpdate)) {
                 lastTween.on("complete", onUpdate);
                 lastTween.on("start", onUpdate);
@@ -74,6 +77,9 @@ export function Moveable() {
                     i--;
                     return rightTween;
                 }
+                rightTween.on("update", () => {
+                    target.prototype.move(target.prototype.x, target.prototype.y, PositionStrategy.Absolute);
+                });
                 if (_.isFunction(onUpdate)) {
                     rightTween.on("start", onUpdate);
                 }

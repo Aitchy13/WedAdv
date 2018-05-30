@@ -1,5 +1,5 @@
 import { Character, ICharacterOptions } from "./character";
-import { TextureLoader } from "../engine/textures/texture-loader";
+import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
@@ -30,7 +30,7 @@ export class Target extends Character implements IRenderable {
     private hidingSpot: IHidingSpot;
     private caught: boolean;
 
-    constructor(public options: ITargetOptions, public textureLoader: TextureLoader, public renderer: Renderer, public pathFinder: PathFinder) {
+    constructor(public options: ITargetOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder) {
         super(renderer, pathFinder, {
             name: options.name,
             width: 36,

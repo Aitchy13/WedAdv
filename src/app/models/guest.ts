@@ -1,5 +1,5 @@
 import { Character, ICharacterOptions } from "./character";
-import { TextureLoader } from "../engine/textures/texture-loader";
+import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
@@ -17,7 +17,7 @@ export class IGuestOptions extends ICharacterOptions {
 
 export class Guest extends Character implements IRenderable {
 
-    constructor(public options: IGuestOptions, public textureLoader: TextureLoader, public renderer: Renderer, public pathFinder: PathFinder) {
+    constructor(public options: IGuestOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder) {
         super(renderer, pathFinder, {
             name: options.name,
             width: 36,

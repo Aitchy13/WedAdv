@@ -4,20 +4,36 @@ import axios from "axios";
 import { ImageTexture } from "./image-texture";
 import { SpriteSheet, IFrame } from "./sprite-texture";
 import { Logger } from "../utilities/logger";
+import { Sound } from "../audio/sound";
 
 interface IRetrievalStack {
     key: string;
     promise: Promise<HTMLImageElement>;
 }
 
-export class TextureLoader {
+export class AssetLoader {
 
+    private sounds: Sound[] = [];
     private images: ImageTexture[] = [];
     private spriteSheets: SpriteSheet[] = [];
 
     private retrievalStack: IRetrievalStack[] = [];
 
     constructor(private logger: Logger) {}
+
+    public loadSound(key: string, path: string): Promise<Sound> {
+        const existingSound = _.find(this.sounds, x => x.key === key);
+        if (existingSound) {
+            return Promise.resolve(existingSound);
+        }
+        // TODO: Add retrieval stack logic
+
+        const sound = new Sound(key, path);
+        return sound.load().then(x => {
+            this.sounds.push(sound);
+            return sound;
+        });
+    }
 
     public loadImage(key: string, path: string): Promise<ImageTexture> {
         const existingImage = _.find(this.images, x => x.key === key);
@@ -80,6 +96,10 @@ export class TextureLoader {
         return _.find(this.images, x => x.key === key);
     }
 
+    public getSound(key: string) {
+        return _.find(this.sounds, x => x.key === key);
+    }
+
     private retrieveImage(key: string, path: string): Promise<HTMLImageElement> {
         const promise = new Promise<HTMLImageElement>((resolve, reject) => {
             const image = new Image();
@@ -89,7 +109,7 @@ export class TextureLoader {
             };
             image.onerror = e => {
                 this.removeRequest(key);
-                reject(e.error);
+                reject(e);
             };
             image.src = path;
         });

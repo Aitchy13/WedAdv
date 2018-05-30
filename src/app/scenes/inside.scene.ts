@@ -6,7 +6,7 @@ import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Rectangle } from "../engine/game-objects/rectangle";
 import { AxisDimension, PositionStrategy, IMoveable } from "../engine/physics/moveable";
 import { Vector } from "../engine/core/vector";
-import { TextureLoader } from "../engine/textures/texture-loader";
+import { AssetLoader } from "../engine/textures/asset-loader";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
@@ -24,17 +24,17 @@ export class InsideScene extends Scene {
     public width: number = 1440;
     public height: number = 960;
 
-    constructor(private readonly game: Game, private readonly textureLoader: TextureLoader) {
+    constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
     }
 
     public preload() {
         return Promise.all([
-            this.textureLoader.loadImage("indoor-scene-background", "src/sprites/indoor-scene.png"),
-            this.textureLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
-            this.textureLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
-            this.textureLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
-            this.textureLoader.loadImage("indoor-table", "src/sprites/indoor-table.png")
+            this.assetLoader.loadImage("indoor-scene-background", "src/sprites/indoor-scene.png"),
+            this.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
+            this.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
+            this.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
+            this.assetLoader.loadImage("indoor-table", "src/sprites/indoor-table.png")
         ]);
     }
 
@@ -52,48 +52,46 @@ export class InsideScene extends Scene {
             model: "groom",
             x: 650,
             y: 300
-        }, this.textureLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder);
 
         this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
         this.game.camera.follow(() => {
             return new Vector(player.x, player.y);
         });
 
-        this.game.renderer.addObject(new Layer("background", 0, 0, this.textureLoader.getImage("indoor-scene-background")));
-
-        
+        new Layer("background", 0, 0, this.assetLoader.getImage("indoor-scene-background"), this.game.renderer);
             
         const tableWidth = 154;
         const tableHeight = 142;
 
         const table1 = new Rectangle(tableWidth, tableHeight, 120, 400);
         table1.key = "table1";
-        table1.imageTexture = this.textureLoader.getImage("indoor-table");
+        table1.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table1);
 
         const table2 = new Rectangle(tableWidth, tableHeight, 120, 650);
         table2.key = "table2";
-        table2.imageTexture = this.textureLoader.getImage("indoor-table");
+        table2.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table2);
 
         const table3 = new Rectangle(tableWidth, tableHeight, 460, 400);
         table3.key = "table3";
-        table3.imageTexture = this.textureLoader.getImage("indoor-table");
+        table3.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table3);
 
         const table4 = new Rectangle(tableWidth, tableHeight, 460, 650);
         table4.key = "table4";
-        table4.imageTexture = this.textureLoader.getImage("indoor-table");
+        table4.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table4);
 
         const table5 = new Rectangle(tableWidth, tableHeight, 820, 400);
         table5.key = "table5";
-        table5.imageTexture = this.textureLoader.getImage("indoor-table");
+        table5.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table5);
 
         const table6 = new Rectangle(tableWidth, tableHeight, 820, 650);
         table6.key = "table6";
-        table6.imageTexture = this.textureLoader.getImage("indoor-table");
+        table6.imageTexture = this.assetLoader.getImage("indoor-table");
         hidingSpots.push(table6);
 
         const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
@@ -104,21 +102,21 @@ export class InsideScene extends Scene {
             clothing: "blue-suit",
             x: 200,
             y: 200
-        }, this.textureLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder);
 
         new Guest({
             name: "Some Guest",
             clothing: "blue-suit",
             x: 500,
             y: 550
-        }, this.textureLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder);
 
         new Guest({
             name: "Another Guest",
             clothing: "blue-suit",
             x: 700,
             y: 700
-        }, this.textureLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder);
 
 
         const hiddenLocation = hidingSpots[MathsUtility.randomIntegerRange(0, hidingSpots.length - 1)];
@@ -129,7 +127,7 @@ export class InsideScene extends Scene {
             y: hiddenLocation.y,
             player: player,
             hidingSpots: hidingSpots
-        }, this.textureLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder);
 
         let revealed = false;
         hidingSpots.forEach(hideableLocation => {
@@ -142,7 +140,7 @@ export class InsideScene extends Scene {
         
         this.game.renderer.addObject(player);
 
-        const walkSound = new Sound("src/sounds/footstep10.wav");
+        const walkSound = new Sound("footstep", "src/sounds/footstep10.wav");
         walkSound.load();
 
         this.game.keyboardInput.onKeyDown(evt => {

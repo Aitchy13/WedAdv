@@ -14,6 +14,7 @@ export class Rectangle implements IMoveable, IRenderable {
 
     public fill: string;
     public stroke: string;
+    public gradient: [string, number][];
     
     public text: string;
     public textColor: string = "red";
@@ -37,6 +38,7 @@ export class Rectangle implements IMoveable, IRenderable {
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
 
     constructor(public width: number, public height: number, public x: number, public y: number) {
+
         const origin = new Vector(x, y);
         this.vertices = [
             origin, // top left
@@ -60,14 +62,24 @@ export class Rectangle implements IMoveable, IRenderable {
         this.vertices.forEach(vector => ctx.lineTo(vector.x, vector.y));
         ctx.closePath();
 
-        if (this.fill) {
+        if (this.gradient) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, this.height);
+            for (const stops of this.gradient) {
+                gradient.addColorStop(stops[1], stops[0]);
+            }
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        } else if (this.fill) {
             ctx.fillStyle = this.fill;
             ctx.fill();
         }
+
         if (this.stroke) {
             ctx.strokeRect(this.x, this.y, this.width, this.height);
             ctx.strokeStyle = this.stroke;
         }
+
+        
 
         if (this.spriteSheet) {
             ctx.clip();

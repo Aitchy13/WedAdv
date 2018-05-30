@@ -3,13 +3,14 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Vector } from "../core/vector";
 import { IMoveable, PositionStrategy } from "../physics/moveable";
 import { Easing, IEasingFunc } from "./easing";
+import { ICoordinate } from "../core/core.models";
 
 export type TweenEventName = "start" | "stop" | "update" | "complete";
 
 export class Tween {
 
     public extTweenObj: TWEEN.Tween;
-    public position: Vector;
+    public position: ICoordinate;
     public destination: Vector;
 
     private eventHandlers: {
@@ -19,8 +20,10 @@ export class Tween {
         "complete": Function[];
     };
 
-    constructor(private moveable: IMoveable, startingPosition?: Vector) {
-        this.position = startingPosition ? startingPosition.copy() : new Vector(moveable.x, moveable.y);
+    // TODO: RENAME COORDINATE TO SOMETHING BETTER
+
+    constructor(coordinate: ICoordinate, startingPosition?: Vector) {
+        this.position = startingPosition ? startingPosition.copy() : coordinate;
         this.extTweenObj = new TWEEN.Tween(this.position);
         this.bindEventHandlers();
     }
@@ -40,9 +43,6 @@ export class Tween {
         this.extTweenObj
             .to({ x: coord.x, y: coord.y }, duration)
             .easing(easing);
-        this.on("update", () => {
-            this.moveable.move(this.position.x, this.position.y, PositionStrategy.Absolute);
-        })
         return this;
     }
 

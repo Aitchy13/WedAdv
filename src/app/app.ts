@@ -1,5 +1,6 @@
 import { Game } from "./engine/game-objects/game";
 import { InsideScene } from "./scenes/inside.scene";
+import { OutsideScene } from "./scenes/outside.scene";
 
 export class App {
 
@@ -8,9 +9,10 @@ export class App {
             width: window.innerWidth,
             height: window.innerHeight,
             scenes: [
+                OutsideScene,
                 InsideScene
             ],
-            bootstrap: InsideScene
+            bootstrap: OutsideScene
         });
     }
 

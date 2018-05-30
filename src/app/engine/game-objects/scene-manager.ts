@@ -4,14 +4,14 @@ import { Scene } from "./scene";
 import { Type, IMap } from "../core/core.models";
 import { Logger } from "../utilities/logger";
 import { Game } from "./game";
-import { TextureLoader } from "../textures/texture-loader";
+import { AssetLoader } from "../textures/asset-loader";
 
 export class SceneManager {
 
     private scenes: Type<Scene>[];
     private activeScene: Scene;
 
-    constructor(private readonly logger: Logger, private readonly game: Game, private readonly textureLoader: TextureLoader) {
+    constructor(private readonly logger: Logger, private readonly game: Game, private readonly textureLoader: AssetLoader) {
         this.scenes = [];
     }
 

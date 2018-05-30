@@ -18,12 +18,32 @@ export class MouseInput {
 
     public onMouseOver(callback: (evt: MouseInputEvent) => void) {
         const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mouseover", inputEvent, false);
+        this.canvas.addEventListener("mouseover", inputEvent);
+    }
+
+    public onMouseEnter(callback: (evt: MouseInputEvent) => void) {
+        const inputEvent = new MouseInputEvent(callback);
+        this.canvas.addEventListener("mouseenter", inputEvent);
+    }
+
+    public onMouseLeave(callback: (evt: MouseInputEvent) => void) {
+        const inputEvent = new MouseInputEvent(callback);
+        this.canvas.addEventListener("mouseleave", inputEvent);
+    }
+
+    public onMouseOut(callback: (evt: MouseInputEvent) => void) {
+        const inputEvent = new MouseInputEvent(callback);
+        this.canvas.addEventListener("mouseout", inputEvent);
+    }
+
+    public onMouseMove(callback: (evt: MouseInputEvent) => void) {
+        const inputEvent = new MouseInputEvent(callback);
+        this.canvas.addEventListener("mousemove", inputEvent);
     }
 
     public onClick(callback: (evt: MouseInputEvent) => void) {
         const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("click", inputEvent, false);
+        this.canvas.addEventListener("click", inputEvent);
     }
 
 }
