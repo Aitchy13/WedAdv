@@ -5,6 +5,8 @@ import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
 import { Vector } from "../engine/core/vector";
 import { ICoordinate } from "../engine/core/core.models";
+import { KeyboardInput } from "../engine/input/keyboard-input";
+import { AxisDimension } from "../engine/physics/moveable";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -18,7 +20,7 @@ export class Player extends Character implements IRenderable {
 
     private model: PlayerModel;
 
-    constructor(public options: IPlayerOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder) {
+    constructor(public options: IPlayerOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
         super(renderer, pathFinder, {
             width: options.model === "bride" ? 43 : 36,
             height: options.model === "bride" ? 77 : 79,
@@ -90,6 +92,48 @@ export class Player extends Character implements IRenderable {
                 "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg"], true);
             return;
         }
+    }
+
+    public enableControls(): Player {
+        this.keyboardInput.onKeyDown(evt => {
+            const sensitivity = 2.5;
+            switch (evt.event.key) {
+                case "w":
+                case "ArrowUp":
+                    this.setVelocity(AxisDimension.Y, -sensitivity);
+                    this.defaultSpriteFrame = "north-stand";
+                    this.spriteSheet.playAnimation("walk-north");
+                    // walkSound.loop();
+                    break;
+                case "s":
+                case "ArrowDown":
+                    this.setVelocity(AxisDimension.Y, sensitivity);
+                    this.defaultSpriteFrame = "south-stand";
+                    this.spriteSheet.playAnimation("walk-south");
+                    // walkSound.loop();
+                    break;
+                case "a":
+                case "ArrowLeft":
+                    this.setVelocity(AxisDimension.X, -sensitivity);
+                    this.defaultSpriteFrame = "west-stand";
+                    this.spriteSheet.playAnimation("walk-west");
+                    // walkSound.loop();
+                    break;
+                case "d":
+                case "ArrowRight":
+                    this.setVelocity(AxisDimension.X, sensitivity);
+                    this.defaultSpriteFrame = "east-stand";
+                    this.spriteSheet.playAnimation("walk-east");
+                    // walkSound.loop();
+                    break;
+            }
+        });
+        this.keyboardInput.onKeyUp(evt => { 
+            this.setVelocity(AxisDimension.XY, 0);
+            this.spriteSheet.stopAnimation();
+            // walkSound.stop();
+        });
+        return this;
     }
 
 }

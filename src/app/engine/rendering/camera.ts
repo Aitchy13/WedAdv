@@ -60,8 +60,8 @@ export class Camera {
         let y: number = this.y;
 
         if (this.followRef) {
-            x = -this.followRef().x + (this.width / 2);
-            y = -this.followRef().y + (this.height / 2);
+            x = this.followRef().x;
+            y = this.followRef().y;
         }
 
         x = x > 0 ? -x : x;

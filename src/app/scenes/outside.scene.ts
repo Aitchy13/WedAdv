@@ -53,7 +53,9 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("bride-player-selection", "src/sprites/bride-player-selection.png"),
             this.assetLoader.loadImage("start-button", "src/sprites/start-button.png"),
             this.assetLoader.loadImage("play-button", "src/sprites/play-button.png"),
-            this.assetLoader.loadSound("menu-select", "src/sounds/menu-select.wav")
+            this.assetLoader.loadSound("menu-select", "src/sounds/menu-select.wav"),
+            this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
+            this.assetLoader.loadImage("pew", "src/sprites/pew.png")
         ] as any);
     }
 
@@ -121,13 +123,13 @@ export class OutsideScene extends Scene {
             model: "groom",
             x: (this.game.window.innerWidth / 2) - 20,
             y: 1157
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput);
 
         const bride = new Player({
             model: "bride",
             x: (this.game.window.innerWidth / 2) + 20,
             y: 1157
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput);
 
         this.selectedPlayer = groom;
 
@@ -186,7 +188,40 @@ export class OutsideScene extends Scene {
 
     private startSequence() {
         this.hidePlayerSelectionScreen();
-        this.game.camera.moveTo({ x: 0, y: -1220 }, 4000, Easing.easeInOutCubic);
+
+        const arch = new Layer("wedding-arch", 665, 1067, this.assetLoader.getImage("wedding-arch"), this.game.renderer);
+
+        this.game.camera.moveTo({x: arch.x + 52, y: arch.y + 150}, 4000, Easing.easeInOutCubic).then(() => {
+            this.game.camera.follow(() => {
+                return new Vector(this.selectedPlayer.x, this.selectedPlayer.y);
+            });
+            this.selectedPlayer.enableControls();
+        });
+
+        const firstRowY = 1214;
+        const rightSectionSpacing = 605;
+        const spacing = 70;
+        new Layer("pew-a", 223, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-b", 414, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-c", 223, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-d", 414, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-e", 223, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-f", 414, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-g", 223, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-h", 414, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-i", 223, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-j", 414, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
+
+        new Layer("pew-h", 223 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-k", 414 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-l", 223 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-m", 414 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-n", 223 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-o", 414 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-p", 223 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-q", 414 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
     }
 
 }

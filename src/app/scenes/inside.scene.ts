@@ -52,7 +52,7 @@ export class InsideScene extends Scene {
             model: "groom",
             x: 650,
             y: 300
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput).enableControls();
 
         this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
         this.game.camera.follow(() => {
@@ -140,47 +140,8 @@ export class InsideScene extends Scene {
         
         this.game.renderer.addObject(player);
 
-        const walkSound = new Sound("footstep", "src/sounds/footstep10.wav");
-        walkSound.load();
-
-        this.game.keyboardInput.onKeyDown(evt => {
-            const sensitivity = 2.5;
-            switch (evt.event.key) {
-                case "w":
-                case "ArrowUp":
-                    player.setVelocity(AxisDimension.Y, -sensitivity);
-                    player.defaultSpriteFrame = "north-stand";
-                    player.spriteSheet.playAnimation("walk-north");
-                    walkSound.loop();
-                    break;
-                case "s":
-                case "ArrowDown":
-                    player.setVelocity(AxisDimension.Y, sensitivity);
-                    player.defaultSpriteFrame = "south-stand";
-                    player.spriteSheet.playAnimation("walk-south");
-                    walkSound.loop();
-                    break;
-                case "a":
-                case "ArrowLeft":
-                    player.setVelocity(AxisDimension.X, -sensitivity);
-                    player.defaultSpriteFrame = "west-stand";
-                    player.spriteSheet.playAnimation("walk-west");
-                    walkSound.loop();
-                    break;
-                case "d":
-                case "ArrowRight":
-                    player.setVelocity(AxisDimension.X, sensitivity);
-                    player.defaultSpriteFrame = "east-stand";
-                    player.spriteSheet.playAnimation("walk-east");
-                    walkSound.loop();
-                    break;
-            }
-        });
-        this.game.keyboardInput.onKeyUp(evt => { 
-            player.setVelocity(AxisDimension.XY, 0);
-            player.spriteSheet.stopAnimation();
-            walkSound.stop();
-        });
+        // const walkSound = new Sound("footstep", "src/sounds/footstep10.wav");
+        // walkSound.load();
 
         // pathfinder.debug(true);
     }
