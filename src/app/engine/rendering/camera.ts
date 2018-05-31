@@ -7,8 +7,11 @@ import { IMoveable } from "../physics/moveable";
 export class Camera {
 
     public ctx: CanvasRenderingContext2D;
-    public x: number = 0;
-    public y: number = 0;
+    public x: number;
+    public y: number;
+
+    public translatedX: number;
+    public translatedY: number;
 
     private followRef: () => Vector;
     private minX: number;
@@ -17,51 +20,63 @@ export class Camera {
     private maxY: number;
 
     constructor(public width: number, public height: number) {
-
+        this.x = 0;
+        this.y = 0;
     }
 
-    public setBoundaries(minX: number, maxX: number, minY: number, maxY: number) {
+    public setBoundaries(minX: number, maxX: number, minY: number, maxY: number): void {
         this.minX = minX;
         this.maxX = maxX;
         this.minY = minY;
         this.maxY = maxY;
     }
 
-    public removeBoundaries() {
+    public removeBoundaries(): void {
         this.minX = undefined;
         this.maxX = undefined;
         this.minY = undefined;
         this.maxY = undefined;
     }
 
-    public follow(position: () => Vector) {
+    public follow(position: () => Vector): void {
         this.followRef = position;
     }
 
-    public moveTo(coordinate: ICoordinate, duration: number = 3000, easing: IEasingFunc = Easing.linear) {
+    public moveTo(coordinate: ICoordinate, duration: number = 3000, easing: IEasingFunc = Easing.linear): Promise<ICoordinate> {
         this.followRef = undefined;
 
         const tween = new Tween(this);
         tween.to(new Vector(coordinate.x, coordinate.y), duration, easing);
         tween.start();
-        tween.on("complete", (obj) => {
-            debugger;
-        });
+        return new Promise((resolve) => {
+            tween.on("complete", destination => {
+                resolve(destination);
+            });
+        })
     }
 
-    public update() {
+    public update(): void {
+        let x: number = this.x;
+        let y: number = this.y;
+
         if (this.followRef) {
-            this.x = this.enforceBoundary(-this.followRef().x + (this.width / 2), this.minX, this.maxX);
-            this.y = this.enforceBoundary(-this.followRef().y + (this.height / 2), this.minY, this.maxY);
-        } else {
-            this.x = this.enforceBoundary(-this.x + (this.width / 2), this.minX, this.maxX);
-            this.y = this.enforceBoundary(-this.y + (this.height / 2), this.minY, this.maxY);
+            x = -this.followRef().x + (this.width / 2);
+            y = -this.followRef().y + (this.height / 2);
         }
 
-        this.ctx.translate(this.x, this.y);
+        x = x > 0 ? -x : x;
+        y = y > 0 ? -y : y;
+
+        x = this.enforceBoundary(x + (this.width / 2), this.width - this.maxX, this.minX);
+        y = this.enforceBoundary(y + (this.height / 2), this.height - this.maxY, this.minY);
+
+        this.translatedX = x;
+        this.translatedY = y;
+
+        this.ctx.translate(this.translatedX, this.translatedY);
     }
 
-    private enforceBoundary(value: number, min: number, max: number) {
+    private enforceBoundary(value: number, min: number, max: number): number {
         if (value < min) {
             return min;
         } else if (value > max) {

@@ -2,7 +2,7 @@ import { SpriteSheet } from "../textures/sprite-texture";
 import { Rectangle } from "../game-objects/rectangle";
 import { IRenderable, Renderer } from "../rendering/renderer";
 import { ImageTexture } from "../textures/image-texture";
-import { MouseInput } from "../input/mouse-input";
+import { MouseInput, MouseInputEvent } from "../input/mouse-input";
 import { CollisionDetector } from "../detectors/collision-detector";
 
 export type ButtonEventName = "click" | "mouseover"  | "mouseout" | "mousemove";
@@ -23,6 +23,8 @@ export class Button implements IRenderable {
     public y: number;
 
     private shape: Rectangle;
+    private visible: boolean = false;
+    private mousedOver: boolean = false;
 
     private eventHandlers: {
         "click": Function[];
@@ -31,7 +33,11 @@ export class Button implements IRenderable {
         "mousemove": Function[];
     };
 
-    constructor(options: IButtonOptions, private mouseInput: MouseInput) {
+    private boundOnClick: (evt: MouseInputEvent) => void;
+    private boundOnMouseOut: (evt: MouseInputEvent) => void;
+    private boundOnMouseMove: (evt: MouseInputEvent) => void;
+
+    constructor(options: IButtonOptions, private mouseInput: MouseInput, private renderer: Renderer) {
         this.width = options.width;
         this.height = options.height;
         this.x = options.x;
@@ -43,7 +49,25 @@ export class Button implements IRenderable {
         } else if (options.texture instanceof SpriteSheet) {
             this.shape.spriteSheet = options.texture;
         }
+        this.show();
+    }
+
+    public show() {
+        if (this.visible) {
+            return;
+        }
+        this.visible = true;
+        this.renderer.addObject(this);
         this.bindEventHandlers();
+    }
+
+    public hide() {
+        if (!this.visible) {
+            return;
+        }
+        this.visible = false;
+        this.renderer.removeObject(this);
+        this.unbindEventHandlers();
     }
 
     public beforeRender() {
@@ -62,6 +86,15 @@ export class Button implements IRenderable {
         this.eventHandlers[eventName].push(handler);
     }
 
+    private triggerEventHandlers(eventName: ButtonEventName, evtObj: any) {
+        if (this.eventHandlers[eventName].length === 0) {
+            return;
+        }
+        for (const handler of this.eventHandlers[eventName]) {
+            handler(evtObj);
+        }
+    }
+
     private bindEventHandlers() {
         this.eventHandlers = {
             "click": [],
@@ -69,51 +102,56 @@ export class Button implements IRenderable {
             "mouseout": [],
             "mousemove": []
         };
-        const triggerEventHandlers = (eventName: ButtonEventName, evtObj: any) => {
-            if (this.eventHandlers[eventName].length === 0) {
-                return;
-            }
-            for (const handler of this.eventHandlers[eventName]) {
-                handler(evtObj);
-            }
+
+        this.boundOnClick = this.onClick.bind(this);
+        this.boundOnMouseMove = this.onMouseMove.bind(this);
+        this.boundOnMouseOut = this.onMouseOut.bind(this);
+        
+        this.mouseInput.on("click", this.boundOnClick);
+        this.mouseInput.on("mousemove", this.boundOnMouseMove);
+        this.mouseInput.on("mouseout", this.boundOnMouseOut);
+    }
+
+    private onClick(evt: MouseInputEvent) {
+        const mouse = {
+            x: evt.event.x,
+            y: evt.event.y,
+            width: 5,
+            height: 5
+        }
+        if (!CollisionDetector.hasCollision(mouse, this)) {
+            return;
+        }
+        this.triggerEventHandlers("click", evt);
+    }
+
+    private onMouseMove(evt: MouseInputEvent) {
+        const mouse = {
+            x: evt.event.x,
+            y: evt.event.y,
+            width: 5,
+            height: 5
+        }
+        if (this.mousedOver && !CollisionDetector.hasCollision(mouse, this)) {
+            this.mousedOver = false;
+            this.triggerEventHandlers("mouseout", evt);
+        }
+        if (!CollisionDetector.hasCollision(mouse, this)) {
+            return;
         }
 
-        this.mouseInput.onClick(evt => {
-            const mouse = {
-                x: evt.event.x,
-                y: evt.event.y,
-                width: 5,
-                height: 5
-            }
-            if (!CollisionDetector.hasCollision(mouse, this)) {
-                return;
-            }
-            triggerEventHandlers("click", evt);
-        });
+        this.mousedOver = true;
+        this.triggerEventHandlers("mouseover", evt);
+    }
 
-        let mousedOver = false;
-        this.mouseInput.onMouseMove(evt => {
-            const mouse = {
-                x: evt.event.x,
-                y: evt.event.y,
-                width: 5,
-                height: 5
-            }
-            if (mousedOver && !CollisionDetector.hasCollision(mouse, this)) {
-                mousedOver = false;
-                triggerEventHandlers("mouseout", evt);
-            }
-            if (!CollisionDetector.hasCollision(mouse, this)) {
-                return;
-            }
+    private onMouseOut(evt: MouseInputEvent) {
+        this.triggerEventHandlers("mouseout", evt);
+    }
 
-            mousedOver = true;
-            triggerEventHandlers("mouseover", evt);
-        });
-
-        this.mouseInput.onMouseOut(evt => {
-            triggerEventHandlers("mouseout", evt);
-        });
+    private unbindEventHandlers() {
+        this.mouseInput.unbind("click", this.boundOnClick);
+        this.mouseInput.unbind("mousemove", this.boundOnMouseMove);
+        this.mouseInput.unbind("mouseout", this.boundOnMouseOut);
     }
 
 }

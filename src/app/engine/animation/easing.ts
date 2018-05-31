@@ -10,6 +10,18 @@ export class Easing {
         return TWEEN.Easing.Linear.None(t);
     }
 
+    public static easeInCubic(t: number): number {
+        return TWEEN.Easing.Cubic.In(t);
+    }
+
+    public static easeOutCubic(t: number): number {
+        return TWEEN.Easing.Cubic.Out(t);
+    }
+
+    public static easeInOutCubic(t: number): number {
+        return TWEEN.Easing.Cubic.InOut(t);
+    }
+
     public static easeInQuad(t: number): number {
         return TWEEN.Easing.Quadratic.In(t);
     }

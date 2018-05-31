@@ -1,8 +1,10 @@
+import * as _ from "lodash";
+
 export class MouseInputEvent implements EventListenerObject {
 
     public event: MouseEvent;
 
-    constructor(private callback: (evt: MouseInputEvent) => void) {}
+    constructor(public callback: (evt: MouseInputEvent) => void) {}
 
     public handleEvent(evt: MouseEvent) {
         this.event = evt;
@@ -10,40 +12,30 @@ export class MouseInputEvent implements EventListenerObject {
     }
 }
 
+export type MouseEventName = "mouseover" | "mouseenter" | "mouseleave" | "mouseout" | "mousemove" | "click";
+
 export class MouseInput {
+
+    private inputEvents: MouseInputEvent[] = [];
 
     constructor(private canvas: HTMLCanvasElement) {
 
     }
 
-    public onMouseOver(callback: (evt: MouseInputEvent) => void) {
+    public on(eventName: MouseEventName, callback: (evt: MouseInputEvent) => void) {
         const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mouseover", inputEvent);
+        this.inputEvents.push(inputEvent);
+        this.canvas.addEventListener(eventName, inputEvent);
     }
 
-    public onMouseEnter(callback: (evt: MouseInputEvent) => void) {
-        const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mouseenter", inputEvent);
-    }
-
-    public onMouseLeave(callback: (evt: MouseInputEvent) => void) {
-        const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mouseleave", inputEvent);
-    }
-
-    public onMouseOut(callback: (evt: MouseInputEvent) => void) {
-        const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mouseout", inputEvent);
-    }
-
-    public onMouseMove(callback: (evt: MouseInputEvent) => void) {
-        const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("mousemove", inputEvent);
-    }
-
-    public onClick(callback: (evt: MouseInputEvent) => void) {
-        const inputEvent = new MouseInputEvent(callback);
-        this.canvas.addEventListener("click", inputEvent);
+    public unbind(eventName: MouseEventName, callback: (evt: MouseInputEvent) => void) {
+        const index = _.findIndex(this.inputEvents, x => x.callback === callback);
+        if (index === -1) {
+            throw new Error("Callback not found");
+        }
+        const inputEvent = this.inputEvents[index];
+        this.canvas.removeEventListener(eventName, inputEvent);
+        this.inputEvents.splice(index, 1);
     }
 
 }

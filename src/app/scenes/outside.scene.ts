@@ -29,6 +29,8 @@ export class OutsideScene extends Scene {
     private startButton: Button;
 
     private instruction: Layer;
+    private groomSelection: Button;
+    private brideSelection: Button;
     private playButton: Button;
 
     private selectedPlayer: Player;
@@ -73,7 +75,7 @@ export class OutsideScene extends Scene {
         new Layer("cloud-i", 100, 575, this.assetLoader.getImage("cloud-1"), this.game.renderer);
         new Layer("cloud-j", 184, 380, this.assetLoader.getImage("cloud-2"), this.game.renderer);
 
-        this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
+        this.game.camera.setBoundaries(0, this.width, 0, this.height);
 
         this.showTitleScreen();
     }
@@ -89,23 +91,22 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - startButtonTexture.width / 2,
             y: 476,
             texture: this.assetLoader.getImage("start-button")
-        }, this.game.mouseInput);
+        }, this.game.mouseInput, this.game.renderer);
         this.startButton.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.hideTitleScreen();
             this.showPlayerSelection();
         });
-        this.game.renderer.addObject(this.startButton);
     }
 
     private hideTitleScreen() {
         this.gameTitle.hide();
-        this.game.renderer.removeObject(this.startButton);
+        this.startButton.hide();
     }
 
     private showPlayerSelection() {
         const selectPlayerText = this.assetLoader.getImage("select-player-text");
-        new Layer("select-player-text", (this.game.window.innerWidth / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.renderer);
+        this.instruction = new Layer("select-player-text", (this.game.window.innerWidth / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.renderer);
 
         const navGrid = new NavGrid({
             width: this.width,
@@ -134,33 +135,31 @@ export class OutsideScene extends Scene {
 
         const selectionOffset = 100;
 
-        const groomSelection = new Button({
+        this.groomSelection = new Button({
             width: 158,
             height: 158,
             x: (this.game.window.innerWidth / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
             y: 340,
             texture: groomSelectionTexture
-        }, this.game.mouseInput);
-        groomSelection.on("click", () => {
+        }, this.game.mouseInput, this.game.renderer);
+        this.groomSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.selectedPlayer = groom;
         });
-        this.game.renderer.addObject(groomSelection);
 
         const brideSelectionTexture = this.assetLoader.getImage("bride-player-selection");
 
-        const brideSelection = new Button({
+        this.brideSelection = new Button({
             width: 158,
             height: 158,
             x: (this.game.window.innerWidth / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
             y: 340,
             texture: brideSelectionTexture
-        }, this.game.mouseInput);
-        brideSelection.on("click", () => {
+        }, this.game.mouseInput, this.game.renderer);
+        this.brideSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.selectedPlayer = bride;
         });
-        this.game.renderer.addObject(brideSelection);
 
         const playButtonTexture = this.assetLoader.getImage("play-button");
         this.playButton = new Button({
@@ -169,18 +168,25 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - playButtonTexture.width / 2,
             y: 520,
             texture: this.assetLoader.getImage("play-button")
-        }, this.game.mouseInput);
+        }, this.game.mouseInput, this.game.renderer);
 
         this.playButton.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.startSequence();
         });
 
-        this.game.renderer.addObject(this.playButton);
+    }
+
+    private hidePlayerSelectionScreen() {
+        this.instruction.hide();
+        this.groomSelection.hide();
+        this.brideSelection.hide();
+        this.playButton.hide();
     }
 
     private startSequence() {
-        this.game.camera.moveTo({ x: 720, y: 1220 });
+        this.hidePlayerSelectionScreen();
+        this.game.camera.moveTo({ x: 0, y: -1220 }, 4000, Easing.easeInOutCubic);
     }
 
 }
