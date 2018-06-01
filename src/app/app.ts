@@ -4,8 +4,8 @@ import { OutsideScene } from "./scenes/outside.scene";
 
 export class App {
 
-    constructor(window: Window, canvas: HTMLCanvasElement) {
-        const game = new Game(canvas, {
+    constructor(window: Window, rootCanvas: HTMLCanvasElement) {
+        const game = new Game(rootCanvas, {
             width: window.innerWidth,
             height: window.innerHeight,
             scenes: [

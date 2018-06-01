@@ -19,6 +19,7 @@ import { Sound } from "../engine/audio/sound";
 import { Target } from "../models/target";
 import { Player } from "../models/player";
 import { Button } from "../engine/ui/button";
+import { Dialog } from "../engine/ui/dialog";
 
 export class OutsideScene extends Scene {
 
@@ -55,7 +56,8 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("play-button", "src/sprites/play-button.png"),
             this.assetLoader.loadSound("menu-select", "src/sounds/menu-select.wav"),
             this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
-            this.assetLoader.loadImage("pew", "src/sprites/pew.png")
+            this.assetLoader.loadImage("pew", "src/sprites/pew.png"),
+            this.assetLoader.loadImage("dialog", "src/sprites/dialog.png")
         ] as any);
     }
 
@@ -63,19 +65,19 @@ export class OutsideScene extends Scene {
         const sky = new Rectangle(this.width, 934, 0, 0);
         sky.gradient = [["#b1e0f2", 1], ["#7d9bf2", 0]];
 
-        new Layer("sky", 0, 0, sky, this.game.renderer);
-        new Layer("outdoor-scene", 0, 850, this.assetLoader.getImage("outdoor-scene-background"), this.game.renderer);
+        new Layer("sky", 0, 0, sky, this.game.rootRenderer);
+        new Layer("outdoor-scene", 0, 850, this.assetLoader.getImage("outdoor-scene-background"), this.game.rootRenderer);
 
-        new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.renderer);
-        new Layer("cloud-b", 360, 82, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-c", 793, 55, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-d", 860, 210, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-e", 1232, 248, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-f", 1093, 431, this.assetLoader.getImage("cloud-1"), this.game.renderer);
-        new Layer("cloud-g", 1223, 620, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-h", 353, 500, this.assetLoader.getImage("cloud-2"), this.game.renderer);
-        new Layer("cloud-i", 100, 575, this.assetLoader.getImage("cloud-1"), this.game.renderer);
-        new Layer("cloud-j", 184, 380, this.assetLoader.getImage("cloud-2"), this.game.renderer);
+        new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        new Layer("cloud-b", 360, 82, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-c", 793, 55, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-d", 860, 210, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-e", 1232, 248, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-f", 1093, 431, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        new Layer("cloud-g", 1223, 620, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-h", 353, 500, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        new Layer("cloud-i", 100, 575, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        new Layer("cloud-j", 184, 380, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
 
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
 
@@ -84,7 +86,7 @@ export class OutsideScene extends Scene {
 
     private showTitleScreen() {
         const gameTitleTexture = this.assetLoader.getImage("game-title");
-        this.gameTitle = new Layer("game-title", (this.game.window.innerWidth / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.renderer);
+        this.gameTitle = new Layer("game-title", (this.game.window.innerWidth / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.rootRenderer);
 
         const startButtonTexture = this.assetLoader.getImage("start-button");
         this.startButton = new Button({
@@ -93,7 +95,7 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - startButtonTexture.width / 2,
             y: 476,
             texture: this.assetLoader.getImage("start-button")
-        }, this.game.mouseInput, this.game.renderer);
+        }, this.game.mouseInput, this.game.rootRenderer);
         this.startButton.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.hideTitleScreen();
@@ -108,28 +110,28 @@ export class OutsideScene extends Scene {
 
     private showPlayerSelection() {
         const selectPlayerText = this.assetLoader.getImage("select-player-text");
-        this.instruction = new Layer("select-player-text", (this.game.window.innerWidth / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.renderer);
+        this.instruction = new Layer("select-player-text", (this.game.window.innerWidth / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.rootRenderer);
 
         const navGrid = new NavGrid({
             width: this.width,
             height: 672,
             x: 0,
             y: 1130
-        }, this.game.renderer);
+        }, this.game.rootRenderer);
 
-        const pathfinder = new PathFinder(navGrid, this.game.renderer);
+        const pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
 
         const groom = new Player({
             model: "groom",
             x: (this.game.window.innerWidth / 2) - 20,
             y: 1157
-        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
         const bride = new Player({
             model: "bride",
             x: (this.game.window.innerWidth / 2) + 20,
             y: 1157
-        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
         this.selectedPlayer = groom;
 
@@ -143,7 +145,7 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
             y: 340,
             texture: groomSelectionTexture
-        }, this.game.mouseInput, this.game.renderer);
+        }, this.game.mouseInput, this.game.rootRenderer);
         this.groomSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.selectedPlayer = groom;
@@ -157,7 +159,7 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
             y: 340,
             texture: brideSelectionTexture
-        }, this.game.mouseInput, this.game.renderer);
+        }, this.game.mouseInput, this.game.rootRenderer);
         this.brideSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
             this.selectedPlayer = bride;
@@ -170,7 +172,7 @@ export class OutsideScene extends Scene {
             x: (this.game.window.innerWidth / 2) - playButtonTexture.width / 2,
             y: 520,
             texture: this.assetLoader.getImage("play-button")
-        }, this.game.mouseInput, this.game.renderer);
+        }, this.game.mouseInput, this.game.rootRenderer);
 
         this.playButton.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
@@ -189,39 +191,47 @@ export class OutsideScene extends Scene {
     private startSequence() {
         this.hidePlayerSelectionScreen();
 
-        const arch = new Layer("wedding-arch", 665, 1067, this.assetLoader.getImage("wedding-arch"), this.game.renderer);
+        const arch = new Layer("wedding-arch", 665, 1067, this.assetLoader.getImage("wedding-arch"), this.game.rootRenderer);
 
-        this.game.camera.moveTo({x: arch.x + 52, y: arch.y + 150}, 4000, Easing.easeInOutCubic).then(() => {
+        this.game.camera.moveTo(this.selectedPlayer, 4000, Easing.easeInOutCubic).then(() => {
             this.game.camera.follow(() => {
                 return new Vector(this.selectedPlayer.x, this.selectedPlayer.y);
             });
-            this.selectedPlayer.enableControls();
+            this.beginCeremony();
         });
 
         const firstRowY = 1214;
         const rightSectionSpacing = 605;
         const spacing = 70;
-        new Layer("pew-a", 223, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-b", 414, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-c", 223, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-d", 414, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-e", 223, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-f", 414, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-g", 223, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-h", 414, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-i", 223, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-j", 414, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-a", 223, firstRowY, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-b", 414, firstRowY, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-c", 223, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-d", 414, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-e", 223, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-f", 414, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-g", 223, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-h", 414, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-i", 223, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-j", 414, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
 
-        new Layer("pew-h", 223 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-k", 414 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-l", 223 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-m", 414 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-n", 223 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-o", 414 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-p", 223 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-q", 414 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
-        new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.renderer);
+        new Layer("pew-h", 223 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-k", 414 + rightSectionSpacing, firstRowY, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-l", 223 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-m", 414 + rightSectionSpacing, firstRowY + spacing, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-n", 223 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-o", 414 + rightSectionSpacing, firstRowY + spacing * 2, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-p", 223 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-q", 414 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+        new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+    }
+
+    private beginCeremony() {
+        const harryDialog = new Dialog(this.game.uiRenderer, this.game.window, this.assetLoader);
+        harryDialog.addTextSnippet("Hello this is a text to see if blah blah blah something long goes here. It'll fill a lot of space to test the text.");
+        harryDialog.addTextSnippet("And this is another snippet to show how the text snippet stuff works.");
+        harryDialog.show();
+        this.selectedPlayer.enableControls();
     }
 
 }

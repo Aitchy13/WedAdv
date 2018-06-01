@@ -42,9 +42,9 @@ export class InsideScene extends Scene {
         const navGrid = new NavGrid({
             width: this.width,
             height: this.height
-        }, this.game.renderer);
+        }, this.game.rootRenderer);
 
-        const pathfinder = new PathFinder(navGrid, this.game.renderer);
+        const pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
 
         const hidingSpots = [];
 
@@ -52,14 +52,14 @@ export class InsideScene extends Scene {
             model: "groom",
             x: 650,
             y: 300
-        }, this.assetLoader, this.game.renderer, pathfinder, this.game.keyboardInput).enableControls();
+        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput).enableControls();
 
         this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
         this.game.camera.follow(() => {
             return new Vector(player.x, player.y);
         });
 
-        new Layer("background", 0, 0, this.assetLoader.getImage("indoor-scene-background"), this.game.renderer);
+        new Layer("background", 0, 0, this.assetLoader.getImage("indoor-scene-background"), this.game.rootRenderer);
             
         const tableWidth = 154;
         const tableHeight = 142;
@@ -102,21 +102,21 @@ export class InsideScene extends Scene {
             clothing: "blue-suit",
             x: 200,
             y: 200
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         new Guest({
             name: "Some Guest",
             clothing: "blue-suit",
             x: 500,
             y: 550
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         new Guest({
             name: "Another Guest",
             clothing: "blue-suit",
             x: 700,
             y: 700
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
 
         const hiddenLocation = hidingSpots[MathsUtility.randomIntegerRange(0, hidingSpots.length - 1)];
@@ -127,7 +127,7 @@ export class InsideScene extends Scene {
             y: hiddenLocation.y,
             player: player,
             hidingSpots: hidingSpots
-        }, this.assetLoader, this.game.renderer, pathfinder);
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         let revealed = false;
         hidingSpots.forEach(hideableLocation => {
@@ -135,10 +135,10 @@ export class InsideScene extends Scene {
                 this.stopObjectOnCollision(player, hideableLocation);
             }
             navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation);
-            this.game.renderer.addObject(hideableLocation);
+            this.game.rootRenderer.addObject(hideableLocation);
         });
         
-        this.game.renderer.addObject(player);
+        this.game.rootRenderer.addObject(player);
 
         // const walkSound = new Sound("footstep", "src/sounds/footstep10.wav");
         // walkSound.load();

@@ -21,6 +21,7 @@ export class Button implements IRenderable {
     public height: number;
     public x: number;
     public y: number;
+    public fixedPosition = false;
 
     private shape: Rectangle;
     private visible: boolean = false;
@@ -70,16 +71,8 @@ export class Button implements IRenderable {
         this.unbindEventHandlers();
     }
 
-    public beforeRender() {
-
-    }
-
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
         this.shape.render(ctx, timeDelta);
-    }
-
-    public afterRender() {
-
     }
 
     public on(eventName: ButtonEventName, handler: () => void) {

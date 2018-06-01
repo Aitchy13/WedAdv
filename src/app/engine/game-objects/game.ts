@@ -7,6 +7,7 @@ import { Time } from "../utilities/time";
 import { AssetLoader } from "../textures/asset-loader";
 import { MouseInput } from "../input/mouse-input";
 import { Camera } from "../rendering/camera";
+import { Canvas } from "../core/canvas";
 
 export class Game {
 
@@ -14,32 +15,44 @@ export class Game {
     public logger: Logger;
     public keyboardInput: KeyboardInput;
     public mouseInput: MouseInput;
-    public renderer: Renderer;
+    public rootRenderer: Renderer;
+    public uiRenderer: Renderer;
     public window: Window;
+    public document: Document;
     public time: Time;
     public textureLoader: AssetLoader;
     public camera: Camera;
 
-    constructor(public readonly canvas: HTMLCanvasElement, public config: IGameConfig) {
-        this.canvas = canvas;
-        this.canvas.width = this.config.width;
-        this.canvas.height = this.config.height;
+    public rootCanvas: Canvas;
+    public uiCanvas: Canvas;
 
+    constructor(public readonly element: HTMLCanvasElement, public config: IGameConfig) {
+        this.document = document;
         this.window = window;
+        
+        this.rootCanvas = new Canvas(element, this.config.width, this.config.height);
+
+        const uiElement = this.document.createElement("canvas");
+        uiElement.className = "game-screen";
+        this.rootCanvas.element.parentNode.insertBefore(uiElement, this.rootCanvas.element.nextSibling);
+        this.uiCanvas = new Canvas(uiElement, this.config.width, this.config.height);
+
         this.logger = new Logger();
         this.keyboardInput = new KeyboardInput();
-        this.mouseInput = new MouseInput(this.canvas);
+        this.mouseInput = new MouseInput(this.uiCanvas);
         this.time = new Time();
-        this.camera = new Camera(this.canvas.width, this.canvas.height);
+        this.camera = new Camera(this.rootCanvas.width, this.rootCanvas.height);
 
-        this.renderer = new Renderer(this.canvas.getContext("2d"), this.window, this.logger, this.time, this.camera);
+        this.rootRenderer = new Renderer(this.rootCanvas.context, this.window, this.logger, this.time, this.camera);
+        this.uiRenderer = new Renderer(this.uiCanvas.context, this.window, this.logger, this.time);
         this.textureLoader = new AssetLoader(this.logger);
 
         this.sceneManager = new SceneManager(this.logger, this, this.textureLoader);
         this.config.scenes.forEach(x => this.sceneManager.registerScene(x));
         this.sceneManager.load(this.config.bootstrap);
         
-        this.renderer.start();
+        this.rootRenderer.start();
+        this.uiRenderer.start();
     }
 
 }

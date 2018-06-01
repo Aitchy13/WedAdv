@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import { Canvas } from "../core/canvas";
 
 export class MouseInputEvent implements EventListenerObject {
 
@@ -18,14 +19,14 @@ export class MouseInput {
 
     private inputEvents: MouseInputEvent[] = [];
 
-    constructor(private canvas: HTMLCanvasElement) {
+    constructor(private canvas: Canvas) {
 
     }
 
     public on(eventName: MouseEventName, callback: (evt: MouseInputEvent) => void) {
         const inputEvent = new MouseInputEvent(callback);
         this.inputEvents.push(inputEvent);
-        this.canvas.addEventListener(eventName, inputEvent);
+        this.canvas.element.addEventListener(eventName, inputEvent);
     }
 
     public unbind(eventName: MouseEventName, callback: (evt: MouseInputEvent) => void) {
@@ -34,7 +35,7 @@ export class MouseInput {
             throw new Error("Callback not found");
         }
         const inputEvent = this.inputEvents[index];
-        this.canvas.removeEventListener(eventName, inputEvent);
+        this.canvas.element.removeEventListener(eventName, inputEvent);
         this.inputEvents.splice(index, 1);
     }
 

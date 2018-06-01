@@ -27,6 +27,8 @@ export class Rectangle implements IMoveable, IRenderable {
     public degree: number = 0;
     public degreeVel: number = 0;
 
+    public fixedPosition = false;
+
     // Applied by @Moveable decorator
     public xVel: number = 0;
     public yVel: number = 0;
@@ -111,10 +113,6 @@ export class Rectangle implements IMoveable, IRenderable {
     }
 
     public beforeRender() {
-
-    }
-
-    public afterRender() {
 
     }
 

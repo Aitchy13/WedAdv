@@ -10,8 +10,9 @@ import { Camera } from "./camera";
 export interface IRenderable {
     y: number;
     render(ctx?: CanvasRenderingContext2D, delta?: number): void;
-    beforeRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
-    afterRender(ctx?: CanvasRenderingContext2D, delta?: number): void;
+    beforeRender?(ctx?: CanvasRenderingContext2D, delta?: number): void;
+    afterRender?(ctx?: CanvasRenderingContext2D, delta?: number): void;
+    fixedPosition: boolean;
 }
 
 export class Renderer {
@@ -20,9 +21,11 @@ export class Renderer {
     private animationFrame: (x: FrameRequestCallback) => number;
     private animationFrameLoopId: number;
 
-    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera: Camera) {
+    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera?: Camera) {
         this.animationFrame = this.window.requestAnimationFrame;
-        this.camera.ctx = this.context;
+        if (this.camera) {
+            this.camera.ctx = this.context;
+        }
     }
 
     public addObject(obj: IRenderable) {
@@ -57,14 +60,29 @@ export class Renderer {
     private render() {
         const timeDelta = this.time.setDelta().delta;
         Tween.update(timeDelta);
-        this.context.setTransform(1, 0, 0, 1, 0, 0);
+        if (this.camera) {
+            this.context.setTransform(1, 0, 0, 1, 0, 0);
+        }
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-        this.camera.update();
+        if (this.camera) {
+            this.camera.update();
+        }
+
         this.renderables = _.orderBy(this.renderables, d => d.y);
         this.renderables.forEach(x => {
-            x.beforeRender(this.context, timeDelta);
+            if (x.beforeRender) {
+                x.beforeRender(this.context, timeDelta);
+            }
+        })
+        this.renderables = _.orderBy(this.renderables, d => d.y);
+        this.renderables.forEach(x => {
             x.render(this.context, timeDelta);
-            x.afterRender(this.context, timeDelta);
         });
+        this.renderables = _.orderBy(this.renderables, d => d.y);
+        this.renderables.forEach(x => {
+            if (x.afterRender) {
+                x.afterRender(this.context, timeDelta);
+            }
+        })
     }
 }

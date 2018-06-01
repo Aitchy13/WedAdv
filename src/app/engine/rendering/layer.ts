@@ -4,6 +4,7 @@ import { Rectangle } from "../game-objects/rectangle";
 
 export class Layer implements IRenderable {
 
+    public fixedPosition = false;
     private visible: boolean = false;
 
     constructor (public key: string, public x: number, public y: number, public texture: ImageTexture|Rectangle, public renderer: Renderer) {
@@ -39,14 +40,6 @@ export class Layer implements IRenderable {
             this.texture.render(ctx, timeDelta);
             return;
         }
-    }
-
-    public beforeRender() {
-
-    }
-
-    public afterRender() {
-        
     }
 
 }

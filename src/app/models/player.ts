@@ -31,12 +31,8 @@ export class Player extends Character implements IRenderable {
         this.model = options.model;
         this.name = options.model === "bride" ? "Hannah" : "Harry";
 
-        this.setSpritesheet(this.model);
+        this.setSpriteSheet(this.model);
         this.setAnimations(this.model);
-
-    }
-
-    public beforeRender() {
 
     }
 
@@ -48,7 +44,7 @@ export class Player extends Character implements IRenderable {
         });
     }
 
-    private setSpritesheet(model: PlayerModel) {
+    private setSpriteSheet(model: PlayerModel) {
         switch (model) {
             case "groom":
                 this.spriteSheet = this.textureLoader.getSpriteSheet("groom", true);

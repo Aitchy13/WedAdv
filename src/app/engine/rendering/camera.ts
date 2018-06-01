@@ -10,9 +10,6 @@ export class Camera {
     public x: number;
     public y: number;
 
-    public translatedX: number;
-    public translatedY: number;
-
     private followRef: () => Vector;
     private minX: number;
     private maxX: number;
@@ -20,8 +17,8 @@ export class Camera {
     private maxY: number;
 
     constructor(public width: number, public height: number) {
-        this.x = 0;
-        this.y = 0;
+        this.x = this.enforceBoundary(this.width / 2, this.width - this.maxX, this.minX);
+        this.y = this.enforceBoundary(this.height / 2, this.height - this.maxY, this.minY);
     }
 
     public setBoundaries(minX: number, maxX: number, minY: number, maxY: number): void {
@@ -46,7 +43,11 @@ export class Camera {
         this.followRef = undefined;
 
         const tween = new Tween(this);
-        tween.to(new Vector(coordinate.x, coordinate.y), duration, easing);
+
+        let x = coordinate.x;
+        let y = coordinate.y;
+
+        tween.to(new Vector(x, y), duration, easing);
         tween.start();
         return new Promise((resolve) => {
             tween.on("complete", destination => {
@@ -70,10 +71,7 @@ export class Camera {
         x = this.enforceBoundary(x + (this.width / 2), this.width - this.maxX, this.minX);
         y = this.enforceBoundary(y + (this.height / 2), this.height - this.maxY, this.minY);
 
-        this.translatedX = x;
-        this.translatedY = y;
-
-        this.ctx.translate(this.translatedX, this.translatedY);
+        this.ctx.translate(x, y);
     }
 
     private enforceBoundary(value: number, min: number, max: number): number {

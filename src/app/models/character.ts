@@ -24,6 +24,7 @@ export class Character implements IRenderable, IMoveable {
     public width: number;
     public height: number;
     public isWalking: boolean;
+    public fixedPosition = false;
 
     // Applied by @Moveable decorator
     public xVel: number = 0;
@@ -88,14 +89,6 @@ export class Character implements IRenderable, IMoveable {
         ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, this.width, this.height);
 
         ctx.restore();
-    }
-
-    public beforeRender() {
-
-    }
-
-    public afterRender() {
-        
     }
 
     public goTo(coordinate: ICoordinate, duration: number = 200, onComplete?: () => void) {
