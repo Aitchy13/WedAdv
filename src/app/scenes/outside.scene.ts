@@ -35,6 +35,8 @@ export class OutsideScene extends Scene {
     private playButton: Button;
 
     private selectedPlayer: Player;
+    private groom: Player;
+    private bride: Player;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
@@ -121,19 +123,19 @@ export class OutsideScene extends Scene {
 
         const pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
 
-        const groom = new Player({
+        this.groom = new Player({
             model: "groom",
             x: (this.game.window.innerWidth / 2) - 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
-        const bride = new Player({
+        this.bride = new Player({
             model: "bride",
             x: (this.game.window.innerWidth / 2) + 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
-        this.selectedPlayer = groom;
+        this.selectedPlayer = this.groom;
 
         const groomSelectionTexture = this.assetLoader.getImage("groom-player-selection");
 
@@ -148,7 +150,7 @@ export class OutsideScene extends Scene {
         }, this.game.mouseInput, this.game.rootRenderer);
         this.groomSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
-            this.selectedPlayer = groom;
+            this.selectedPlayer = this.groom;
         });
 
         const brideSelectionTexture = this.assetLoader.getImage("bride-player-selection");
@@ -162,7 +164,7 @@ export class OutsideScene extends Scene {
         }, this.game.mouseInput, this.game.rootRenderer);
         this.brideSelection.on("click", () => {
             this.assetLoader.getSound("menu-select").play();
-            this.selectedPlayer = bride;
+            this.selectedPlayer = this.bride;
         });
 
         const playButtonTexture = this.assetLoader.getImage("play-button");
@@ -227,11 +229,8 @@ export class OutsideScene extends Scene {
     }
 
     private beginCeremony() {
-        const harryDialog = new Dialog(this.game.uiRenderer, this.game.window, this.assetLoader);
-        harryDialog.addTextSnippet("Hello this is a text to see if blah blah blah something long goes here. It'll fill a lot of space to test the text.");
-        harryDialog.addTextSnippet("And this is another snippet to show how the text snippet stuff works.");
-        harryDialog.show();
-        this.selectedPlayer.enableControls();
+        const dialogText = "Hello this is text to see if blah blah blah something long goes here. It'll fill a lot of space to test the text. And this is another snippet to show how the text snippet stuff works."
+        this.game.dialogService.show(dialogText, this.groom);
     }
 
 }

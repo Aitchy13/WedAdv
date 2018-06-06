@@ -91,7 +91,7 @@ export class Player extends Character implements IRenderable {
     }
 
     public enableControls(): Player {
-        this.keyboardInput.onKeyDown(evt => {
+        this.keyboardInput.on("keydown", evt => {
             const sensitivity = 2.5;
             switch (evt.event.key) {
                 case "w":
@@ -124,7 +124,7 @@ export class Player extends Character implements IRenderable {
                     break;
             }
         });
-        this.keyboardInput.onKeyUp(evt => { 
+        this.keyboardInput.on("keyup", evt => { 
             this.setVelocity(AxisDimension.XY, 0);
             this.spriteSheet.stopAnimation();
             // walkSound.stop();

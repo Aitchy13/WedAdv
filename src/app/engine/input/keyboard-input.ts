@@ -4,7 +4,7 @@ export class KeyboardInputEvent implements EventListenerObject {
 
     public event: KeyboardEvent;
 
-    constructor(private callback: (evt: KeyboardInputEvent) => void, public readonly activeKeys: string[]) {}
+    constructor(public callback: (evt: KeyboardInputEvent) => void, public readonly activeKeys: string[]) {}
 
     public handleEvent(evt: KeyboardEvent) {
         this.event = evt;
@@ -12,15 +12,18 @@ export class KeyboardInputEvent implements EventListenerObject {
     }
 }
 
+export type KeyboardEventName = "keyup" | "keydown";
+
 export class KeyboardInput {
 
     public readonly activeKeys: string[] = [];
+    private inputEvents: KeyboardInputEvent[] = [];
 
-    constructor() {
-        this.onKeyDown((evt) => {
+    constructor(private document: Document) {
+        this.on("keydown", (evt) => {
             this.activeKeys.push(evt.event.key);
         });
-        this.onKeyUp((evt) => {
+        this.on("keyup", (evt) => {
             const index = _.findIndex(this.activeKeys, x => x === evt.event.key);
             if (index !== -1) {
                 this.activeKeys.splice(index, 1);
@@ -28,14 +31,20 @@ export class KeyboardInput {
         });
     }
 
-    public onKeyDown(callback: (evt: KeyboardInputEvent) => void) {
+    public on(eventName: KeyboardEventName, callback: (evt: KeyboardInputEvent) => void) {
         const inputEvent = new KeyboardInputEvent(callback, this.activeKeys);
-        document.addEventListener("keydown", inputEvent, false);
+        this.inputEvents.push(inputEvent);
+        document.addEventListener(eventName, inputEvent, false);
     }
 
-    public onKeyUp(callback: (evt: KeyboardInputEvent) => void) {
-        const inputEvent = new KeyboardInputEvent(callback, this.activeKeys);
-        document.addEventListener("keyup", inputEvent, false);
+    public unbind(eventName: KeyboardEventName, callback: (evt: KeyboardInputEvent) => void) {
+        const index = _.findIndex(this.inputEvents, x => x.callback === callback);
+        if (index === -1) {
+            throw new Error("Callback not found");
+        }
+        const inputEvent = this.inputEvents[index];
+        this.document.removeEventListener(eventName, inputEvent);
+        this.inputEvents.splice(index, 1);
     }
 
 }

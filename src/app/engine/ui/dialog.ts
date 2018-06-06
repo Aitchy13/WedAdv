@@ -1,25 +1,47 @@
+import * as _ from "lodash";
+
 import { Renderer, IRenderable } from "../rendering/renderer";
 import { SpriteSheet } from "../textures/sprite-texture";
 import { Rectangle } from "../game-objects/rectangle";
 import { AssetLoader } from "../textures/asset-loader";
-import { KeyboardInput } from "../input/keyboard-input";
+import { KeyboardInput, KeyboardInputEvent } from "../input/keyboard-input";
 
-export interface ICanTalk {
-
-}
-
-export interface IDialogAvatar {
+export interface ICanSpeak {
     name: string;
-    spriteSheet: SpriteSheet;
+    dialogSpriteSheet: SpriteSheet;
 }
 
-export class DialogManager {
+export type DialogEventName = "start" | "complete";
 
-    constructor(private keyboardInput: KeyboardInput) {
+export class DialogService {
+
+    private eventHandlers: {
+        "start": Function[];
+        "complete": Function[];
+    };
+
+    private activeDialog: Dialog;
+
+    constructor(private keyboardInput: KeyboardInput, private renderer: Renderer, private window: Window, private assetLoader: AssetLoader) {
         
     }
 
-    
+    public show(text: string, character?: ICanSpeak) {
+        if (this.activeDialog) {
+            this.activeDialog.hide();
+        }
+        const dialog = new Dialog(this.renderer, this.window, this.assetLoader, this.keyboardInput);
+        if (character) {
+            dialog.setAvatar(character.name, character.dialogSpriteSheet);
+        }
+        dialog.setText(text);
+        this.activeDialog = dialog;
+        this.activeDialog.show();
+    }
+
+    public on(eventName: DialogEventName, handler: () => void) {
+        this.eventHandlers[eventName].push(handler);
+    }
 
 }
 
@@ -27,89 +49,147 @@ export class Dialog implements IRenderable {
 
     public x: number;
     public y: number;
-    public fixedPosition = true;
 
     private width: number = 470;
     private height: number = 104;
-    private maxCharacters: number = 255;
     private shape: Rectangle;
-    private avatar: IDialogAvatar;
+    private avatar: ICanSpeak;
 
-    private textSnippets: string[] = [];
+    private maxLines: number = 3;
+
+    private text: string;
+    private textFontSize: number = 15;
+    private textFontWeight: string = "bold";
+    private textFontFamily: string = "Arial";
+    private textFont: string = `${this.textFontWeight} ${this.textFontSize}px ${this.textFontFamily}`;
+    private textX: number;
+    private textY: number;
+    private textSnippets: string[][];
     private textColor: string = "#fff";
 
     private currentSnippetIndex: number = 0;
 
+    private boundKeyupHandler: (evt: KeyboardInputEvent) => void;
+
     private visible: boolean = false;
 
-     constructor(private renderer: Renderer, private window: Window, private assetLoader: AssetLoader) {
+     constructor(private renderer: Renderer, private window: Window, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput) {
         this.shape = new Rectangle(this.width, this.height, (this.window.innerWidth / 2) - this.width / 2, this.window.innerHeight - this.height - 20);
         this.shape.imageTexture = this.assetLoader.getImage("dialog");
         this.x = this.shape.vertices[0].x;
         this.y = this.shape.vertices[0].y;
+
+        // this.textX calculated when setting text
+        this.textY = this.y + 45;
+    }
+
+    public setText(text: string) {
+        const maxWidth = this.avatar ? 325 : 425;
+        this.textX = this.x + ( this.avatar ? 116 : 30);
+        this.textSnippets = this.createTextSnippets(text, maxWidth);
+        return this;
     }
 
     public setAvatar(name: string, spriteSheet: SpriteSheet) {
         this.avatar = {
             name: name,
-            spriteSheet: spriteSheet
+            dialogSpriteSheet: spriteSheet
         };
-    }
-
-    public addTextSnippet(text: string) {
-        this.textSnippets.push(text);
+        return this;
     }
 
     public show() {
         if (this.visible) {
-            return;
+            return this;
         }
         this.visible = true;
         this.renderer.addObject(this);
-        
+        this.bindKeyboardEvents();
+        return this;
     }
     
     public hide() {
         if (!this.visible) {
-            return;
+            return this;
         }
         this.visible = false;
-        this.renderer.removeObject(this);
+        this.renderer.removeObject(this); 
+        this.unbindKeyboardEvents();
+        return this;
     }
 
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
         this.shape.render(ctx, timeDelta);
-        ctx.font = "bold 14px Arial";
+        ctx.font = this.textFont;
         ctx.fillStyle = this.textColor;
-        this.positionText(ctx, this.textSnippets[0]);
+
+        if (this.textSnippets) {
+            this.renderTextSnippet(this.textSnippets[this.currentSnippetIndex]);
+        }
+        if (this.avatar) {
+            ctx.font = "bold 12px arial";
+            ctx.fillStyle = "#efd960";
+            ctx.fillText(this.avatar.name.toUpperCase(), this.textX, this.textY - 22);
+        }
     }
 
-    public chain(dialog: Dialog) {
-
+    private cycleText() {
+        if (this.currentSnippetIndex + 1 < this.textSnippets.length) {
+            this.currentSnippetIndex++;
+        } else {
+            this.hide();
+        }
     }
 
-    private positionText(context: CanvasRenderingContext2D, text: string) {
-        const maxWidth = 325;
-        const lineHeight = 20;
+    private bindKeyboardEvents() {
+        this.boundKeyupHandler = (evt: KeyboardInputEvent) => {
+            if (evt.event.key === "Enter" || evt.event.code === "Space") {
+                this.cycleText();
+            }
+        }
+        this.boundKeyupHandler.bind(this);
+        this.keyboardInput.on("keyup", this.boundKeyupHandler);
+    }
+
+    private unbindKeyboardEvents() {
+        this.keyboardInput.unbind("keyup", this.boundKeyupHandler);
+    }
+
+    private createTextSnippets(text: string, maxWidth: number): string[][] {
         const transformedText = text.toUpperCase();
         const words = transformedText.split(" ");
-        const x = this.x + 117;
 
-        let y = this.y + 32;
         let line = "";
-        for(let n = 0; n < words.length; n++) {
-            const testLine = line + words[n] + " ";
-            const metrics = context.measureText(testLine);
-            const testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                context.fillText(line, x, y);
-                line = words[n] + " ";
-                y += lineHeight;
+        const lines: string[] = [];
+        for(let wordIndex = 0; wordIndex < words.length; wordIndex++) {
+            const testLine = line + words[wordIndex] + " ";
+            this.renderer.context.font = this.textFont;
+            const metrics = this.renderer.context.measureText(testLine);
+            if (metrics.width > maxWidth && wordIndex > 0) {
+                lines.push(line);
+                line = words[wordIndex] + " ";
             } else {
                 line = testLine;
             }
         }
-        context.fillText(line, x, y);
+        lines.push(line);
+
+        let splitIntoMaxLines = _.chain(_.range(0, lines.length - 1))
+            .filter(x => x % this.maxLines === 0)
+            .map(x => [lines[x], lines[x + 1], lines[x + 2]])
+            .value();
+
+        return splitIntoMaxLines;
+    }
+
+    private renderTextSnippet(textSnippet: string[]) {
+        if (!textSnippet) {
+            return;
+        }
+        for (let i = 0; i < textSnippet.length; i++) {
+            const line = textSnippet[i];
+            this.renderer.context.fillText(line, this.textX, this.textY + (i * (this.textFontSize * 1.4)));
+        }
     }
 
 }

@@ -12,7 +12,6 @@ export interface IRenderable {
     render(ctx?: CanvasRenderingContext2D, delta?: number): void;
     beforeRender?(ctx?: CanvasRenderingContext2D, delta?: number): void;
     afterRender?(ctx?: CanvasRenderingContext2D, delta?: number): void;
-    fixedPosition: boolean;
 }
 
 export class Renderer {
@@ -21,7 +20,7 @@ export class Renderer {
     private animationFrame: (x: FrameRequestCallback) => number;
     private animationFrameLoopId: number;
 
-    constructor(private context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera?: Camera) {
+    constructor(public context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera?: Camera) {
         this.animationFrame = this.window.requestAnimationFrame;
         if (this.camera) {
             this.camera.ctx = this.context;

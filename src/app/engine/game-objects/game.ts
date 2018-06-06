@@ -8,6 +8,7 @@ import { AssetLoader } from "../textures/asset-loader";
 import { MouseInput } from "../input/mouse-input";
 import { Camera } from "../rendering/camera";
 import { Canvas } from "../core/canvas";
+import { DialogService } from "../ui/dialog";
 
 export class Game {
 
@@ -20,8 +21,9 @@ export class Game {
     public window: Window;
     public document: Document;
     public time: Time;
-    public textureLoader: AssetLoader;
+    public assetLoader: AssetLoader;
     public camera: Camera;
+    public dialogService: DialogService;
 
     public rootCanvas: Canvas;
     public uiCanvas: Canvas;
@@ -38,16 +40,18 @@ export class Game {
         this.uiCanvas = new Canvas(uiElement, this.config.width, this.config.height);
 
         this.logger = new Logger();
-        this.keyboardInput = new KeyboardInput();
+        this.keyboardInput = new KeyboardInput(this.document);
         this.mouseInput = new MouseInput(this.uiCanvas);
         this.time = new Time();
         this.camera = new Camera(this.rootCanvas.width, this.rootCanvas.height);
 
         this.rootRenderer = new Renderer(this.rootCanvas.context, this.window, this.logger, this.time, this.camera);
         this.uiRenderer = new Renderer(this.uiCanvas.context, this.window, this.logger, this.time);
-        this.textureLoader = new AssetLoader(this.logger);
+        this.assetLoader = new AssetLoader(this.logger);
 
-        this.sceneManager = new SceneManager(this.logger, this, this.textureLoader);
+        this.dialogService = new DialogService(this.keyboardInput, this.uiRenderer, this.window, this.assetLoader);
+
+        this.sceneManager = new SceneManager(this.logger, this, this.assetLoader);
         this.config.scenes.forEach(x => this.sceneManager.registerScene(x));
         this.sceneManager.load(this.config.bootstrap);
         
