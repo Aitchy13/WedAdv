@@ -1,22 +1,16 @@
-import * as _ from "lodash";
 
 import { Scene } from "../engine/game-objects/scene";
 import { Game } from "../engine/game-objects/game";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Rectangle } from "../engine/game-objects/rectangle";
-import { AxisDimension, PositionStrategy, IMoveable } from "../engine/physics/moveable";
+import { AxisDimension, PositionStrategy } from "../engine/physics/moveable";
 import { Vector } from "../engine/core/vector";
 import { AssetLoader } from "../engine/textures/asset-loader";
-import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
 import { PathFinder } from "../engine/navigation/pathfinder";
-import { Tween } from "../engine/animation/tween";
-import { Easing } from "../engine/animation/easing";
 import { Layer } from "../engine/rendering/layer";
 import { Guest } from "../models/guest";
-import { Sound } from "../engine/audio/sound";
-import { Target } from "../models/target";
 import { Player } from "../models/player";
 
 export class InsideScene extends Scene {
@@ -121,15 +115,7 @@ export class InsideScene extends Scene {
 
         const hiddenLocation = hidingSpots[MathsUtility.randomIntegerRange(0, hidingSpots.length - 1)];
 
-        const target = new Target({
-            name: "Noah",
-            x: hiddenLocation.x,
-            y: hiddenLocation.y,
-            player: player,
-            hidingSpots: hidingSpots
-        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
-        let revealed = false;
         hidingSpots.forEach(hideableLocation => {
             hideableLocation.beforeRender = () => {
                 this.stopObjectOnCollision(player, hideableLocation);
@@ -157,9 +143,5 @@ export class InsideScene extends Scene {
     }
 
 
-    private getNearestGridCell(x: number, y: number, cellSize: number) {
-        // TODO: WIP - need a system that will map rectangle coords to a 20x20 map
-        // this.game.logger.log(MathsUtility.roundToNearestMultiple(x, cellSize), MathsUtility.roundToNearestMultiple(y, cellSize))
-    }
 
 }

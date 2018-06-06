@@ -1,8 +1,6 @@
 import { Vector } from "../core/vector";
 import { Moveable, IMoveable, PositionStrategy, AxisDimension } from "../physics/moveable";
-import { Time } from "../utilities/time";
 import { SpriteSheet } from "../textures/sprite-texture";
-import { Tween } from "../animation/tween";
 import { IEasingFunc } from "../animation/easing";
 import { ImageTexture } from "../textures/image-texture";
 import { IRenderable } from "../rendering/renderer";
@@ -56,8 +54,12 @@ export class Rectangle implements IMoveable, IRenderable {
         return this;
     }
 
-    public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
-        this.move(this.xVel * timeDelta, this.yVel * timeDelta, PositionStrategy.Relative);
+    public render(ctx: CanvasRenderingContext2D, timeDelta: number, positionStrategy: PositionStrategy = PositionStrategy.Relative) {
+        if (positionStrategy === PositionStrategy.Absolute) {
+            this.move(this.x, this.y, positionStrategy);
+        } else {
+            this.move(this.xVel * timeDelta, this.yVel * timeDelta, positionStrategy);
+        }
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);

@@ -3,7 +3,6 @@ import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { MathsUtility } from "../engine/utilities/maths";
-import { Vector } from "../engine/core/vector";
 import { ICoordinate } from "../engine/core/core.models";
 
 export type GuestClothing = "blue-suit";

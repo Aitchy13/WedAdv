@@ -2,8 +2,6 @@ import { Character, ICharacterOptions } from "./character";
 import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
-import { MathsUtility } from "../engine/utilities/maths";
-import { Vector } from "../engine/core/vector";
 import { ICoordinate } from "../engine/core/core.models";
 import { KeyboardInput } from "../engine/input/keyboard-input";
 import { AxisDimension } from "../engine/physics/moveable";
@@ -143,10 +141,9 @@ export class Player extends Character implements IRenderable, ICanTalk {
                     break;
             }
         });
-        this.keyboardInput.on("keyup", evt => { 
+        this.keyboardInput.on("keyup", () => {
             this.setVelocity(AxisDimension.XY, 0);
             this.spriteSheet.stopAnimation();
-            // walkSound.stop();
         });
         return this;
     }

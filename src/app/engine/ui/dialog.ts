@@ -5,6 +5,10 @@ import { SpriteSheet } from "../textures/sprite-texture";
 import { Rectangle } from "../game-objects/rectangle";
 import { AssetLoader } from "../textures/asset-loader";
 import { KeyboardInput, KeyboardInputEvent } from "../input/keyboard-input";
+import { Tween } from "../animation/tween";
+import { Vector } from "../core/vector";
+import { Easing } from "../animation/easing";
+import { PositionStrategy } from "../physics/moveable";
 
 export interface ICanTalk {
     name: string;
@@ -47,6 +51,57 @@ export class DialogService {
 
 }
 
+export class DialogArrow implements IRenderable {
+
+    public shape: Rectangle;
+
+    public tween: Tween;
+
+    private originalX: number;
+    private originalY: number;
+    private animationSpeed: number = 500;
+
+    constructor(public x: number, public y: number, public assetLoader: AssetLoader) {
+        this.originalX = x;
+        this.originalY = y;
+        this.shape = new Rectangle(11, 8, x, y);
+        this.shape.imageTexture = this.assetLoader.getImage("dialog-arrow");
+        this.initialiseTween();
+    }
+
+    public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
+        this.shape.x = this.x;
+        this.shape.y = this.y;
+        this.shape.render(ctx, timeDelta, PositionStrategy.Absolute);
+    }
+
+    public play() {
+        this.tween.start();
+        return this;
+    }
+
+    public stop() {
+        this.tween.stop();
+        return this;
+    }
+
+    public reset() {
+        this.tween.stop();
+        this.x = this.originalX;
+        this.y = this.originalY;
+        this.initialiseTween();
+        return this;
+    }
+
+    private initialiseTween() {
+        this.tween = new Tween(this)
+            .to(new Vector(this.x, this.y - 10), this.animationSpeed, Easing.easeInOutQuad)
+            .yoyo()
+            .repeat();
+    }
+
+}
+
 export class DialogAvatar implements IRenderable, ICanTalk {
 
     public dialogSpriteSheet: SpriteSheet;
@@ -80,10 +135,9 @@ export class Dialog implements IRenderable {
     private shape: Rectangle;
     private avatar: DialogAvatar;
 
-    private maxLines: number = 3;
+    private maxLines: number = 2;
 
-    private text: string;
-    private textFontSize: number = 15;
+    private textFontSize: number = 16;
     private textFontWeight: string = "bold";
     private textFontFamily: string = "Arial";
     private textFont: string = `${this.textFontWeight} ${this.textFontSize}px ${this.textFontFamily}`;
@@ -92,7 +146,11 @@ export class Dialog implements IRenderable {
     private textSnippets: string[][];
     private textColor: string = "#fff";
 
-    private currentSnippetIndex: number = 0;
+    private currentSnippetIndex: number = -1;
+    private activeTextSnippet: string[];
+
+    private animatingTextInterval: number;
+    private continueArrow: DialogArrow;
 
     private boundKeyupHandler: (evt: KeyboardInputEvent) => void;
 
@@ -105,7 +163,9 @@ export class Dialog implements IRenderable {
         this.y = this.shape.vertices[0].y;
 
         // this.textX calculated when setting text
-        this.textY = this.y + 45;
+        this.textY = this.y + 50;
+
+        this.continueArrow = new DialogArrow(this.x + (this.width / 2), this.y + this.height - 15, this.assetLoader);
     }
 
     public setText(text: string) {
@@ -134,6 +194,7 @@ export class Dialog implements IRenderable {
         }
         this.visible = true;
         this.renderer.addObject(this);
+        this.cycleSnippet();
         this.bindKeyboardEvents();
         if (this.avatar) {
             this.avatar.startTalking();
@@ -160,19 +221,27 @@ export class Dialog implements IRenderable {
         ctx.fillStyle = this.textColor;
 
         if (this.textSnippets) {
-            this.renderTextSnippet(this.textSnippets[this.currentSnippetIndex]);
+            this.renderTextSnippet(this.activeTextSnippet);
         }
         if (this.avatar) {
             ctx.font = "bold 12px arial";
             ctx.fillStyle = "#efd960";
-            ctx.fillText(this.avatar.name.toUpperCase(), this.textX, this.textY - 22);
+            ctx.fillText(this.avatar.name.toUpperCase(), this.textX, this.textY - 25);
             this.avatar.render(ctx, timeDelta);
         }
     }
 
-    private cycleText() {
+    private cycleSnippet() {
+        this.renderer.removeObject(this.continueArrow.reset());
         if (this.currentSnippetIndex + 1 < this.textSnippets.length) {
             this.currentSnippetIndex++;
+            this.activeTextSnippet = this.textSnippets[this.currentSnippetIndex];
+            this.stopLetterAnimation();
+            this.avatar.startTalking();
+            this.startLetterAnimation(this.activeTextSnippet, () => {
+                this.avatar.stopTalking();
+                this.renderer.addObject(this.continueArrow.play());
+            });
         } else {
             this.hide();
         }
@@ -181,7 +250,7 @@ export class Dialog implements IRenderable {
     private bindKeyboardEvents() {
         this.boundKeyupHandler = (evt: KeyboardInputEvent) => {
             if (evt.event.key === "Enter" || evt.event.code === "Space") {
-                this.cycleText();
+                this.cycleSnippet();
             }
         }
         this.boundKeyupHandler.bind(this);
@@ -213,10 +282,39 @@ export class Dialog implements IRenderable {
 
         let splitIntoMaxLines = _.chain(_.range(0, lines.length - 1))
             .filter(x => x % this.maxLines === 0)
-            .map(x => [lines[x], lines[x + 1], lines[x + 2]])
+            .map(x => [lines[x], lines[x + 1]])
             .value();
 
         return splitIntoMaxLines;
+    }
+
+    private startLetterAnimation(textSnippet: string[], callback?: Function) {
+        const snippetCopy = _.map(textSnippet, x => x.slice());
+        let lineNum = 0;
+        let characterPosition = 0;
+        this.activeTextSnippet = _.map(this.activeTextSnippet, x => "");
+        this.animatingTextInterval = setInterval(() => {
+            this.activeTextSnippet[lineNum] += snippetCopy[lineNum][characterPosition];
+            if (this.activeTextSnippet[lineNum].length < snippetCopy[lineNum].length) {
+                characterPosition++;
+                return;
+            }
+            if (_.isString(this.activeTextSnippet[lineNum + 1]) && this.activeTextSnippet[lineNum + 1].length === 0) {
+                lineNum++;
+                characterPosition = 0;
+                return;
+            }
+            clearInterval(this.animatingTextInterval);
+            if (callback) {
+                callback();
+            }
+        }, 50);
+    }
+
+    private stopLetterAnimation() {
+        if (this.animatingTextInterval) {
+            clearInterval(this.animatingTextInterval);
+        }
     }
 
     private renderTextSnippet(textSnippet: string[]) {

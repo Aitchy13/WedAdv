@@ -6,7 +6,6 @@ import { Vector } from "../engine/core/vector";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { ICoordinate } from "../engine/core/core.models";
-import { ICanTalk } from "../engine/ui/dialog";
 
 export class ICharacterOptions {
     name?: string;

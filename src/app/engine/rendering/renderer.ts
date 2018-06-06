@@ -82,6 +82,6 @@ export class Renderer {
             if (x.afterRender) {
                 x.afterRender(this.context, timeDelta);
             }
-        })
+        });
     }
 }

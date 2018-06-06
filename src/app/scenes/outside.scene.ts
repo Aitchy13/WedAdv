@@ -2,24 +2,15 @@ import * as _ from "lodash";
 
 import { Scene } from "../engine/game-objects/scene";
 import { Game } from "../engine/game-objects/game";
-import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Rectangle } from "../engine/game-objects/rectangle";
-import { AxisDimension, PositionStrategy, IMoveable } from "../engine/physics/moveable";
 import { Vector } from "../engine/core/vector";
 import { AssetLoader } from "../engine/textures/asset-loader";
-import { SpriteSheet } from "../engine/textures/sprite-texture";
-import { MathsUtility } from "../engine/utilities/maths";
 import { NavGrid } from "../engine/navigation/nav-grid";
 import { PathFinder } from "../engine/navigation/pathfinder";
-import { Tween } from "../engine/animation/tween";
 import { Easing } from "../engine/animation/easing";
 import { Layer } from "../engine/rendering/layer";
-import { Guest } from "../models/guest";
-import { Sound } from "../engine/audio/sound";
-import { Target } from "../models/target";
 import { Player } from "../models/player";
 import { Button } from "../engine/ui/button";
-import { Dialog } from "../engine/ui/dialog";
 
 export class OutsideScene extends Scene {
 
@@ -60,7 +51,8 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadSound("menu-select", "src/sounds/menu-select.wav"),
             this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
             this.assetLoader.loadImage("pew", "src/sprites/pew.png"),
-            this.assetLoader.loadImage("dialog", "src/sprites/dialog.png")
+            this.assetLoader.loadImage("dialog", "src/sprites/dialog.png"),
+            this.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png")
         ] as any);
     }
 

@@ -2,7 +2,6 @@ import { Vector } from "../core/vector";
 import { ICoordinate } from "../core/core.models";
 import { IEasingFunc, Easing } from "../animation/easing";
 import { Tween } from "../animation/tween";
-import { IMoveable } from "../physics/moveable";
 
 export class Camera {
 

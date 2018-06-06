@@ -1,7 +1,6 @@
 import * as TWEEN from "@tweenjs/tween.js";
 
 import { Vector } from "../core/vector";
-import { IMoveable, PositionStrategy } from "../physics/moveable";
 import { Easing, IEasingFunc } from "./easing";
 import { ICoordinate } from "../core/core.models";
 
