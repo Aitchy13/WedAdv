@@ -6,7 +6,7 @@ import { Vector } from "../engine/core/vector";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { ICoordinate } from "../engine/core/core.models";
-import { ICanSpeak } from "../engine/ui/dialog";
+import { ICanTalk } from "../engine/ui/dialog";
 
 export class ICharacterOptions {
     name?: string;
@@ -17,11 +17,10 @@ export class ICharacterOptions {
 }
 
 @Moveable()
-export class Character implements IRenderable, IMoveable, ICanSpeak {
+export class Character implements IRenderable, IMoveable {
 
     public name: string;
     public spriteSheet: SpriteSheet;
-    public dialogSpriteSheet: SpriteSheet;
     public defaultSpriteFrame: string;
     public width: number;
     public height: number;

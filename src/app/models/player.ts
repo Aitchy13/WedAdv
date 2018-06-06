@@ -7,6 +7,8 @@ import { Vector } from "../engine/core/vector";
 import { ICoordinate } from "../engine/core/core.models";
 import { KeyboardInput } from "../engine/input/keyboard-input";
 import { AxisDimension } from "../engine/physics/moveable";
+import { SpriteSheet } from "../engine/textures/sprite-texture";
+import { ICanTalk } from "../engine/ui/dialog";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -16,7 +18,9 @@ export class IPlayerOptions extends ICharacterOptions {
 
 export type PlayerModel = "groom" | "bride";
 
-export class Player extends Character implements IRenderable {
+export class Player extends Character implements IRenderable, ICanTalk {
+
+    public dialogSpriteSheet: SpriteSheet;
 
     private model: PlayerModel;
 
@@ -48,6 +52,7 @@ export class Player extends Character implements IRenderable {
         switch (model) {
             case "groom":
                 this.spriteSheet = this.textureLoader.getSpriteSheet("groom", true);
+                this.dialogSpriteSheet = this.textureLoader.getSpriteSheet("groom-dialog", true);
                 break;
             case "bride":
                 this.spriteSheet = this.textureLoader.getSpriteSheet("bride", true);
@@ -86,8 +91,22 @@ export class Player extends Character implements IRenderable {
             this.spriteSheet.addAnimation("walk-west", [
                 "west-left-arm", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg",
                 "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg"], true);
+
+            this.dialogSpriteSheet.addAnimation("talk", [
+                "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open",
+                "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed",
+                "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed"
+            ], true)
             return;
         }
+    }
+
+    public startTalking() {
+        this.dialogSpriteSheet.playAnimation("talk");
+    }
+
+    public stopTalking() {
+        this.dialogSpriteSheet.stopAnimation();
     }
 
     public enableControls(): Player {

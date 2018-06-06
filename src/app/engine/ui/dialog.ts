@@ -6,9 +6,11 @@ import { Rectangle } from "../game-objects/rectangle";
 import { AssetLoader } from "../textures/asset-loader";
 import { KeyboardInput, KeyboardInputEvent } from "../input/keyboard-input";
 
-export interface ICanSpeak {
+export interface ICanTalk {
     name: string;
     dialogSpriteSheet: SpriteSheet;
+    startTalking(): void;
+    stopTalking(): void;
 }
 
 export type DialogEventName = "start" | "complete";
@@ -26,13 +28,13 @@ export class DialogService {
         
     }
 
-    public show(text: string, character?: ICanSpeak) {
+    public show(text: string, character?: ICanTalk) {
         if (this.activeDialog) {
             this.activeDialog.hide();
         }
         const dialog = new Dialog(this.renderer, this.window, this.assetLoader, this.keyboardInput);
         if (character) {
-            dialog.setAvatar(character.name, character.dialogSpriteSheet);
+            dialog.setAvatar(character);
         }
         dialog.setText(text);
         this.activeDialog = dialog;
@@ -45,6 +47,29 @@ export class DialogService {
 
 }
 
+export class DialogAvatar implements IRenderable, ICanTalk {
+
+    public dialogSpriteSheet: SpriteSheet;
+    public shape: Rectangle;
+
+    constructor(public name: string, public x: number, public y: number, public width: number, public height: number) {
+        this.shape = new Rectangle(width, height, x, y);
+    }
+
+    public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
+        this.shape.render(ctx, timeDelta);
+    }
+
+    public startTalking() {
+
+    }
+
+    public stopTalking() {
+        
+    }
+
+}
+
 export class Dialog implements IRenderable {
 
     public x: number;
@@ -53,7 +78,7 @@ export class Dialog implements IRenderable {
     private width: number = 470;
     private height: number = 104;
     private shape: Rectangle;
-    private avatar: ICanSpeak;
+    private avatar: DialogAvatar;
 
     private maxLines: number = 3;
 
@@ -90,10 +115,15 @@ export class Dialog implements IRenderable {
         return this;
     }
 
-    public setAvatar(name: string, spriteSheet: SpriteSheet) {
-        this.avatar = {
-            name: name,
-            dialogSpriteSheet: spriteSheet
+    public setAvatar(character: ICanTalk) {
+        this.avatar = new DialogAvatar(character.name, this.x + 10, this.y + 10, 100, 100);
+        this.avatar.dialogSpriteSheet = character.dialogSpriteSheet;
+        this.avatar.shape.spriteSheet = character.dialogSpriteSheet;
+        this.avatar.startTalking = () => {
+            character.startTalking();
+        };
+        this.avatar.stopTalking = () => {
+            character.stopTalking();   
         };
         return this;
     }
@@ -105,6 +135,9 @@ export class Dialog implements IRenderable {
         this.visible = true;
         this.renderer.addObject(this);
         this.bindKeyboardEvents();
+        if (this.avatar) {
+            this.avatar.startTalking();
+        }
         return this;
     }
     
@@ -115,6 +148,9 @@ export class Dialog implements IRenderable {
         this.visible = false;
         this.renderer.removeObject(this); 
         this.unbindKeyboardEvents();
+        if (this.avatar) {
+            this.avatar.stopTalking();
+        }
         return this;
     }
 
@@ -130,6 +166,7 @@ export class Dialog implements IRenderable {
             ctx.font = "bold 12px arial";
             ctx.fillStyle = "#efd960";
             ctx.fillText(this.avatar.name.toUpperCase(), this.textX, this.textY - 22);
+            this.avatar.render(ctx, timeDelta);
         }
     }
 

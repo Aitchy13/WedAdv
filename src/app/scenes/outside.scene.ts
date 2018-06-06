@@ -48,6 +48,7 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
             this.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
             this.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
+            this.assetLoader.loadSpriteSheet("groom-dialog", "src/sprites/groom-dialog.png", "src/sprites/groom-dialog.json"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
             this.assetLoader.loadImage("cloud-2", "src/sprites/cloud-2.png"),
             this.assetLoader.loadImage("game-title", "src/sprites/game-title.png"),
