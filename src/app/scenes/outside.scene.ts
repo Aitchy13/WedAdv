@@ -11,6 +11,7 @@ import { Easing } from "../engine/animation/easing";
 import { Layer } from "../engine/rendering/layer";
 import { Player } from "../models/player";
 import { Button } from "../engine/ui/button";
+import { Sound } from "../engine/audio/sound";
 
 export class OutsideScene extends Scene {
 
@@ -29,6 +30,8 @@ export class OutsideScene extends Scene {
     private groom: Player;
     private bride: Player;
 
+    private menuSelectSound: Sound;
+
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
     }
@@ -38,6 +41,7 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
             this.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
             this.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
+            this.assetLoader.loadSpriteSheet("bride-dialog", "src/sprites/bride-dialog.png", "src/sprites/bride-dialog.json"),
             this.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
             this.assetLoader.loadSpriteSheet("groom-dialog", "src/sprites/groom-dialog.png", "src/sprites/groom-dialog.json"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
@@ -48,11 +52,16 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("bride-player-selection", "src/sprites/bride-player-selection.png"),
             this.assetLoader.loadImage("start-button", "src/sprites/start-button.png"),
             this.assetLoader.loadImage("play-button", "src/sprites/play-button.png"),
-            this.assetLoader.loadSound("menu-select", "src/sounds/menu-select.wav"),
+            this.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg"),
             this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
             this.assetLoader.loadImage("pew", "src/sprites/pew.png"),
             this.assetLoader.loadImage("dialog", "src/sprites/dialog.png"),
-            this.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png")
+            this.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png"),
+            this.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.ogg"),
+            this.assetLoader.loadSound("mouserelease", "src/sounds/mouserelease1.ogg"),
+            this.assetLoader.loadSound("menu-open", "src/sounds/menu-open.wav"),
+            this.assetLoader.loadSound("menu-close", "src/sounds/menu-close.wav"),
+            this.assetLoader.loadSound("running", "src/sounds/running.wav")
         ] as any);
     }
 
@@ -91,8 +100,10 @@ export class OutsideScene extends Scene {
             y: 476,
             texture: this.assetLoader.getImage("start-button")
         }, this.game.mouseInput, this.game.rootRenderer);
+        this.menuSelectSound = this.assetLoader.getSound("menu-select");
+        this.menuSelectSound.load();
         this.startButton.on("click", () => {
-            this.assetLoader.getSound("menu-select").play();
+            this.menuSelectSound.play();
             this.hideTitleScreen();
             this.showPlayerSelection();
         });
@@ -142,7 +153,7 @@ export class OutsideScene extends Scene {
             texture: groomSelectionTexture
         }, this.game.mouseInput, this.game.rootRenderer);
         this.groomSelection.on("click", () => {
-            this.assetLoader.getSound("menu-select").play();
+            this.menuSelectSound.play();
             this.selectedPlayer = this.groom;
         });
 
@@ -156,7 +167,7 @@ export class OutsideScene extends Scene {
             texture: brideSelectionTexture
         }, this.game.mouseInput, this.game.rootRenderer);
         this.brideSelection.on("click", () => {
-            this.assetLoader.getSound("menu-select").play();
+            this.menuSelectSound.play();
             this.selectedPlayer = this.bride;
         });
 
@@ -170,7 +181,7 @@ export class OutsideScene extends Scene {
         }, this.game.mouseInput, this.game.rootRenderer);
 
         this.playButton.on("click", () => {
-            this.assetLoader.getSound("menu-select").play();
+            this.menuSelectSound.play();
             this.startSequence();
         });
 
@@ -223,7 +234,11 @@ export class OutsideScene extends Scene {
 
     private beginCeremony() {
         const dialogText = "Hello this is text to see if blah blah blah something long goes here. It'll fill a lot of space to test the text. And this is another snippet to show how the text snippet stuff works."
-        this.game.dialogService.show(dialogText, this.groom);
+        this.game.dialogService.show(dialogText, this.groom).then(() => {
+            return this.game.dialogService.show("Hey, I' talking to you. Stop testing out shit!", this.bride);
+        }).then(() => {
+            this.selectedPlayer.enableControls();
+        });
     }
 
 }

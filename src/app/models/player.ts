@@ -7,6 +7,7 @@ import { KeyboardInput } from "../engine/input/keyboard-input";
 import { AxisDimension } from "../engine/physics/moveable";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { ICanTalk } from "../engine/ui/dialog";
+import { Sound } from "../engine/audio/sound";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -21,8 +22,9 @@ export class Player extends Character implements IRenderable, ICanTalk {
     public dialogSpriteSheet: SpriteSheet;
 
     private model: PlayerModel;
+    private walkSound: Sound;
 
-    constructor(public options: IPlayerOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
+    constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
         super(renderer, pathFinder, {
             width: options.model === "bride" ? 43 : 36,
             height: options.model === "bride" ? 77 : 79,
@@ -35,6 +37,9 @@ export class Player extends Character implements IRenderable, ICanTalk {
 
         this.setSpriteSheet(this.model);
         this.setAnimations(this.model);
+
+        this.walkSound = this.assetLoader.getSound("running");
+        this.walkSound.load();
 
     }
 
@@ -49,11 +54,12 @@ export class Player extends Character implements IRenderable, ICanTalk {
     private setSpriteSheet(model: PlayerModel) {
         switch (model) {
             case "groom":
-                this.spriteSheet = this.textureLoader.getSpriteSheet("groom", true);
-                this.dialogSpriteSheet = this.textureLoader.getSpriteSheet("groom-dialog", true);
+                this.spriteSheet = this.assetLoader.getSpriteSheet("groom", true);
+                this.dialogSpriteSheet = this.assetLoader.getSpriteSheet("groom-dialog", true);
                 break;
             case "bride":
-                this.spriteSheet = this.textureLoader.getSpriteSheet("bride", true);
+                this.spriteSheet = this.assetLoader.getSpriteSheet("bride", true);
+                this.dialogSpriteSheet = this.assetLoader.getSpriteSheet("bride-dialog", true);
                 break;
             default:
                 throw new Error("Invalid player model");
@@ -61,6 +67,12 @@ export class Player extends Character implements IRenderable, ICanTalk {
     }
 
     private setAnimations(model: PlayerModel) {
+        this.dialogSpriteSheet.addAnimation("talk", [
+            "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open",
+            "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed",
+            "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed"
+        ], true);
+        
         if (model === "bride") {
             this.spriteSheet.addAnimation("walk-south", [
                 "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm", "south-left-arm",
@@ -89,12 +101,6 @@ export class Player extends Character implements IRenderable, ICanTalk {
             this.spriteSheet.addAnimation("walk-west", [
                 "west-left-arm", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg", "west-left-leg",
                 "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg", "west-right-leg"], true);
-
-            this.dialogSpriteSheet.addAnimation("talk", [
-                "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open",
-                "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed",
-                "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed"
-            ], true)
             return;
         }
     }
@@ -116,34 +122,35 @@ export class Player extends Character implements IRenderable, ICanTalk {
                     this.setVelocity(AxisDimension.Y, -sensitivity);
                     this.defaultSpriteFrame = "north-stand";
                     this.spriteSheet.playAnimation("walk-north");
-                    // walkSound.loop();
+                    this.walkSound.loop();
                     break;
                 case "s":
                 case "ArrowDown":
                     this.setVelocity(AxisDimension.Y, sensitivity);
                     this.defaultSpriteFrame = "south-stand";
                     this.spriteSheet.playAnimation("walk-south");
-                    // walkSound.loop();
+                    this.walkSound.loop();
                     break;
                 case "a":
                 case "ArrowLeft":
                     this.setVelocity(AxisDimension.X, -sensitivity);
                     this.defaultSpriteFrame = "west-stand";
                     this.spriteSheet.playAnimation("walk-west");
-                    // walkSound.loop();
+                    this.walkSound.loop();
                     break;
                 case "d":
                 case "ArrowRight":
                     this.setVelocity(AxisDimension.X, sensitivity);
                     this.defaultSpriteFrame = "east-stand";
                     this.spriteSheet.playAnimation("walk-east");
-                    // walkSound.loop();
+                    this.walkSound.loop();
                     break;
             }
         });
         this.keyboardInput.on("keyup", () => {
             this.setVelocity(AxisDimension.XY, 0);
             this.spriteSheet.stopAnimation();
+            this.walkSound.stop();
         });
         return this;
     }

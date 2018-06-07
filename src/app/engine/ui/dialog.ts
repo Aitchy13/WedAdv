@@ -9,6 +9,7 @@ import { Tween } from "../animation/tween";
 import { Vector } from "../core/vector";
 import { Easing } from "../animation/easing";
 import { PositionStrategy } from "../physics/moveable";
+import { Sound } from "../audio/sound";
 
 export interface ICanTalk {
     name: string;
@@ -17,14 +18,9 @@ export interface ICanTalk {
     stopTalking(): void;
 }
 
-export type DialogEventName = "start" | "complete";
+export type DialogEventName = "show" | "close";
 
 export class DialogService {
-
-    private eventHandlers: {
-        "start": Function[];
-        "complete": Function[];
-    };
 
     private activeDialog: Dialog;
 
@@ -33,20 +29,21 @@ export class DialogService {
     }
 
     public show(text: string, character?: ICanTalk) {
-        if (this.activeDialog) {
-            this.activeDialog.hide();
-        }
-        const dialog = new Dialog(this.renderer, this.window, this.assetLoader, this.keyboardInput);
-        if (character) {
-            dialog.setAvatar(character);
-        }
-        dialog.setText(text);
-        this.activeDialog = dialog;
-        this.activeDialog.show();
-    }
-
-    public on(eventName: DialogEventName, handler: () => void) {
-        this.eventHandlers[eventName].push(handler);
+        return new Promise((resolve, reject) => {
+            if (this.activeDialog) {
+                this.activeDialog.close();
+            }
+            const dialog = new Dialog(this.renderer, this.window, this.assetLoader, this.keyboardInput);
+            if (character) {
+                dialog.setAvatar(character);
+            }
+            dialog.setText(text);
+            dialog.on("close", () => {
+                resolve();
+            });
+            this.activeDialog = dialog;
+            this.activeDialog.show();
+        });
     }
 
 }
@@ -152,15 +149,39 @@ export class Dialog implements IRenderable {
     private animatingTextInterval: number;
     private continueArrow: DialogArrow;
 
+    private openSound: Sound;
+    private continueSound: Sound;
+    private closeSound: Sound;
+
     private boundKeyupHandler: (evt: KeyboardInputEvent) => void;
 
     private visible: boolean = false;
+
+    private eventHandlers: {
+        "show": Function[];
+        "close": Function[];
+    };
 
      constructor(private renderer: Renderer, private window: Window, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput) {
         this.shape = new Rectangle(this.width, this.height, (this.window.innerWidth / 2) - this.width / 2, this.window.innerHeight - this.height - 20);
         this.shape.imageTexture = this.assetLoader.getImage("dialog");
         this.x = this.shape.vertices[0].x;
         this.y = this.shape.vertices[0].y;
+
+        this.eventHandlers = {
+            "show": [],
+            "close": []
+        };
+
+        this.openSound = this.assetLoader.getSound("menu-open");
+        this.openSound.load();
+
+        this.continueSound = this.assetLoader.getSound("mouseclick");
+        this.continueSound.load();
+
+        this.closeSound = this.assetLoader.getSound("menu-close");
+        this.closeSound.load();
+        
 
         // this.textX calculated when setting text
         this.textY = this.y + 50;
@@ -196,13 +217,15 @@ export class Dialog implements IRenderable {
         this.renderer.addObject(this);
         this.cycleSnippet();
         this.bindKeyboardEvents();
+        this.openSound.play();
         if (this.avatar) {
             this.avatar.startTalking();
         }
+        this.triggerEventHandlers("show");
         return this;
     }
     
-    public hide() {
+    public close() {
         if (!this.visible) {
             return this;
         }
@@ -212,7 +235,13 @@ export class Dialog implements IRenderable {
         if (this.avatar) {
             this.avatar.stopTalking();
         }
+        this.closeSound.play();
+        this.triggerEventHandlers("close");
         return this;
+    }
+
+    public on(eventName: DialogEventName, callback: Function) {
+        this.eventHandlers[eventName].push(callback);
     }
 
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
@@ -235,15 +264,29 @@ export class Dialog implements IRenderable {
         this.renderer.removeObject(this.continueArrow.reset());
         if (this.currentSnippetIndex + 1 < this.textSnippets.length) {
             this.currentSnippetIndex++;
+            if (this.currentSnippetIndex > 0) {
+                this.continueSound.play();
+            }
             this.activeTextSnippet = this.textSnippets[this.currentSnippetIndex];
             this.stopLetterAnimation();
             this.avatar.startTalking();
             this.startLetterAnimation(this.activeTextSnippet, () => {
                 this.avatar.stopTalking();
-                this.renderer.addObject(this.continueArrow.play());
+                if (this.currentSnippetIndex < this.textSnippets.length - 1) {
+                    this.renderer.addObject(this.continueArrow.play());
+                }
             });
         } else {
-            this.hide();
+            this.close();
+        }
+    }
+
+    private triggerEventHandlers(eventName: DialogEventName) {
+        if (this.eventHandlers[eventName].length === 0) {
+            return;
+        }
+        for (const handler of this.eventHandlers[eventName]) {
+            handler();
         }
     }
 

@@ -1,8 +1,6 @@
 import * as _ from "lodash";
 
 import { Logger } from "../utilities/logger";
-import { IDetector } from "../detectors/detector.interface";
-import { Middleware } from "../utilities/middleware";
 import { Time } from "../utilities/time";
 import { Tween } from "../animation/tween";
 import { Camera } from "./camera";
