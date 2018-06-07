@@ -25,9 +25,6 @@ export class InsideScene extends Scene {
     public preload() {
         return Promise.all([
             this.assetLoader.loadImage("indoor-scene-background", "src/sprites/indoor-scene.png"),
-            this.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
-            this.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
-            this.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
             this.assetLoader.loadImage("indoor-table", "src/sprites/indoor-table.png")
         ]);
     }
@@ -48,7 +45,7 @@ export class InsideScene extends Scene {
             y: 300
         }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput).enableControls();
 
-        this.game.camera.setBoundaries(-this.width, 0, -this.height, 0);
+        this.game.camera.setBoundaries(0, this.width, 0, this.height);
         this.game.camera.follow(() => {
             return new Vector(player.x, player.y);
         });

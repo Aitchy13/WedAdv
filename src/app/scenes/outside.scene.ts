@@ -39,11 +39,6 @@ export class OutsideScene extends Scene {
     public preload() {
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
-            this.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
-            this.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
-            this.assetLoader.loadSpriteSheet("bride-dialog", "src/sprites/bride-dialog.png", "src/sprites/bride-dialog.json"),
-            this.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
-            this.assetLoader.loadSpriteSheet("groom-dialog", "src/sprites/groom-dialog.png", "src/sprites/groom-dialog.json"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
             this.assetLoader.loadImage("cloud-2", "src/sprites/cloud-2.png"),
             this.assetLoader.loadImage("game-title", "src/sprites/game-title.png"),
@@ -52,16 +47,8 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("bride-player-selection", "src/sprites/bride-player-selection.png"),
             this.assetLoader.loadImage("start-button", "src/sprites/start-button.png"),
             this.assetLoader.loadImage("play-button", "src/sprites/play-button.png"),
-            this.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg"),
             this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
             this.assetLoader.loadImage("pew", "src/sprites/pew.png"),
-            this.assetLoader.loadImage("dialog", "src/sprites/dialog.png"),
-            this.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png"),
-            this.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.ogg"),
-            this.assetLoader.loadSound("mouserelease", "src/sounds/mouserelease1.ogg"),
-            this.assetLoader.loadSound("menu-open", "src/sounds/menu-open.wav"),
-            this.assetLoader.loadSound("menu-close", "src/sounds/menu-close.wav"),
-            this.assetLoader.loadSound("running", "src/sounds/running.wav")
         ] as any);
     }
 

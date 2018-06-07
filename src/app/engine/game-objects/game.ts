@@ -52,6 +52,10 @@ export class Game {
         this.dialogService = new DialogService(this.keyboardInput, this.uiRenderer, this.window, this.assetLoader);
 
         this.sceneManager = new SceneManager(this.logger, this, this.assetLoader);
+        
+    }
+
+    public start() {
         this.config.scenes.forEach(x => this.sceneManager.registerScene(x));
         this.sceneManager.load(this.config.bootstrap);
         

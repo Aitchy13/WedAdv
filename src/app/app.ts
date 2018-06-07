@@ -14,6 +14,26 @@ export class App {
             ],
             bootstrap: OutsideScene
         });
+
+        Promise.all([
+            game.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
+            game.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
+            game.assetLoader.loadSpriteSheet("bride-dialog", "src/sprites/bride-dialog.png", "src/sprites/bride-dialog.json"),
+            game.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
+            game.assetLoader.loadSpriteSheet("groom-dialog", "src/sprites/groom-dialog.png", "src/sprites/groom-dialog.json"),
+            game.assetLoader.loadImage("dialog", "src/sprites/dialog.png"),
+            game.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png"),
+            game.assetLoader.loadSound("running", "src/sounds/running.wav"),
+            game.assetLoader.loadSound("menu-open", "src/sounds/menu-open.wav"),
+            game.assetLoader.loadSound("menu-close", "src/sounds/menu-close.wav"),
+            game.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.ogg"),
+            game.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg")
+        ] as any).then(() => {
+            game.start();
+        })
+        
+
+        
     }
 
 }
