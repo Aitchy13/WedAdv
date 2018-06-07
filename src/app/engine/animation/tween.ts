@@ -21,8 +21,8 @@ export class Tween {
 
     // TODO: RENAME COORDINATE TO SOMETHING BETTER
 
-    constructor(coordinate: ICoordinate, startingPosition?: Vector) {
-        this.position = startingPosition ? startingPosition.copy() : coordinate;
+    constructor(coordinate: ICoordinate) {
+        this.position = coordinate;
         this.extTweenObj = new TWEEN.Tween(this.position);
         this.bindEventHandlers();
     }

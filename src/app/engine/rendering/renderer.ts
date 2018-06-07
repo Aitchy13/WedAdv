@@ -37,6 +37,10 @@ export class Renderer {
         this.renderables.splice(index, 1);
     }
 
+    public removeAllObjects() {
+        this.renderables = [];
+    }
+
     public findRenderable(obj: IRenderable) {
         return _.find(this.renderables, x => x === obj);
     }

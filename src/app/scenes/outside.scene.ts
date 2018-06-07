@@ -12,6 +12,9 @@ import { Layer } from "../engine/rendering/layer";
 import { Player } from "../models/player";
 import { Button } from "../engine/ui/button";
 import { Sound } from "../engine/audio/sound";
+import { IRenderable } from "../engine/rendering/renderer";
+import { CollisionDetector } from "../engine/detectors/collision-detector";
+import { InsideScene } from "./inside.scene";
 
 export class OutsideScene extends Scene {
 
@@ -73,6 +76,10 @@ export class OutsideScene extends Scene {
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
 
         this.showTitleScreen();
+    }
+
+    public destroy() {
+        this.game.rootRenderer.removeAllObjects();
     }
 
     private showTitleScreen() {
@@ -183,8 +190,8 @@ export class OutsideScene extends Scene {
 
     private startSequence() {
         this.hidePlayerSelectionScreen();
-
-        const arch = new Layer("wedding-arch", 665, 1067, this.assetLoader.getImage("wedding-arch"), this.game.rootRenderer);
+        this.renderLevel();
+        
 
         this.game.camera.moveTo(this.selectedPlayer, 4000, Easing.easeInOutCubic).then(() => {
             this.game.camera.follow(() => {
@@ -192,6 +199,10 @@ export class OutsideScene extends Scene {
             });
             this.beginCeremony();
         });
+    }
+
+    private renderLevel() {
+        const arch = new Layer("wedding-arch", 665, 1067, this.assetLoader.getImage("wedding-arch"), this.game.rootRenderer);
 
         const firstRowY = 1214;
         const rightSectionSpacing = 605;
@@ -217,6 +228,19 @@ export class OutsideScene extends Scene {
         new Layer("pew-q", 414 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+
+        const exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
+        exit.beforeRender = () => {
+            if (CollisionDetector.hasCollision(this.selectedPlayer, exit)) {
+                this.game.sceneManager.load(InsideScene);
+                this.game.cache.addItem("player", this.selectedPlayer);
+            }
+        };
+        this.game.rootRenderer.addObject(exit);
+
+        const topBoundary = new Rectangle(this.width, 50, 0, 1050);
+        this.selectedPlayer.addCollidable(topBoundary);
+        this.game.rootRenderer.addObject(topBoundary);
     }
 
     private beginCeremony() {

@@ -56,14 +56,14 @@ export function Moveable() {
             this.y = this.vertices[0].y;
         }
 
-        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function): void {
+        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function, onStart?: Function): void {
             let i = path.length;
             if (!path || path.length < 2) {
                 throw new Error("Path invalid");
             }
-            const lastTween = new Tween(this, path[path.length - 1]).to(path[path.length - 2], speed, easing);
+            const lastTween = new Tween(this).to(path[path.length - 2], speed, easing);
             lastTween.on("update", () => {
-                target.prototype.move(target.prototype.x, target.prototype.y, PositionStrategy.Absolute);
+                this.move(this.x, this.y, PositionStrategy.Absolute);
             });
             if (_.isFunction(onUpdate)) {
                 lastTween.on("complete", onUpdate);
@@ -72,13 +72,13 @@ export function Moveable() {
             if (_.isFunction(onComplete)) {
                 lastTween.on("complete", onComplete);
             }
-            const tween = _.reduceRight(path, (rightTween: Tween, startingPosition) => {
+            const tween = _.reduceRight(path, (rightTween: Tween) => {
                 if (i === path.length || i <= 0) {
                     i--;
                     return rightTween;
                 }
                 rightTween.on("update", () => {
-                    target.prototype.move(target.prototype.x, target.prototype.y, PositionStrategy.Absolute);
+                    this.move(this.x, this.y, PositionStrategy.Absolute);
                 });
                 if (_.isFunction(onUpdate)) {
                     rightTween.on("start", onUpdate);
@@ -86,10 +86,13 @@ export function Moveable() {
                 if (_.isFunction(onUpdate)) {
                     rightTween.on("complete", onUpdate);
                 }
-                const leftTween = new Tween(this, startingPosition).to(path[i--], speed, easing);
+                const leftTween = new Tween(this).to(path[i--], speed, easing);
                 leftTween.chain(rightTween);
                 return leftTween;
             }, lastTween);
+            if (_.isFunction(onStart)) {
+                tween.on("start", onStart);
+            }
             tween.start();
         }
 

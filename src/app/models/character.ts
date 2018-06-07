@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import { IRenderable, Renderer } from "../engine/rendering/renderer";
 import { Rectangle } from "../engine/game-objects/rectangle";
 import { PositionStrategy, Moveable, IMoveable, AxisDimension } from "../engine/physics/moveable";
@@ -6,6 +8,7 @@ import { Vector } from "../engine/core/vector";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { ICoordinate } from "../engine/core/core.models";
+import { ICollidableShape, CollisionDetector } from "../engine/detectors/collision-detector";
 
 export class ICharacterOptions {
     name?: string;
@@ -40,6 +43,8 @@ export class Character implements IRenderable, IMoveable {
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
 
+
+    private collidables: ICollidableShape[] = [];
     private visible: boolean;
 
     constructor(public renderer: Renderer, public pathFinder: PathFinder, public options: ICharacterOptions) {
@@ -71,8 +76,35 @@ export class Character implements IRenderable, IMoveable {
         this.visible = false;
     }
 
+    public addCollidable(collidable: ICollidableShape) {
+        this.collidables.push(collidable);
+    }
+
+    public removeCollidable(collidable: ICollidableShape) {
+        const index = _.findIndex(this.collidables, x => x === collidable);
+        this.collidables.splice(index, 1);
+    }
+
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
+        let collidesWith: ICollidableShape;
+        const previousX = this.x;
+        const previousY = this.y;
+
         this.move(this.xVel * timeDelta, this.yVel * timeDelta, PositionStrategy.Relative);
+
+        if (this.collidables.length > 0) {
+            for (const shape of this.collidables) {
+                if (CollisionDetector.hasCollision(shape, this)) {
+                    collidesWith = shape;
+                    break;
+                }
+            }
+        }
+        if (collidesWith) {
+            this.setVelocity(AxisDimension.XY, 0);
+            this.move(previousX, previousY, PositionStrategy.Absolute);
+        }
+
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
@@ -131,7 +163,7 @@ export class Character implements IRenderable, IMoveable {
         
     }
 
-    private getDirection(currentPosition: Vector, destination: Vector) {
+    public getDirection(currentPosition: Vector, destination: Vector) {
         if (currentPosition.x < destination.x && currentPosition.y === destination.y) {
             return "east";
         }

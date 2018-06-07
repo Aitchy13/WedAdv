@@ -28,10 +28,13 @@ export class SceneManager {
         if (!registeredScene) {
             throw new Error(`Cannot load scene '${(scene as any).name}', since it hasn't been registered. Please register before loading.`);
         }
+        if (this.activeScene) {
+            this.activeScene.destroy();
+        }
         this.activeScene = new registeredScene(this.game, this.textureLoader);
         this.activeScene.preload().then(() => {
             this.activeScene.render();
-        })
+        });
     }
 
 }

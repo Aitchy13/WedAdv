@@ -10,4 +10,8 @@ export abstract class Scene {
 
     }
 
+    public destroy(): void {
+
+    }
+
 }

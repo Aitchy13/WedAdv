@@ -12,6 +12,7 @@ import { PathFinder } from "../engine/navigation/pathfinder";
 import { Layer } from "../engine/rendering/layer";
 import { Guest } from "../models/guest";
 import { Player } from "../models/player";
+import { Validation } from "../engine/utilities/validation";
 
 export class InsideScene extends Scene {
 
@@ -39,11 +40,10 @@ export class InsideScene extends Scene {
 
         const hidingSpots = [];
 
-        const player = new Player({
-            model: "groom",
-            x: 650,
-            y: 300
-        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput).enableControls();
+        const player = this.game.cache.getItem<Player>("player");
+        Validation.isTrue(player instanceof Player, "No player found in cache");
+        player.move(450, 205, PositionStrategy.Absolute);
+        this.game.rootRenderer.addObject(player);
 
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
         this.game.camera.follow(() => {
@@ -88,6 +88,13 @@ export class InsideScene extends Scene {
         const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
         navGrid.addBlockedGeometry("top-wall", topWallBoundary);
 
+        player.addCollidable(table1);
+        player.addCollidable(table2);
+        player.addCollidable(table3);
+        player.addCollidable(table4);
+        player.addCollidable(table5);
+        player.addCollidable(table6);
+
         new Guest({
             name: "James Aitchison",
             clothing: "blue-suit",
@@ -120,11 +127,6 @@ export class InsideScene extends Scene {
             navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation);
             this.game.rootRenderer.addObject(hideableLocation);
         });
-        
-        this.game.rootRenderer.addObject(player);
-
-        // const walkSound = new Sound("footstep", "src/sounds/footstep10.wav");
-        // walkSound.load();
 
         // pathfinder.debug(true);
     }

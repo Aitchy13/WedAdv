@@ -9,6 +9,7 @@ import { MouseInput } from "../input/mouse-input";
 import { Camera } from "../rendering/camera";
 import { Canvas } from "../core/canvas";
 import { DialogService } from "../ui/dialog";
+import { GameCache } from "../cache/game-cache";
 
 export class Game {
 
@@ -24,6 +25,7 @@ export class Game {
     public assetLoader: AssetLoader;
     public camera: Camera;
     public dialogService: DialogService;
+    public cache: GameCache;
 
     public rootCanvas: Canvas;
     public uiCanvas: Canvas;
@@ -40,6 +42,7 @@ export class Game {
         this.uiCanvas = new Canvas(uiElement, this.config.width, this.config.height);
 
         this.logger = new Logger();
+        this.cache = new GameCache(this.logger);
         this.keyboardInput = new KeyboardInput(this.document);
         this.mouseInput = new MouseInput(this.uiCanvas);
         this.time = new Time();
