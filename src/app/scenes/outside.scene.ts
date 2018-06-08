@@ -15,6 +15,7 @@ import { Sound } from "../engine/audio/sound";
 import { IRenderable } from "../engine/rendering/renderer";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { InsideScene } from "./inside.scene";
+import { Tween } from "../engine/animation/tween";
 
 export class OutsideScene extends Scene {
 
@@ -62,16 +63,46 @@ export class OutsideScene extends Scene {
         new Layer("sky", 0, 0, sky, this.game.rootRenderer);
         new Layer("outdoor-scene", 0, 850, this.assetLoader.getImage("outdoor-scene-background"), this.game.rootRenderer);
 
-        new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
-        new Layer("cloud-b", 360, 82, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-c", 793, 55, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-d", 860, 210, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-e", 1232, 248, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-f", 1093, 431, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
-        new Layer("cloud-g", 1223, 620, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-h", 353, 500, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
-        new Layer("cloud-i", 100, 575, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
-        new Layer("cloud-j", 184, 380, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const durationModifier = 2;
+        const cloudA = new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        const cloudATween = new Tween(cloudA).to(new Vector(470, 190), 8000 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudATween.start();
+
+        const cloudB = new Layer("cloud-b", 360, 82, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudBTween = new Tween(cloudB).to(new Vector(410, 82), 7900 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudBTween.start();
+
+        const cloudC = new Layer("cloud-c", 793, 55, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudCTween = new Tween(cloudC).to(new Vector(820, 55), 8100 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudCTween.start();
+
+        const cloudD = new Layer("cloud-d", 860, 210, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudDTween = new Tween(cloudD).to(new Vector(910, 210), 8300 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudDTween.start();
+
+        const cloudE = new Layer("cloud-e", 1232, 248, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudETween = new Tween(cloudE).to(new Vector(1250, 248), 7950 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudETween.start();
+
+        const cloudF = new Layer("cloud-f", 1093, 431, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        const cloudFTween = new Tween(cloudF).to(new Vector(1150, 431), 7800 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudFTween.start();
+
+        const cloudG = new Layer("cloud-g", 1223, 620, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudGTween = new Tween(cloudG).to(new Vector(1280, 620), 8000 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudGTween.start();
+
+        const cloudH = new Layer("cloud-h", 353, 500, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudHTween = new Tween(cloudH).to(new Vector(400, 500), 8100 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudHTween.start();
+
+        const cloudI = new Layer("cloud-i", 100, 575, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
+        const cloudITween = new Tween(cloudI).to(new Vector(140, 575), 8200 * durationModifier, Easing.linear).yoyo().repeat();
+        cloudITween.start();
+
+        const cloudJ = new Layer("cloud-j", 184, 380, this.assetLoader.getImage("cloud-2"), this.game.rootRenderer);
+        const cloudJTween = new Tween(cloudJ).to(new Vector(200, 380), 8400, Easing.easeInOutCubic).yoyo().repeat();
+        cloudJTween.start();
 
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
 
