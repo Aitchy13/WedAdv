@@ -55,11 +55,23 @@ export class Rectangle implements IMoveable, IRenderable {
     }
 
     public render(ctx: CanvasRenderingContext2D, timeDelta: number, positionStrategy: PositionStrategy = PositionStrategy.Relative) {
-        if (positionStrategy === PositionStrategy.Absolute) {
-            this.move(this.x, this.y, positionStrategy);
-        } else {
-            this.move(this.xVel * timeDelta, this.yVel * timeDelta, positionStrategy);
+        // if (positionStrategy === PositionStrategy.Absolute) {
+        //     this.move(this.x, this.y, positionStrategy);
+        // } else {
+        //     this.move(this.xVel * timeDelta, this.yVel * timeDelta, positionStrategy);
+        // }
+        
+        let diffX = (this.x - this.vertices[0].x);
+        if (this.xVel) {
+            diffX += this.xVel * timeDelta;
         }
+        let diffY = (this.y - this.vertices[0].y);
+        if (this.yVel) {
+            diffY += this.yVel * timeDelta;
+        }
+        this.vertices[0] = new Vector(this.x, this.y);
+        [this.vertices[1], this.vertices[2], this.vertices[3]].forEach(v => v.addMerge(new Vector(diffX, diffY)));
+
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);

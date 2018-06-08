@@ -1,0 +1,30 @@
+[
+    {
+        "key": "ring-no-shine",
+        "x": 0,
+        "y": 0,
+        "width": 60,
+        "height": 60
+    },
+    {
+        "key": "ring-shine-1",
+        "x": 60,
+        "y": 0,
+        "width": 60,
+        "height": 60
+    },
+    {
+        "key": "ring-shine-2",
+        "x": 120,
+        "y": 0,
+        "width": 60,
+        "height": 60
+    },
+    {
+        "key": "ring-shine-3",
+        "x": 180,
+        "y": 0,
+        "width": 60,
+        "height": 60
+    }
+]

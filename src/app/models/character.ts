@@ -18,6 +18,11 @@ export class ICharacterOptions {
     y?: number;
 }
 
+export class IHoldable {
+    x: number;
+    y: number;
+}
+
 @Moveable()
 export class Character implements IRenderable, IMoveable {
 
@@ -46,6 +51,8 @@ export class Character implements IRenderable, IMoveable {
 
     private collidables: ICollidableShape[] = [];
     private visible: boolean;
+
+    private holding: IHoldable;
 
     constructor(public renderer: Renderer, public pathFinder: PathFinder, public options: ICharacterOptions) {
         this.name = options.name ? options.name : "No name";
@@ -85,6 +92,14 @@ export class Character implements IRenderable, IMoveable {
         this.collidables.splice(index, 1);
     }
 
+    public hold(holdable: IHoldable) {
+        this.holding = holdable;
+    }
+
+    public stopHolding() {
+        this.holding = undefined;
+    }
+
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
         let collidesWith: ICollidableShape;
         const previousX = this.x;
@@ -119,6 +134,11 @@ export class Character implements IRenderable, IMoveable {
             throw new Error(`No sprite with the key ${this.defaultSpriteFrame} could be found`);
         }
         ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, this.width, this.height);
+
+        if (this.holding) {
+            this.holding.x = this.x;
+            this.holding.y = this.y + 1 ;
+        }
 
         ctx.restore();
     }

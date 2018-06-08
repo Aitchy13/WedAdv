@@ -12,10 +12,10 @@ import { Layer } from "../engine/rendering/layer";
 import { Player } from "../models/player";
 import { Button } from "../engine/ui/button";
 import { Sound } from "../engine/audio/sound";
-import { IRenderable } from "../engine/rendering/renderer";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { InsideScene } from "./inside.scene";
 import { Tween } from "../engine/animation/tween";
+import { Ring } from "../models/ring";
 
 export class OutsideScene extends Scene {
 
@@ -115,13 +115,13 @@ export class OutsideScene extends Scene {
 
     private showTitleScreen() {
         const gameTitleTexture = this.assetLoader.getImage("game-title");
-        this.gameTitle = new Layer("game-title", (this.game.window.innerWidth / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.rootRenderer);
+        this.gameTitle = new Layer("game-title", (this.game.rootCanvas.width / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.rootRenderer);
 
         const startButtonTexture = this.assetLoader.getImage("start-button");
         this.startButton = new Button({
             width: 216,
             height: 60,
-            x: (this.game.window.innerWidth / 2) - startButtonTexture.width / 2,
+            x: (this.game.rootCanvas.width / 2) - startButtonTexture.width / 2,
             y: 476,
             texture: this.assetLoader.getImage("start-button")
         }, this.game.mouseInput, this.game.rootRenderer);
@@ -141,7 +141,7 @@ export class OutsideScene extends Scene {
 
     private showPlayerSelection() {
         const selectPlayerText = this.assetLoader.getImage("select-player-text");
-        this.instruction = new Layer("select-player-text", (this.game.window.innerWidth / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.rootRenderer);
+        this.instruction = new Layer("select-player-text", (this.game.rootCanvas.width / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.rootRenderer);
 
         const navGrid = new NavGrid({
             width: this.width,
@@ -154,13 +154,13 @@ export class OutsideScene extends Scene {
 
         this.groom = new Player({
             model: "groom",
-            x: (this.game.window.innerWidth / 2) - 20,
+            x: (this.game.rootCanvas.width / 2) - 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
         this.bride = new Player({
             model: "bride",
-            x: (this.game.window.innerWidth / 2) + 20,
+            x: (this.game.rootCanvas.width / 2) + 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
 
@@ -173,7 +173,7 @@ export class OutsideScene extends Scene {
         this.groomSelection = new Button({
             width: 158,
             height: 158,
-            x: (this.game.window.innerWidth / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
+            x: (this.game.rootCanvas.width / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
             y: 340,
             texture: groomSelectionTexture
         }, this.game.mouseInput, this.game.rootRenderer);
@@ -187,7 +187,7 @@ export class OutsideScene extends Scene {
         this.brideSelection = new Button({
             width: 158,
             height: 158,
-            x: (this.game.window.innerWidth / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
+            x: (this.game.rootCanvas.width / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
             y: 340,
             texture: brideSelectionTexture
         }, this.game.mouseInput, this.game.rootRenderer);
@@ -200,7 +200,7 @@ export class OutsideScene extends Scene {
         this.playButton = new Button({
             width: 216,
             height: 60,
-            x: (this.game.window.innerWidth / 2) - playButtonTexture.width / 2,
+            x: (this.game.rootCanvas.width / 2) - playButtonTexture.width / 2,
             y: 520,
             texture: this.assetLoader.getImage("play-button")
         }, this.game.mouseInput, this.game.rootRenderer);
@@ -259,6 +259,9 @@ export class OutsideScene extends Scene {
         new Layer("pew-q", 414 + rightSectionSpacing, firstRowY + spacing * 3, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
+
+        const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
+        this.selectedPlayer.hold(ring);
 
         const exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
         exit.beforeRender = () => {
