@@ -22,6 +22,7 @@ export class App {
             game.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),
             game.assetLoader.loadSpriteSheet("groom-dialog", "src/sprites/groom-dialog.png", "src/sprites/groom-dialog.json"),
             game.assetLoader.loadSpriteSheet("ring", "src/sprites/ring.png", "src/sprites/ring.json"),
+            game.assetLoader.loadSpriteSheet("noa", "src/sprites/noa.png", "src/sprites/noa.json"),
             game.assetLoader.loadImage("dialog", "src/sprites/dialog.png"),
             game.assetLoader.loadImage("dialog-arrow", "src/sprites/dialog-arrow.png"),
             game.assetLoader.loadSound("running", "src/sounds/running.wav"),

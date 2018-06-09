@@ -33,24 +33,24 @@ export class Target extends Character implements IRenderable {
     constructor(public options: ITargetOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder) {
         super(renderer, pathFinder, {
             name: options.name,
-            width: 36,
-            height: 77,
+            width: 30,
+            height: 50,
             x: options.x,
             y: options.y
         } as ICharacterOptions);
         this.player = options.player;
         this.hidingSpots = options.hidingSpots;
 
-        this.spriteSheet = this.textureLoader.getSpriteSheet("male-guest-blue", true);
+        this.spriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.setAnimations();
         this.hideIn();
     }
 
-    public beforeRender() {       
+    public beforeRender() {
         if (!this.caught && CollisionDetector.hasCollision(this.player, this)) {
             this.remove();
             this.caught = true;
-            alert("You caught Noah!");
+            alert(`You caught ${this.name}!`);
         }
         if (this.hidingSpot && CollisionDetector.hasCollision(this.player, this.hidingSpot)) {
             this.y = this.hidingSpot.y - 50;
@@ -81,7 +81,7 @@ export class Target extends Character implements IRenderable {
     }
 
     public runTo(coordinate: ICoordinate, onComplete?: () => void) {
-        this.goTo(coordinate, 100, () => {
+        this.goTo(coordinate, 150, () => {
             if (onComplete) {
                 onComplete();
             }

@@ -13,6 +13,8 @@ import { Layer } from "../engine/rendering/layer";
 import { Guest } from "../models/guest";
 import { Player } from "../models/player";
 import { Validation } from "../engine/utilities/validation";
+import { Target } from "../models/target";
+import { Ring } from "../models/ring";
 
 export class InsideScene extends Scene {
 
@@ -88,12 +90,12 @@ export class InsideScene extends Scene {
         const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
         navGrid.addBlockedGeometry("top-wall", topWallBoundary);
 
-        player.addCollidable(table1);
-        player.addCollidable(table2);
-        player.addCollidable(table3);
-        player.addCollidable(table4);
-        player.addCollidable(table5);
-        player.addCollidable(table6);
+        // player.addCollidable(table1);
+        // player.addCollidable(table2);
+        // player.addCollidable(table3);
+        // player.addCollidable(table4);
+        // player.addCollidable(table5);
+        // player.addCollidable(table6);
 
         new Guest({
             name: "James Aitchison",
@@ -118,6 +120,17 @@ export class InsideScene extends Scene {
 
 
         const hiddenLocation = hidingSpots[MathsUtility.randomIntegerRange(0, hidingSpots.length - 1)];
+
+        const target = new Target({
+            name: "Noa",
+            x: 500,
+            y: 500,
+            player: player,
+            hidingSpots
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
+        target.hold(ring);
 
 
         hidingSpots.forEach(hideableLocation => {

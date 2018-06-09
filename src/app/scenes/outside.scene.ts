@@ -260,9 +260,6 @@ export class OutsideScene extends Scene {
         new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
 
-        const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
-        this.selectedPlayer.hold(ring);
-
         const exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
         exit.beforeRender = () => {
             if (CollisionDetector.hasCollision(this.selectedPlayer, exit)) {
