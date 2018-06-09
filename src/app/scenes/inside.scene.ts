@@ -90,36 +90,33 @@ export class InsideScene extends Scene {
         const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
         navGrid.addBlockedGeometry("top-wall", topWallBoundary);
 
-        // player.addCollidable(table1);
-        // player.addCollidable(table2);
-        // player.addCollidable(table3);
-        // player.addCollidable(table4);
-        // player.addCollidable(table5);
-        // player.addCollidable(table6);
+        player.addCollidable(table1);
+        player.addCollidable(table2);
+        player.addCollidable(table3);
+        player.addCollidable(table4);
+        player.addCollidable(table5);
+        player.addCollidable(table6);
 
-        new Guest({
-            name: "James Aitchison",
-            clothing: "blue-suit",
-            x: 200,
-            y: 200
-        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        // new Guest({
+        //     name: "James Aitchison",
+        //     clothing: "blue-suit",
+        //     x: 200,
+        //     y: 200
+        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
-        new Guest({
-            name: "Some Guest",
-            clothing: "blue-suit",
-            x: 500,
-            y: 550
-        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        // new Guest({
+        //     name: "Some Guest",
+        //     clothing: "blue-suit",
+        //     x: 500,
+        //     y: 550
+        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
-        new Guest({
-            name: "Another Guest",
-            clothing: "blue-suit",
-            x: 700,
-            y: 700
-        }, this.assetLoader, this.game.rootRenderer, pathfinder);
-
-
-        const hiddenLocation = hidingSpots[MathsUtility.randomIntegerRange(0, hidingSpots.length - 1)];
+        // new Guest({
+        //     name: "Another Guest",
+        //     clothing: "blue-suit",
+        //     x: 700,
+        //     y: 700
+        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         const target = new Target({
             name: "Noa",
@@ -130,7 +127,10 @@ export class InsideScene extends Scene {
         }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
-        target.hold(ring);
+        // target.hold(ring);
+
+        player.setInteractable(ring);
+
 
 
         hidingSpots.forEach(hideableLocation => {

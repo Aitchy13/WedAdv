@@ -1,8 +1,9 @@
 import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { Rectangle } from "../engine/game-objects/rectangle";
+import { IInteractable } from "./player";
 
-export class Ring implements IRenderable {
+export class Ring implements IRenderable, IInteractable {
 
     public width: number = 60;
     public height: number = 60;
@@ -38,6 +39,10 @@ export class Ring implements IRenderable {
         this.shape.x = this.x;
         this.shape.y = this.y;
         this.shape.render(ctx, delta);
+    }
+
+    public onInteraction(evtName: string, interactor: IInteractable) {
+        interactor.onInteraction(evtName, this);
     }
 
     private setSpriteSheet(shape: Rectangle) {

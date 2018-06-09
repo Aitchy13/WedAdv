@@ -40,6 +40,9 @@ export class Character implements IRenderable, IMoveable {
 
     public x: number;
     public y: number;
+
+    public holding: IHoldable;
+    public visible: boolean;
     
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
@@ -50,9 +53,7 @@ export class Character implements IRenderable, IMoveable {
 
 
     private collidables: ICollidableShape[] = [];
-    private visible: boolean;
 
-    private holding: IHoldable;
 
     constructor(public renderer: Renderer, public pathFinder: PathFinder, public options: ICharacterOptions) {
         this.name = options.name ? options.name : "No name";

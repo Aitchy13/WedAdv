@@ -15,14 +15,21 @@ export class IPlayerOptions extends ICharacterOptions {
     y: number;
 }
 
+export interface IInteractable {
+    onInteraction: (type: string, interactor: IInteractable) => void;
+    x: number;
+    y: number;
+}
+
 export type PlayerModel = "groom" | "bride";
 
-export class Player extends Character implements IRenderable, ICanTalk {
+export class Player extends Character implements IRenderable, ICanTalk, IInteractable {
 
     public dialogSpriteSheet: SpriteSheet;
 
     private model: PlayerModel;
     private walkSound: Sound;
+    private interactable: IInteractable;
 
     constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
         super(renderer, pathFinder, {
@@ -49,6 +56,14 @@ export class Player extends Character implements IRenderable, ICanTalk {
                 onComplete();
             }
         });
+    }
+
+    public onInteraction(evtName: string, interactor: IInteractable) {
+        switch (evtName) {
+            case "hold":
+                this.holding ? this.stopHolding() : this.hold(interactor);
+                break;
+        }
     }
 
     private setSpriteSheet(model: PlayerModel) {
@@ -145,6 +160,8 @@ export class Player extends Character implements IRenderable, ICanTalk {
                     this.spriteSheet.playAnimation("walk-east");
                     this.walkSound.loop();
                     break;
+                case "e":
+                    this.interactable.onInteraction("hold", this);
             }
         });
         this.keyboardInput.on("keyup", () => {
@@ -153,6 +170,10 @@ export class Player extends Character implements IRenderable, ICanTalk {
             this.walkSound.stop();
         });
         return this;
+    }
+
+    public setInteractable(interactable: IInteractable) {
+        this.interactable = interactable;
     }
 
 }
