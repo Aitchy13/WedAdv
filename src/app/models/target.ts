@@ -7,6 +7,7 @@ import { Vector } from "../engine/core/vector";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { ICoordinate } from "../engine/core/core.models";
 import { PositionStrategy } from "../engine/physics/moveable";
+import { Rectangle } from "../engine/game-objects/rectangle";
 
 export interface ITargetOptions extends ICharacterOptions {
     name: string;
@@ -17,10 +18,13 @@ export interface ITargetOptions extends ICharacterOptions {
 }
 
 export interface IHidingSpot {
+    key: string;
     x: number;
     y: number;
     width: number;
     height: number;
+    shape: Rectangle;
+    hiddenObject: Target;
 }
 
 export class Target extends Character implements IRenderable {
@@ -50,7 +54,8 @@ export class Target extends Character implements IRenderable {
         if (!this.caught && CollisionDetector.hasCollision(this.player, this)) {
             this.remove();
             this.caught = true;
-            alert(`You caught ${this.name}!`);
+            // alert(`You caught ${this.name}!`);
+            this.stopHolding();
         }
         if (this.hidingSpot && CollisionDetector.hasCollision(this.player, this.hidingSpot)) {
             this.y = this.hidingSpot.y - 50;
@@ -60,7 +65,11 @@ export class Target extends Character implements IRenderable {
     }
 
     public hideIn(animate?: boolean) {
+        if (this.hidingSpot) {
+            this.hidingSpot.hiddenObject = undefined;
+        }
         this.hidingSpot = this.hidingSpots[MathsUtility.randomIntegerRange(0, this.hidingSpots.length - 1)];
+        this.hidingSpot.hiddenObject = this;
         if (animate) {
             this.runTo({ x: this.hidingSpot.x - 1, y: this.hidingSpot.y - 1 });
         } else {

@@ -11,3 +11,11 @@ export interface ICoordinate {
     x: number;
     y: number;
 }
+
+export enum Direction {
+    None,
+    North,
+    East,
+    South,
+    West
+}

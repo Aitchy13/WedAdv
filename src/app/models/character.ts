@@ -7,7 +7,7 @@ import { IEasingFunc } from "../engine/animation/easing";
 import { Vector } from "../engine/core/vector";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
-import { ICoordinate } from "../engine/core/core.models";
+import { ICoordinate, Direction } from "../engine/core/core.models";
 import { ICollidableShape, CollisionDetector } from "../engine/detectors/collision-detector";
 
 export class ICharacterOptions {
@@ -50,6 +50,8 @@ export class Character implements IRenderable, IMoveable {
     public getVelocity: () => { x: number, y: number };
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
+
+    public lastMovedDirection: Direction;
 
 
     private collidables: ICollidableShape[] = [];
@@ -157,25 +159,29 @@ export class Character implements IRenderable, IMoveable {
                     onComplete();
                 }
             }, (currentPosition: Vector, destination: Vector) => {
-                switch (this.getDirection(currentPosition, destination)) {
-                    case "east":
+                const direction = this.getDirection(currentPosition, destination);
+                switch (direction) {
+                    case Direction.East:
                         this.spriteSheet.playAnimation("walk-east");
                         this.defaultSpriteFrame = "east-stand";
                         break;
-                    case "west":
+                    case Direction.West:
                         this.spriteSheet.playAnimation("walk-west");
                         this.defaultSpriteFrame = "west-stand";
                         break;
-                    case "north":
+                    case Direction.North:
                         this.spriteSheet.playAnimation("walk-north");
                         this.defaultSpriteFrame = "north-stand";
                         break;
-                    case "south":
+                    case Direction.South:
                         this.spriteSheet.playAnimation("walk-south");
                         this.defaultSpriteFrame = "south-stand";
                         break;
-                    case "none":
+                    case Direction.None:
                         this.spriteSheet.stopAnimation();
+                }
+                if (direction !== Direction.None) {
+                    this.lastMovedDirection = direction;
                 }
             });
         } catch (e) {
@@ -184,20 +190,20 @@ export class Character implements IRenderable, IMoveable {
         
     }
 
-    public getDirection(currentPosition: Vector, destination: Vector) {
+    public getDirection(currentPosition: Vector, destination: Vector): Direction {
         if (currentPosition.x < destination.x && currentPosition.y === destination.y) {
-            return "east";
+            return Direction.East;
         }
         if (currentPosition.x > destination.x && currentPosition.y === destination.y) {
-            return "west";
+            return Direction.West;
         }
         if (currentPosition.y < destination.y && currentPosition.x === destination.x) {
-            return "south";
+            return Direction.South;
         }
         if (currentPosition.y > destination.y && currentPosition.x === destination.x) {
-            return "north";
+            return Direction.North;
         }
-        return "none"
+        return Direction.None;
     }
 
 }

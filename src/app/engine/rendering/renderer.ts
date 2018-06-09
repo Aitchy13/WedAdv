@@ -74,13 +74,7 @@ export class Renderer {
             if (x.beforeRender) {
                 x.beforeRender(this.context, timeDelta);
             }
-        })
-        this.renderables = _.orderBy(this.renderables, d => d.y);
-        this.renderables.forEach(x => {
             x.render(this.context, timeDelta);
-        });
-        this.renderables = _.orderBy(this.renderables, d => d.y);
-        this.renderables.forEach(x => {
             if (x.afterRender) {
                 x.afterRender(this.context, timeDelta);
             }

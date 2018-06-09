@@ -1,13 +1,18 @@
+import * as _ from "lodash";
+
 import { Character, ICharacterOptions } from "./character";
 import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
 import { PathFinder } from "../engine/navigation/pathfinder";
-import { ICoordinate } from "../engine/core/core.models";
+import { ICoordinate, Direction } from "../engine/core/core.models";
 import { KeyboardInput } from "../engine/input/keyboard-input";
 import { AxisDimension } from "../engine/physics/moveable";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { ICanTalk } from "../engine/ui/dialog";
 import { Sound } from "../engine/audio/sound";
+import { Rectangle } from "../engine/game-objects/rectangle";
+import { CollisionDetector } from "../engine/detectors/collision-detector";
+import { Target } from "./target";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -16,9 +21,11 @@ export class IPlayerOptions extends ICharacterOptions {
 }
 
 export interface IInteractable {
-    onInteraction: (type: string, interactor: IInteractable) => void;
+    onInteraction: (type: string, interactor: IInteractable, data?: any) => void;
     x: number;
     y: number;
+    width: number;
+    height: number;
 }
 
 export type PlayerModel = "groom" | "bride";
@@ -29,7 +36,8 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
 
     private model: PlayerModel;
     private walkSound: Sound;
-    private interactable: IInteractable;
+    private interactables: IInteractable[] = [];
+    private detectedInteractable: IInteractable;
 
     constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
         super(renderer, pathFinder, {
@@ -58,11 +66,47 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         });
     }
 
-    public onInteraction(evtName: string, interactor: IInteractable) {
+    public onInteraction(evtName: string, interactor: IInteractable, data: any) {
         switch (evtName) {
             case "hold":
                 this.holding ? this.stopHolding() : this.hold(interactor);
                 break;
+            case "check-for-target":
+                const target = data instanceof Target ? data : undefined;
+                if (target) {
+                    target.runAway();
+                }
+                break;
+        }
+    }
+
+    public beforeRender(ctx: CanvasRenderingContext2D, delta: number) {
+        if (this.lastMovedDirection !== Direction.None && this.interactables.length > 0) {
+            const detectionSize: number = 50;
+            let detectionArea: Rectangle;
+            switch (this.lastMovedDirection) {
+                case Direction.North:
+                    detectionArea = new Rectangle(detectionSize, detectionSize, this.x, this.y - detectionSize);
+                    break;
+                case Direction.East:
+                    detectionArea = new Rectangle(detectionSize, detectionSize, this.x + detectionSize, this.y);
+                    break;
+                case Direction.South:
+                    detectionArea = new Rectangle(detectionSize, detectionSize, this.x, this.y + detectionSize);
+                    break;
+                case Direction.West:
+                    detectionArea = new Rectangle(detectionSize, detectionSize, this.x - detectionSize, this.y);
+                    break;
+                default:
+                    return;
+            }
+            this.detectedInteractable = _.find(this.interactables, x => CollisionDetector.hasCollision(x, detectionArea));
+            if (this.detectedInteractable) {
+                detectionArea.setColor("green");
+            } else {
+                detectionArea.setColor("red");
+            }
+            detectionArea.render(ctx, delta);
         }
     }
 
@@ -138,6 +182,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.defaultSpriteFrame = "north-stand";
                     this.spriteSheet.playAnimation("walk-north");
                     this.walkSound.loop();
+                    this.lastMovedDirection = Direction.North;
                     break;
                 case "s":
                 case "ArrowDown":
@@ -145,6 +190,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.defaultSpriteFrame = "south-stand";
                     this.spriteSheet.playAnimation("walk-south");
                     this.walkSound.loop();
+                    this.lastMovedDirection = Direction.South;
                     break;
                 case "a":
                 case "ArrowLeft":
@@ -152,6 +198,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.defaultSpriteFrame = "west-stand";
                     this.spriteSheet.playAnimation("walk-west");
                     this.walkSound.loop();
+                    this.lastMovedDirection = Direction.West;
                     break;
                 case "d":
                 case "ArrowRight":
@@ -159,9 +206,12 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.defaultSpriteFrame = "east-stand";
                     this.spriteSheet.playAnimation("walk-east");
                     this.walkSound.loop();
+                    this.lastMovedDirection = Direction.East;
                     break;
                 case "e":
-                    this.interactable.onInteraction("hold", this);
+                    if (this.detectedInteractable) {
+                        this.detectedInteractable.onInteraction("check-for-target", this);
+                    }
             }
         });
         this.keyboardInput.on("keyup", () => {
@@ -172,8 +222,22 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         return this;
     }
 
-    public setInteractable(interactable: IInteractable) {
-        this.interactable = interactable;
+    public addInteractable(interactable: IInteractable) {
+        if (!interactable) {
+            throw new Error("No interactable specified");
+        }
+        if (_.findIndex(this.interactables, x => x === interactable) !== -1) {
+            throw new Error("Interactable has already been added");
+        }
+        this.interactables.push(interactable);
+    }
+
+    public removeInteractable(interactable: IInteractable) {
+        const index = _.findIndex(this.interactables, x => x === interactable);
+        if (index === -1) {
+            return;
+        }
+        this.interactables.splice(index, 1);
     }
 
 }
