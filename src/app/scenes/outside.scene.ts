@@ -16,6 +16,7 @@ import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { InsideScene } from "./inside.scene";
 import { Tween } from "../engine/animation/tween";
 import { Ring } from "../models/ring";
+import { PositionStrategy } from "../engine/physics/moveable";
 
 export class OutsideScene extends Scene {
 
@@ -35,6 +36,8 @@ export class OutsideScene extends Scene {
     private bride: Player;
 
     private menuSelectSound: Sound;
+    private pathfinder: PathFinder
+    ;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
@@ -57,12 +60,36 @@ export class OutsideScene extends Scene {
     }
 
     public render() {
+        this.game.camera.setBoundaries(0, this.width, 0, this.height);
+
         const sky = new Rectangle(this.width, 934, 0, 0);
         sky.gradient = [["#b1e0f2", 1], ["#7d9bf2", 0]];
 
         new Layer("sky", 0, 0, sky, this.game.rootRenderer);
         new Layer("outdoor-scene", 0, 850, this.assetLoader.getImage("outdoor-scene-background"), this.game.rootRenderer);
 
+        const navGrid = new NavGrid({
+            width: this.width,
+            height: 672,
+            x: 0,
+            y: 1130
+        }, this.game.rootRenderer);
+
+        this.pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
+
+        if (this.game.cache.getItem("player")) {
+            this.restoreScene();
+            return;
+        }
+
+        this.showTitleScreen();
+    }
+
+    public destroy() {
+        this.game.rootRenderer.removeAllObjects();
+    }
+
+    private showTitleScreen() {
         const durationModifier = 2;
         const cloudA = new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
         const cloudATween = new Tween(cloudA).to(new Vector(470, 190), 8000 * durationModifier, Easing.linear).yoyo().repeat();
@@ -104,16 +131,7 @@ export class OutsideScene extends Scene {
         const cloudJTween = new Tween(cloudJ).to(new Vector(200, 380), 8400, Easing.easeInOutCubic).yoyo().repeat();
         cloudJTween.start();
 
-        this.game.camera.setBoundaries(0, this.width, 0, this.height);
 
-        this.showTitleScreen();
-    }
-
-    public destroy() {
-        this.game.rootRenderer.removeAllObjects();
-    }
-
-    private showTitleScreen() {
         const gameTitleTexture = this.assetLoader.getImage("game-title");
         this.gameTitle = new Layer("game-title", (this.game.rootCanvas.width / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.rootRenderer);
 
@@ -143,26 +161,8 @@ export class OutsideScene extends Scene {
         const selectPlayerText = this.assetLoader.getImage("select-player-text");
         this.instruction = new Layer("select-player-text", (this.game.rootCanvas.width / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.rootRenderer);
 
-        const navGrid = new NavGrid({
-            width: this.width,
-            height: 672,
-            x: 0,
-            y: 1130
-        }, this.game.rootRenderer);
-
-        const pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
-
-        this.groom = new Player({
-            model: "groom",
-            x: (this.game.rootCanvas.width / 2) - 20,
-            y: 1157
-        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
-
-        this.bride = new Player({
-            model: "bride",
-            x: (this.game.rootCanvas.width / 2) + 20,
-            y: 1157
-        }, this.assetLoader, this.game.rootRenderer, pathfinder, this.game.keyboardInput);
+        this.renderGroom();
+        this.renderBride();
 
         this.selectedPlayer = this.groom;
 
@@ -210,6 +210,22 @@ export class OutsideScene extends Scene {
             this.startSequence();
         });
 
+    }
+
+    private renderGroom() {
+        this.groom = new Player({
+            model: "groom",
+            x: (this.game.rootCanvas.width / 2) - 20,
+            y: 1157
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
+    }
+
+    private renderBride() {
+        this.bride = new Player({
+            model: "bride",
+            x: (this.game.rootCanvas.width / 2) + 20,
+            y: 1157
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
     }
 
     private hidePlayerSelectionScreen() {
@@ -281,6 +297,18 @@ export class OutsideScene extends Scene {
         }).then(() => {
             this.selectedPlayer.enableControls();
         });
+    }
+
+    private restoreScene() {
+        this.selectedPlayer = this.game.cache.getItem("player");
+        this.selectedPlayer.model === "groom" ? this.renderBride() : this.renderGroom();
+        this.selectedPlayer.move(this.game.rootCanvas.width / 2, this.height - 100, PositionStrategy.Absolute);
+
+        this.renderLevel();
+
+        this.game.camera.follow(() => new Vector(this.selectedPlayer.x, this.selectedPlayer.y));
+
+        this.game.rootRenderer.addObject(this.selectedPlayer);
     }
 
 }

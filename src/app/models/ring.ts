@@ -5,6 +5,7 @@ import { IInteractable } from "./player";
 
 export class Ring implements IRenderable, IInteractable {
 
+    public name: string = "Wedding Ring";
     public width: number = 60;
     public height: number = 60;
     
@@ -42,7 +43,7 @@ export class Ring implements IRenderable, IInteractable {
     }
 
     public onInteraction(evtName: string, interactor: IInteractable) {
-        interactor.onInteraction(evtName, this);
+        
     }
 
     private setSpriteSheet(shape: Rectangle) {

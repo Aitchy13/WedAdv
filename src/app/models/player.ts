@@ -13,6 +13,9 @@ import { Sound } from "../engine/audio/sound";
 import { Rectangle } from "../engine/game-objects/rectangle";
 import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Target } from "./target";
+import { Table } from "./table";
+import { Ring } from "./ring";
+import { Door } from "./door";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -21,6 +24,7 @@ export class IPlayerOptions extends ICharacterOptions {
 }
 
 export interface IInteractable {
+    name: string;
     onInteraction: (type: string, interactor: IInteractable, data?: any) => void;
     x: number;
     y: number;
@@ -33,8 +37,8 @@ export type PlayerModel = "groom" | "bride";
 export class Player extends Character implements IRenderable, ICanTalk, IInteractable {
 
     public dialogSpriteSheet: SpriteSheet;
+    public model: PlayerModel;
 
-    private model: PlayerModel;
     private walkSound: Sound;
     private interactables: IInteractable[] = [];
     private detectedInteractable: IInteractable;
@@ -103,11 +107,24 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             this.detectedInteractable = _.find(this.interactables, x => CollisionDetector.hasCollision(x, detectionArea));
             if (this.detectedInteractable) {
                 detectionArea.setColor("green");
+                this.addInterableLabel(this.detectedInteractable, ctx, delta);
             } else {
                 detectionArea.setColor("red");
             }
             detectionArea.render(ctx, delta);
         }
+    }
+
+    private addInterableLabel(interactable: IInteractable, ctx: CanvasRenderingContext2D, delta: number) {
+        const labelWidth = 50;
+        const labelHeight = 20;
+        const midX = interactable.x + (interactable.width / 2) - (labelWidth / 2);
+
+        const label = new Rectangle(50, 15, midX, interactable.y - labelHeight - 20);
+        label.setColor("black");
+        label.text = interactable.name;
+        label.textColor = "#ffffff";
+        label.render(ctx, delta);
     }
 
     private setSpriteSheet(model: PlayerModel) {
@@ -210,7 +227,17 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     break;
                 case "e":
                     if (this.detectedInteractable) {
-                        this.detectedInteractable.onInteraction("check-for-target", this);
+                        if (this.detectedInteractable instanceof Table) {
+                            this.detectedInteractable.onInteraction("check-for-target", this);
+                            return;
+                        }
+                        if (this.detectedInteractable instanceof Ring) {
+                            this.hold(this.detectedInteractable);
+                            return;
+                        }
+                        if (this.detectedInteractable instanceof Door) {
+                            this.detectedInteractable.exit();
+                        }
                     }
             }
         });
@@ -238,6 +265,10 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             return;
         }
         this.interactables.splice(index, 1);
+    }
+
+    public removeInteractables() {
+        this.interactables = [];
     }
 
 }

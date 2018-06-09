@@ -16,6 +16,8 @@ export class Rectangle implements IMoveable, IRenderable {
     
     public text: string;
     public textColor: string = "red";
+    public textFontFamily: string = "Arial";
+    public textFontSize: string = "10px";
     public textAlign: string = "center";
 
     public spriteSheet: SpriteSheet;
@@ -24,8 +26,6 @@ export class Rectangle implements IMoveable, IRenderable {
 
     public degree: number = 0;
     public degreeVel: number = 0;
-
-    public fixedPosition = false;
 
     // Applied by @Moveable decorator
     public xVel: number = 0;
@@ -112,7 +112,7 @@ export class Rectangle implements IMoveable, IRenderable {
         }
 
         if (this.text) {
-            ctx.font = "10px Arial";
+            ctx.font = this.textFontSize + " " + this.textFontFamily;
             ctx.fillStyle = this.textColor;
             ctx.textAlign = this.textAlign;
             ctx.fillText(this.text, this.x + (this.width / 2), this.y + (this.height / 2));

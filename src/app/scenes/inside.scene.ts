@@ -1,9 +1,8 @@
 
 import { Scene } from "../engine/game-objects/scene";
 import { Game } from "../engine/game-objects/game";
-import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { Rectangle } from "../engine/game-objects/rectangle";
-import { AxisDimension, PositionStrategy } from "../engine/physics/moveable";
+import { PositionStrategy } from "../engine/physics/moveable";
 import { Vector } from "../engine/core/vector";
 import { AssetLoader } from "../engine/textures/asset-loader";
 import { NavGrid } from "../engine/navigation/nav-grid";
@@ -15,11 +14,15 @@ import { Validation } from "../engine/utilities/validation";
 import { Target, IHidingSpot } from "../models/target";
 import { Ring } from "../models/ring";
 import { Table } from "../models/table";
+import { Door } from "../models/door";
+import { OutsideScene } from "./outside.scene";
 
 export class InsideScene extends Scene {
 
     public width: number = 1440;
     public height: number = 960;
+
+    public player: Player;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
@@ -32,6 +35,12 @@ export class InsideScene extends Scene {
         ]);
     }
 
+    public destroy() {
+        this.game.rootRenderer.removeAllObjects();
+        this.player.removeCollidables();
+        this.player.removeInteractables();
+    }
+
     public render() {
         const navGrid = new NavGrid({
             width: this.width,
@@ -40,14 +49,14 @@ export class InsideScene extends Scene {
 
         const pathfinder = new PathFinder(navGrid, this.game.rootRenderer);
 
-        const player = this.game.cache.getItem<Player>("player");
-        Validation.isTrue(player instanceof Player, "No player found in cache");
-        player.move(450, 205, PositionStrategy.Absolute);
-        this.game.rootRenderer.addObject(player);
+        this.player = this.game.cache.getItem<Player>("player");
+        Validation.isTrue(this.player instanceof Player, "No player found in cache");
+        this.player.move(450, 205, PositionStrategy.Absolute);
+        this.game.rootRenderer.addObject(this.player);
 
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
         this.game.camera.follow(() => {
-            return new Vector(player.x, player.y);
+            return new Vector(this.player.x, this.player.y);
         });
 
         new Layer("background", 0, 0, this.assetLoader.getImage("indoor-scene-background"), this.game.rootRenderer);
@@ -73,12 +82,17 @@ export class InsideScene extends Scene {
 
         const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
         navGrid.addBlockedGeometry("top-wall", topWallBoundary);
+        this.player.addCollidable(topWallBoundary);
+
+        const door1 = new Door("door-1", 411, 86, this.game.sceneManager);
+        door1.setExit(OutsideScene);
+        this.player.addInteractable(door1);
 
         const hidingSpots: IHidingSpot[] = [];
 
         tables.forEach(x => {
-            player.addCollidable(x);
-            player.addInteractable(x);
+            this.player.addCollidable(x);
+            this.player.addInteractable(x);
             hidingSpots.push(x);
             x.show();
         });
@@ -108,14 +122,14 @@ export class InsideScene extends Scene {
             name: "Noa",
             x: 500,
             y: 500,
-            player: player,
+            player: this.player,
             hidingSpots
         }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
         target.hold(ring);
 
-        player.addInteractable(ring);
+        this.player.addInteractable(ring);
 
         hidingSpots.forEach(hideableLocation => {
             navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation.shape);

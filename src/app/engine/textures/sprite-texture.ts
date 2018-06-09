@@ -99,7 +99,7 @@ export class AnimationManager {
     public add(key: string, sequence: string[], repeat: boolean = false): void {
         const animation = _.find(this.animations, x => x.key === key);
         if (animation) {
-            throw new Error(`An animation with the key '${key}' already exists.`);
+            return;
         }
         this.animations.push(new Animation(key, _.map(sequence, x => this.spriteSheet.getFrame(x)), repeat));
     }

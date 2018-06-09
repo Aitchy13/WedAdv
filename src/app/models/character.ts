@@ -95,6 +95,10 @@ export class Character implements IRenderable, IMoveable {
         this.collidables.splice(index, 1);
     }
 
+    public removeCollidables() {
+        this.collidables = [];
+    }
+
     public hold(holdable: IHoldable) {
         this.holding = holdable;
     }

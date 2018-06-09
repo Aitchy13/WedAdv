@@ -6,6 +6,7 @@ import { IHidingSpot, Target } from "./target";
 
 export class Table implements IRenderable, IInteractable, IHidingSpot {
 
+    public name: string = "Table";
     public width: number = 154;
     public height: number = 142;
     public shape: Rectangle;
