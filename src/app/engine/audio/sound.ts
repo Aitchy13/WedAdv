@@ -4,10 +4,8 @@ export class Sound {
 
     private context: AudioContext;
     private source: AudioBufferSourceNode;
-    private isPlaying : boolean = false;
+    private playing : boolean = false;
     private buffer: AudioBuffer;
-
-    private playing: boolean = false;
 
     constructor(public readonly key: string, public readonly path: string) {
         (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
@@ -43,6 +41,7 @@ export class Sound {
             return;
         }
         this.source.stop();
+        this.playing = false;
     }
 
     public load() {
@@ -51,14 +50,6 @@ export class Sound {
                 this.source.stop();
             }
             this.source.disconnect();
-
-            this.source = this.context.createBufferSource();
-            this.source.buffer = this.buffer;
-            this.source.connect(this.context.destination);
-            this.source.onended = () => {
-                this.playing = false;
-            }
-            this.isPlaying = true;
             return Promise.resolve(this.initialiseSource(this.buffer));
         }
         return axios.get<ArrayBuffer>(this.path, {
@@ -68,7 +59,6 @@ export class Sound {
         }).then(buffer => {
             return this.initialiseSource(buffer);
         }).catch((e: Error) => {
-            this.isPlaying = false;
             return Promise.reject(e);
         });
     }
@@ -78,7 +68,6 @@ export class Sound {
         this.source = this.context.createBufferSource();
         this.source.buffer = buffer;
         this.source.connect(this.context.destination);
-        this.isPlaying = true;
         this.source.onended = () => {
             this.playing = false;
         }
