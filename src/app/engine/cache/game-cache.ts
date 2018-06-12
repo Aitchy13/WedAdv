@@ -36,7 +36,7 @@ export class GameCache {
     public getItem<T>(name: string): T {
         try {
             Validation.isNotEmptyString(name, "No name specified");
-            return this.repo[this.noCollectionKey][name];
+            return this.repo[this.noCollectionKey] ? this.repo[this.noCollectionKey][name] : undefined;
         } catch (e) {
             this.logger.error(e);
         }

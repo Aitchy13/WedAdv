@@ -125,6 +125,7 @@ export class InsideScene extends Scene {
             player: this.player,
             hidingSpots
         }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        target.hideIn();
 
         const ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
         target.hold(ring);

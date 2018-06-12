@@ -1,7 +1,5 @@
 import * as _ from "lodash";
 
-import { Vector } from "../core/vector";
-import { MathsUtility } from "../utilities/maths";
 import { Rectangle } from "../game-objects/rectangle";
 import { CollisionDetector } from "../detectors/collision-detector";
 import { Renderer } from "../rendering/renderer";
@@ -128,8 +126,8 @@ export class NavGrid {
     }
 
     private createCell(cellIndex: number, rowIndex: number): ICell {
-        const xCoordinate = cellIndex * this.cellSize;
-        const yCoordinate = rowIndex * this.cellSize;
+        const xCoordinate = (cellIndex * this.cellSize) + this.x;
+        const yCoordinate = (rowIndex * this.cellSize) + this.y;
 
         const transposedCell = new Rectangle(this.cellSize, this.cellSize, xCoordinate, yCoordinate);
 

@@ -16,7 +16,6 @@ export class PathFinder {
 
     private finder: PF.Finder;
     private debugEnabled: boolean = false;
-
     constructor(private grid: NavGrid, private renderer: Renderer, private algorithm?: PathFinderAlgorithm) {
         this.algorithm = !algorithm ? PathFinderAlgorithm.AStarFinder : algorithm;
         this.setFinder(this.algorithm);

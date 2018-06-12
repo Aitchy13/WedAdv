@@ -8,6 +8,8 @@ import { CollisionDetector } from "../engine/detectors/collision-detector";
 import { ICoordinate } from "../engine/core/core.models";
 import { PositionStrategy } from "../engine/physics/moveable";
 import { Rectangle } from "../engine/game-objects/rectangle";
+import { ICanTalk } from "../engine/ui/dialog";
+import { SpriteSheet } from "../engine/textures/sprite-texture";
 
 export interface ITargetOptions extends ICharacterOptions {
     name: string;
@@ -27,7 +29,9 @@ export interface IHidingSpot {
     hiddenObject: Target;
 }
 
-export class Target extends Character implements IRenderable {
+export class Target extends Character implements IRenderable, ICanTalk {
+
+    public dialogSpriteSheet: SpriteSheet;
 
     private player: Character;
     private hidingSpots: IHidingSpot[];
@@ -46,8 +50,8 @@ export class Target extends Character implements IRenderable {
         this.hidingSpots = options.hidingSpots;
 
         this.spriteSheet = this.textureLoader.getSpriteSheet("noa", true);
+        this.dialogSpriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.setAnimations();
-        this.hideIn();
     }
 
     public beforeRender() {
@@ -90,11 +94,23 @@ export class Target extends Character implements IRenderable {
     }
 
     public runTo(coordinate: ICoordinate, onComplete?: () => void) {
-        this.goTo(coordinate, 150, () => {
-            if (onComplete) {
-                onComplete();
-            }
+        return new Promise((resolve) => {
+            this.goTo(coordinate, 150, () => {
+                if (onComplete) {
+                    onComplete();
+                } else {
+                    resolve();
+                }
+            });
         });
+    }
+
+    public startTalking() {
+        this.dialogSpriteSheet.playAnimation("talk");
+    }
+
+    public stopTalking() {
+        this.dialogSpriteSheet.stopAnimation();
     }
 
     private findCoordAwayFrom(awayFrom: Vector) {
@@ -120,6 +136,13 @@ export class Target extends Character implements IRenderable {
         this.spriteSheet.addAnimation("walk-west", [
             "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward", "west-left-foot-forward",
             "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward", "west-right-foot-forward"], true);
+        
+        this.dialogSpriteSheet.addAnimation("talk", [
+            "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open",
+            "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed",
+            "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-open", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed", "mouth-closed"
+        ], true);
+        this.dialogSpriteSheet.setDefaultFrame("mouth-open");
     }
 
 }

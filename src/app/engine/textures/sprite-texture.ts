@@ -18,6 +18,7 @@ export class SpriteSheet {
 
     public renderContext: CanvasRenderingContext2D;
     public currentFrame: IFrame;
+    public defaultFrame: IFrame;
 
     public frames: IFrame[] = [];
     private animationManager: AnimationManager;
@@ -55,6 +56,13 @@ export class SpriteSheet {
 
     public getFrame(key: string) {
         return _.find(this.frames, x => x.key === key);
+    }
+
+    public setDefaultFrame(key: string) {
+        if (this.defaultFrame && this.defaultFrame.key === key) {
+            return;
+        }
+        this.defaultFrame = this.getFrame(key);
     }
 
     public playAnimation(key: string) {

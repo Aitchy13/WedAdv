@@ -29,6 +29,7 @@ export class App {
             game.assetLoader.loadSound("menu-open", "src/sounds/menu-open.wav"),
             game.assetLoader.loadSound("menu-close", "src/sounds/menu-close.wav"),
             game.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.ogg"),
+            game.assetLoader.loadSpriteSheet("vicar", "src/sprites/vicar.png", "src/sprites/vicar.json"),
             game.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg")
         ] as any).then(() => {
             game.start();

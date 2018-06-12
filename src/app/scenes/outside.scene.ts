@@ -17,6 +17,10 @@ import { InsideScene } from "./inside.scene";
 import { Tween } from "../engine/animation/tween";
 import { Ring } from "../models/ring";
 import { PositionStrategy } from "../engine/physics/moveable";
+import { Character } from "../models/character";
+import { Pastor } from "../models/pastor";
+import { Direction } from "../engine/core/core.models";
+import { Target } from "../models/target";
 
 export class OutsideScene extends Scene {
 
@@ -34,6 +38,9 @@ export class OutsideScene extends Scene {
     private selectedPlayer: Player;
     private groom: Player;
     private bride: Player;
+    private pastor: Pastor;
+    private ring: Ring;
+    private target: Target;
 
     private menuSelectSound: Sound;
     private pathfinder: PathFinder
@@ -70,7 +77,7 @@ export class OutsideScene extends Scene {
 
         const navGrid = new NavGrid({
             width: this.width,
-            height: 672,
+            height: this.height + 200,
             x: 0,
             y: 1130
         }, this.game.rootRenderer);
@@ -164,6 +171,9 @@ export class OutsideScene extends Scene {
         this.renderGroom();
         this.renderBride();
 
+        this.groom.faceDirection(Direction.East);
+        this.bride.faceDirection(Direction.West);
+
         this.selectedPlayer = this.groom;
 
         const groomSelectionTexture = this.assetLoader.getImage("groom-player-selection");
@@ -215,7 +225,7 @@ export class OutsideScene extends Scene {
     private renderGroom() {
         this.groom = new Player({
             model: "groom",
-            x: (this.game.rootCanvas.width / 2) - 20,
+            x: (this.game.rootCanvas.width / 2) - (36 / 2) - 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
     }
@@ -223,7 +233,7 @@ export class OutsideScene extends Scene {
     private renderBride() {
         this.bride = new Player({
             model: "bride",
-            x: (this.game.rootCanvas.width / 2) + 20,
+            x: (this.game.rootCanvas.width / 2) - (43 / 2) + 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
     }
@@ -285,16 +295,62 @@ export class OutsideScene extends Scene {
         };
         this.game.rootRenderer.addObject(exit);
 
+        this.pastor = new Pastor((this.game.rootCanvas.width / 2) - (38 / 2), 1130, this.assetLoader, this.game.rootRenderer, this.pathfinder);
+        this.ring = new Ring(0, 0, this.assetLoader, this.game.rootRenderer);
+        this.target = new Target({
+            name: "Noa",
+            x: (this.game.rootCanvas.width / 2) - (30 / 2),
+            y:  this.height,
+            player: this.selectedPlayer,
+            hidingSpots: [],
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder);
+        this.target.hold(this.ring);
+
         const topBoundary = new Rectangle(this.width, 50, 0, 1050);
         this.selectedPlayer.addCollidable(topBoundary);
         this.game.rootRenderer.addObject(topBoundary);
     }
 
     private beginCeremony() {
-        const dialogText = "Hello this is text to see if blah blah blah something long goes here. It'll fill a lot of space to test the text. And this is another snippet to show how the text snippet stuff works."
-        this.game.dialogService.show(dialogText, this.groom).then(() => {
-            return this.game.dialogService.show("Hey, I' talking to you. Stop testing out shit!", this.bride);
+        const sleep = (amountMs: number) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, amountMs);
+            })
+        }
+
+        this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. Now, normally I would proceed to discuss the importance of love, kindness and sharing, but I've got <<INSERT REASON>>, so I'm going to skip on ahead. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
+            return sleep(2000);
         }).then(() => {
+            this.bride.faceDirection(Direction.South);
+            return this.game.dialogService.show("Noa bug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => sleep(1000));
+        }).then(() => {
+            this.groom.faceDirection(Direction.South);
+            return this.target.runTo({ x: this.bride.x, y: this.bride.y + 200 });
+        }).then(() => {
+            return this.game.dialogService.show("But he's my honey! You go find a man ... and I'll marry Harrison!", this.target);
+        }).then(() => {
+            return this.game.dialogService.show("hahahahahaha", this.groom);
+        }).then(() => {
+            return this.game.dialogService.show("He's mine too! We've already talked about this ... Get over here with the rings!", this.bride);
+        }).then(() => {
+            return this.game.dialogService.show("If you want em', come get em'!", this.target);
+        }).then(() => {
+            return this.target.runTo({ x: this.target.x, y: this.height + 200 }).then(() => {
+                // TODO: play door open sound
+                return undefined;
+            })
+        }).then(() => {
+            this.groom.faceDirection(Direction.East);
+            this.bride.faceDirection(Direction.West);
+            return this.game.dialogService.show("I'll go get her, you stay here.", this.selectedPlayer);
+        }).then(() => {
+            return this.game.dialogService.show("Ok, but hurry ... you've got 5 minutes until I get cold feet ... (seriously, the timer starts soon)", this.selectedPlayer.model === "bride" ? this.groom : this.bride);
+        }).then(() => {
+            return this.game.dialogService.show("I'm getting too old for this...", this.pastor);
+        }).then(() => {
+            // TODO: Start timer
             this.selectedPlayer.enableControls();
         });
     }

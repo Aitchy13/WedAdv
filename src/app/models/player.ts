@@ -84,6 +84,23 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         }
     }
 
+    public faceDirection(direction: Direction) {
+        switch (direction) {
+            case Direction.North:
+                this.spriteSheet.setDefaultFrame("north-stand");
+                break;
+            case Direction.East:
+                this.spriteSheet.setDefaultFrame("east-stand");
+                break;
+            case Direction.South:
+                this.spriteSheet.setDefaultFrame("south-stand");
+                break;
+            case Direction.West:
+                this.spriteSheet.setDefaultFrame("west-stand");
+                break;
+        }
+    }
+
     public beforeRender(ctx: CanvasRenderingContext2D, delta: number) {
         if (this.lastMovedDirection !== Direction.None && this.interactables.length > 0) {
             const detectionSize: number = 50;
@@ -196,7 +213,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                 case "w":
                 case "ArrowUp":
                     this.setVelocity(AxisDimension.Y, -sensitivity);
-                    this.defaultSpriteFrame = "north-stand";
+                    this.spriteSheet.setDefaultFrame("north-stand");
                     this.spriteSheet.playAnimation("walk-north");
                     this.walkSound.loop();
                     this.lastMovedDirection = Direction.North;
@@ -204,7 +221,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                 case "s":
                 case "ArrowDown":
                     this.setVelocity(AxisDimension.Y, sensitivity);
-                    this.defaultSpriteFrame = "south-stand";
+                    this.spriteSheet.setDefaultFrame("south-stand");
                     this.spriteSheet.playAnimation("walk-south");
                     this.walkSound.loop();
                     this.lastMovedDirection = Direction.South;
@@ -212,7 +229,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                 case "a":
                 case "ArrowLeft":
                     this.setVelocity(AxisDimension.X, -sensitivity);
-                    this.defaultSpriteFrame = "west-stand";
+                    this.spriteSheet.setDefaultFrame("west-stand");
                     this.spriteSheet.playAnimation("walk-west");
                     this.walkSound.loop();
                     this.lastMovedDirection = Direction.West;
@@ -220,7 +237,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                 case "d":
                 case "ArrowRight":
                     this.setVelocity(AxisDimension.X, sensitivity);
-                    this.defaultSpriteFrame = "east-stand";
+                    this.spriteSheet.setDefaultFrame("east-stand");
                     this.spriteSheet.playAnimation("walk-east");
                     this.walkSound.loop();
                     this.lastMovedDirection = Direction.East;

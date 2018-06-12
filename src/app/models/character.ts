@@ -28,7 +28,6 @@ export class Character implements IRenderable, IMoveable {
 
     public name: string;
     public spriteSheet: SpriteSheet;
-    public defaultSpriteFrame: string;
     public width: number;
     public height: number;
     public isWalking: boolean;
@@ -136,9 +135,10 @@ export class Character implements IRenderable, IMoveable {
         ctx.clip();
         this.spriteSheet.renderContext = ctx;
         this.spriteSheet.triggerAnimationTick();
-        const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.getFrame(this.defaultSpriteFrame) ? this.spriteSheet.getFrame(this.defaultSpriteFrame) : this.spriteSheet.frames[0];
+        const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.defaultFrame
+                            ? this.spriteSheet.defaultFrame : this.spriteSheet.frames[0];
         if (!sprite) {
-            throw new Error(`No sprite with the key ${this.defaultSpriteFrame} could be found`);
+            throw new Error(`No sprite found`);
         }
         ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, this.width, this.height);
 
@@ -167,19 +167,19 @@ export class Character implements IRenderable, IMoveable {
                 switch (direction) {
                     case Direction.East:
                         this.spriteSheet.playAnimation("walk-east");
-                        this.defaultSpriteFrame = "east-stand";
+                        this.spriteSheet.setDefaultFrame("east-stand");
                         break;
                     case Direction.West:
                         this.spriteSheet.playAnimation("walk-west");
-                        this.defaultSpriteFrame = "west-stand";
+                        this.spriteSheet.setDefaultFrame("west-stand");
                         break;
                     case Direction.North:
                         this.spriteSheet.playAnimation("walk-north");
-                        this.defaultSpriteFrame = "north-stand";
+                        this.spriteSheet.setDefaultFrame("north-stand");
                         break;
                     case Direction.South:
                         this.spriteSheet.playAnimation("walk-south");
-                        this.defaultSpriteFrame = "south-stand";
+                        this.spriteSheet.setDefaultFrame("south-stand");
                         break;
                     case Direction.None:
                         this.spriteSheet.stopAnimation();

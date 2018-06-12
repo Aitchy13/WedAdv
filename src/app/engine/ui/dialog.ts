@@ -314,19 +314,19 @@ export class Dialog implements IRenderable {
             const testLine = line + words[wordIndex] + " ";
             this.renderer.context.font = this.textFont;
             const metrics = this.renderer.context.measureText(testLine);
-            if (metrics.width > maxWidth && wordIndex > 0) {
+            if (wordIndex + 1 === words.length) {
+                lines.push(testLine);
+                break;
+            }
+            if ((metrics.width > maxWidth && wordIndex > 0)) {
                 lines.push(line);
                 line = words[wordIndex] + " ";
             } else {
                 line = testLine;
             }
         }
-        lines.push(line);
 
-        let splitIntoMaxLines = _.chain(_.range(0, lines.length - 1))
-            .filter(x => x % this.maxLines === 0)
-            .map(x => [lines[x], lines[x + 1]])
-            .value();
+        let splitIntoMaxLines = _.chunk(lines, this.maxLines);
 
         return splitIntoMaxLines;
     }

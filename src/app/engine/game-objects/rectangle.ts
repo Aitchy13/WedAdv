@@ -101,9 +101,9 @@ export class Rectangle implements IMoveable, IRenderable {
             ctx.clip();
             this.spriteSheet.renderContext = ctx;
             this.spriteSheet.triggerAnimationTick();
-            const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.getFrame(this.spriteKey) ? this.spriteSheet.getFrame(this.spriteKey) : this.spriteSheet.frames[0];
+            const sprite = this.spriteSheet.currentFrame ? this.spriteSheet.currentFrame : this.spriteSheet.defaultFrame ? this.spriteSheet.defaultFrame : this.spriteSheet.frames[0];
             if (!sprite) {
-                throw new Error(`No sprite with the key ${this.spriteKey} could be found`);
+                throw new Error(`No sprite found`);
             }
             ctx.drawImage(this.spriteSheet.image, sprite.x, sprite.y, sprite.width, sprite.height, this.x, this.y, this.width, this.height);
         } else if (this.imageTexture) {
