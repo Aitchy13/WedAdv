@@ -1,20 +1,27 @@
 import axios from "axios";
 
+interface ISoundLoadResponse {
+    buffer: AudioBuffer,
+    source: AudioBufferSourceNode
+};
+
 export class Sound {
 
     private context: AudioContext;
     private source: AudioBufferSourceNode;
-    private playing : boolean = false;
+    private playing: boolean = false;
+    private started: boolean = false;
     private buffer: AudioBuffer;
+    private loadingPromise: Promise<ISoundLoadResponse>;
 
     constructor(public readonly key: string, public readonly path: string) {
         (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
         this.context = new AudioContext();
     }
 
-    public play(startTime: number = 0, stopTime?: number) {
-        if (this.playing) {
-            return;
+    public play(startTime: number = 0, stopTime?: number): Promise<void> {
+        if (this.playing || this.started) {
+            return Promise.resolve();
         }
         return this.load().then(() => {
             this.source.start(startTime);
@@ -25,9 +32,9 @@ export class Sound {
         });
     }
 
-    public loop() {
+    public loop(): Promise<void> {
         if (this.playing) {
-            return;
+            return Promise.resolve();
         }
         return this.load().then(() => {
             this.source.loop = true;
@@ -36,35 +43,44 @@ export class Sound {
         })
     }
 
-    public stop() {
-        if (!this.source || !this.playing) {
-            return;
+    public stop(): Promise<void> {
+        if (!this.playing || !this.started) {
+            return Promise.resolve();
         }
         this.source.stop();
         this.playing = false;
     }
 
-    public load() {
-        if (this.buffer && this.source) {
-            if (this.playing) {
-                this.source.stop();
-            }
-            this.source.disconnect();
-            return Promise.resolve(this.initialiseSource(this.buffer));
+    public load(): Promise<ISoundLoadResponse> {
+        if (this.loadingPromise) {
+            return this.loadingPromise;
         }
-        return axios.get<ArrayBuffer>(this.path, {
+        this.loadingPromise = axios.get<ArrayBuffer>(this.path, {
             responseType: "arraybuffer"
         }).then(response => {
             return this.context.decodeAudioData(response.data);
         }).then(buffer => {
-            return this.initialiseSource(buffer);
+            this.buffer = buffer;
+            return this.initSource(buffer);
+        }).then(() => {
+            this.loadingPromise = undefined;
+            return {
+                buffer: this.buffer,
+                source: this.source
+            };
         }).catch((e: Error) => {
             return Promise.reject(e);
-        });
+        })
+        return this.loadingPromise;
     }
 
-    private initialiseSource(buffer: AudioBuffer) {
-        this.buffer = buffer;
+    public destroy() {
+        if (this.source) {
+            this.source.disconnect();
+        }
+    }
+
+    private initSource(buffer: AudioBuffer): AudioBufferSourceNode {
         this.source = this.context.createBufferSource();
         this.source.buffer = buffer;
         this.source.connect(this.context.destination);

@@ -16,7 +16,13 @@ module.exports = (config) => {
 
     // list of files / patterns to load in the browser
     files: [
-      "**/*.spec.ts"
+      "**/*.spec.ts",
+      {
+        pattern: "app/engine/audio/sound-test.wav",
+        watched: true,
+        served: true,
+        included: false
+      }
     ],
 
 
