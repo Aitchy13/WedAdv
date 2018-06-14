@@ -337,7 +337,7 @@ export class OutsideScene extends Scene {
         }).then(() => {
             return this.game.dialogService.show("If you want em', come get em'!", this.target);
         }).then(() => {
-            return this.target.runTo({ x: this.target.x, y: this.height + 200 }).then(() => {
+            return this.target.runTo({ x: this.target.x, y: this.height }).then(() => {
                 // TODO: play door open sound
                 return undefined;
             })
