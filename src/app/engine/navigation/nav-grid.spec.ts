@@ -2,7 +2,7 @@ import { NavGrid } from "./nav-grid";
 import { Rectangle } from "../game-objects/rectangle";
 import { Renderer } from "../rendering/renderer";
 
-describe("Navigation grid", () => {
+xdescribe("Navigation grid", () => {
 
     let grid: NavGrid;
 

@@ -1,12 +1,11 @@
-// Karma configuration
-// Generated on Fri Apr 27 2018 23:24:10 GMT+0100 (BST)
+const webpack = require("webpack");
+
 const webpackConfig = require("./webpack.config");
+
+webpackConfig.devtool = false;
 
 module.exports = (config) => {
   config.set({
-
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: "./src",
 
 
     // frameworks to use
@@ -18,7 +17,7 @@ module.exports = (config) => {
     files: [
       "**/*.spec.ts",
       {
-        pattern: "app/engine/audio/sound-test.wav",
+        pattern: "src/app/engine/audio/sound-test.wav",
         watched: true,
         served: true,
         included: false
@@ -37,13 +36,19 @@ module.exports = (config) => {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "**/*.ts": ["webpack"]
+      "src/**/*.ts": ["webpack", "sourcemap"]
     },
 
     webpack: {
       module: webpackConfig.module,
       resolve: webpackConfig.resolve,
-      devtool: webpackConfig.devtool
+      devtool: webpackConfig.devtool,
+      plugins: [
+        new webpack.SourceMapDevToolPlugin({
+          filename: null,
+          test: /\.(ts|js)($|\?)/i
+        })
+      ]
     },
 
     webpackMiddleware: {
@@ -72,10 +77,25 @@ module.exports = (config) => {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
+    plugins: [
+      "karma-chrome-launcher",
+      "karma-jasmine",
+      "karma-webpack",
+      "karma-sourcemap-loader"
+    ],
+
+    customLaunchers: {
+      ChromeDebugging: {
+        base: "Chrome",
+        flags: [ "--remote-debugging-port=9333" ],
+        debug: true
+      }
+    },
+
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ["Chrome"],
+    browsers: ["ChromeDebugging"],
 
 
     // Continuous Integration mode

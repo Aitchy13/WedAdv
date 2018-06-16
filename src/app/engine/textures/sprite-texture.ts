@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import { IRenderable } from "../rendering/renderer";
 
 export interface IFrame {
     key: string;
@@ -8,8 +7,6 @@ export interface IFrame {
     width: number;
     height: number;
 }
-
-
 
 export class SpriteSheet {
 

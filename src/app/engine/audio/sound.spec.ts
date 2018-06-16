@@ -2,7 +2,7 @@ import * as _ from "lodash";
 
 import { Sound } from "./sound";
 
-describe("Sound", () => {
+xdescribe("Sound", () => {
 
     let sound: Sound;
     let buffer: AudioBuffer;

@@ -4,7 +4,7 @@ import { Vector } from "../core/vector";
 import { Rectangle } from "../game-objects/rectangle";
 import { Renderer } from "../rendering/renderer";
 
-describe("PathFinder", () => {
+xdescribe("PathFinder", () => {
 
     let pathFinder: PathFinder;
     let grid: NavGrid;
