@@ -16,6 +16,7 @@ import { Ring } from "../models/ring";
 import { Table } from "../models/table";
 import { Door } from "../models/door";
 import { OutsideScene } from "./outside.scene";
+import { Countdown } from "../models/countdown";
 
 export class InsideScene extends Scene {
 
@@ -23,6 +24,8 @@ export class InsideScene extends Scene {
     public height: number = 960;
 
     public player: Player;
+
+    public countdown: Countdown;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
@@ -135,6 +138,9 @@ export class InsideScene extends Scene {
         hidingSpots.forEach(hideableLocation => {
             navGrid.addBlockedGeometry(hideableLocation.key, hideableLocation.shape);
         });
+
+        this.countdown = this.game.cache.getItem("countdown");
+        this.game.uiRenderer.addObject(this.countdown);
 
         // pathfinder.debug(true);
     }

@@ -61,8 +61,12 @@ describe("Bitmap Font", () => {
         expect(bitmapFont.listCharacters()).toEqual(["0", "1"]);
     });
 
-    it ("must expose the font size", () => {
-        expect(bitmapFont.getSize()).toBe(45);
+    it ("must expose the character width", () => {
+        expect(bitmapFont.charWidth).toBe(35);
+    });
+
+    it ("must expose the character height", () => {
+        expect(bitmapFont.charHeight).toBe(45);
     });
 
 });

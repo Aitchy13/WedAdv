@@ -1,8 +1,4 @@
-const webpack = require("webpack");
-
 const webpackConfig = require("./webpack.config");
-
-webpackConfig.devtool = false;
 
 module.exports = (config) => {
   config.set({
@@ -36,19 +32,13 @@ module.exports = (config) => {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "src/**/*.ts": ["webpack", "sourcemap"]
+      "src/**/*.ts": ["webpack"]
     },
 
     webpack: {
       module: webpackConfig.module,
       resolve: webpackConfig.resolve,
-      devtool: webpackConfig.devtool,
-      plugins: [
-        new webpack.SourceMapDevToolPlugin({
-          filename: null,
-          test: /\.(ts|js)($|\?)/i
-        })
-      ]
+      devtool: webpackConfig.devtool
     },
 
     webpackMiddleware: {
@@ -80,8 +70,7 @@ module.exports = (config) => {
     plugins: [
       "karma-chrome-launcher",
       "karma-jasmine",
-      "karma-webpack",
-      "karma-sourcemap-loader"
+      "karma-webpack"
     ],
 
     customLaunchers: {

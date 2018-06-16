@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 import { Scene } from "../engine/game-objects/scene";
 import { Game } from "../engine/game-objects/game";
 import { Rectangle } from "../engine/game-objects/rectangle";
@@ -17,10 +15,10 @@ import { InsideScene } from "./inside.scene";
 import { Tween } from "../engine/animation/tween";
 import { Ring } from "../models/ring";
 import { PositionStrategy } from "../engine/physics/moveable";
-import { Character } from "../models/character";
 import { Pastor } from "../models/pastor";
 import { Direction } from "../engine/core/core.models";
 import { Target } from "../models/target";
+import { Countdown } from "../models/countdown";
 
 export class OutsideScene extends Scene {
 
@@ -43,14 +41,16 @@ export class OutsideScene extends Scene {
     private target: Target;
 
     private menuSelectSound: Sound;
-    private pathfinder: PathFinder
-    ;
+    private pathfinder: PathFinder;
+
+    private countdown: Countdown;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
     }
 
     public preload() {
+        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 260, 30, 60 * 5, this.game.assetLoader)
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
@@ -63,6 +63,7 @@ export class OutsideScene extends Scene {
             this.assetLoader.loadImage("play-button", "src/sprites/play-button.png"),
             this.assetLoader.loadImage("wedding-arch", "src/sprites/wedding-arch.png"),
             this.assetLoader.loadImage("pew", "src/sprites/pew.png"),
+            this.countdown.load()
         ] as any);
     }
 
@@ -97,7 +98,7 @@ export class OutsideScene extends Scene {
     }
 
     private showTitleScreen() {
-        const durationModifier = 2;
+        const durationModifier = 0.7;
         const cloudA = new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
         const cloudATween = new Tween(cloudA).to(new Vector(470, 190), 8000 * durationModifier, Easing.linear).yoyo().repeat();
         cloudATween.start();
@@ -309,6 +310,8 @@ export class OutsideScene extends Scene {
         const topBoundary = new Rectangle(this.width, 50, 0, 1050);
         this.selectedPlayer.addCollidable(topBoundary);
         this.game.rootRenderer.addObject(topBoundary);
+
+        this.game.uiRenderer.addObject(this.countdown);
     }
 
     private beginCeremony() {
@@ -324,7 +327,7 @@ export class OutsideScene extends Scene {
             return sleep(2000);
         }).then(() => {
             this.bride.faceDirection(Direction.South);
-            return this.game.dialogService.show("Noa bug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => sleep(1000));
+            return this.game.dialogService.show("Noa nug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => sleep(1000));
         }).then(() => {
             this.groom.faceDirection(Direction.South);
             return this.target.runTo({ x: this.bride.x, y: this.bride.y + 200 });
@@ -352,6 +355,8 @@ export class OutsideScene extends Scene {
         }).then(() => {
             // TODO: Start timer
             this.selectedPlayer.enableControls();
+            this.countdown.start();
+            this.game.cache.addItem("countdown", this.countdown);
         });
     }
 

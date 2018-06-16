@@ -7,8 +7,10 @@ import { BitmapCharacter } from "./bitmap-character";
 
 export class BitmapFont {
 
+    public charWidth: number;
+    public charHeight: number;
+
     private loaded: boolean = false;
-    private size: number;
     private characterMap: IMap<BitmapCharacter> = {};
     private sprite: SpriteSheet;
 
@@ -32,7 +34,8 @@ export class BitmapFont {
         if (!frame) {
             throw new Error(`No frame with the key ${frameKey} could be found`);
         }
-        this.size = frame.height;
+        this.charWidth = frame.width;
+        this.charHeight = frame.height;
 
         this.characterMap[character] = new BitmapCharacter(character, frame.width, frame.height, this.sprite.image, frame);
     }
@@ -43,7 +46,7 @@ export class BitmapFont {
         if (!character) {
             throw new Error(`Character with key of '${key}' not found`);
         }
-        return character;
+        return new BitmapCharacter(character.key, character.width, character.height, character.image, character.frame);
     }
     
     public listCharacters(): string[] {
@@ -56,7 +59,7 @@ export class BitmapFont {
 
     public getSize(): number {
         this.checkFontLoaded();
-        return this.size;
+        return this.charHeight;
     }
 
     private checkFontLoaded() {
