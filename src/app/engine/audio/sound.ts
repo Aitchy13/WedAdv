@@ -20,58 +20,81 @@ export class Sound {
     }
 
     public play(startTime: number = 0, stopTime?: number): Promise<void> {
-        if (this.playing || this.started) {
-            this.stop();
-        }
-        return this.load().then(() => {
-            this.source.start(startTime);
-            if (stopTime) {
-                this.source.stop(this.context.currentTime + stopTime);
+        try {
+            if (this.playing || this.started) {
+                this.stop();
             }
-            this.playing = true;
-        });
+            return this.load().then(() => {
+                if (this.playing || this.started)  {
+                    return;
+                }
+                this.source.start(startTime);
+                if (stopTime) {
+                    this.source.stop(this.context.currentTime + stopTime);
+                }
+                this.playing = true;
+            });
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     public loop(): Promise<void> {
-        if (this.playing) {
-            return Promise.resolve();
+        try {
+            if (this.playing) {
+                return Promise.resolve();
+            }
+            return this.load().then(() => {
+                this.source.loop = true;
+                if (this.playing) {
+                    return;
+                }
+                this.source.start();
+                this.playing = true;
+            });
+        } catch (e) {
+            console.error(e);
         }
-        return this.load().then(() => {
-            this.source.loop = true;
-            this.source.start();
-            this.playing = true;
-        })
     }
 
     public stop(): Promise<void> {
-        if (this.playing || this.started) {
-            this.source.stop();
-            this.playing = false;
-            return;
+        try {
+            // if (this.playing || this.started) {
+                this.source.stop();
+                this.playing = false;
+                return Promise.resolve();
+            // }
+        } catch (e) {
+            console.error(e);
         }
+        
     }
 
     public load(): Promise<ISoundLoadResponse> {
-        if (this.loadingPromise) {
+        try {
+            if (this.loadingPromise) {
+                return this.loadingPromise;
+            }
+            this.loadingPromise = axios.get<ArrayBuffer>(this.path, {
+                responseType: "arraybuffer"
+            }).then(response => {
+                return this.context.decodeAudioData(response.data);
+            }).then(buffer => {
+                this.buffer = buffer;
+                return this.initSource(buffer);
+            }).then(() => {
+                this.loadingPromise = undefined;
+                return {
+                    buffer: this.buffer,
+                    source: this.source
+                };
+            }).catch((e: Error) => {
+                return Promise.reject(e);
+            })
             return this.loadingPromise;
+        } catch (e) {
+            console.error(e);
         }
-        this.loadingPromise = axios.get<ArrayBuffer>(this.path, {
-            responseType: "arraybuffer"
-        }).then(response => {
-            return this.context.decodeAudioData(response.data);
-        }).then(buffer => {
-            this.buffer = buffer;
-            return this.initSource(buffer);
-        }).then(() => {
-            this.loadingPromise = undefined;
-            return {
-                buffer: this.buffer,
-                source: this.source
-            };
-        }).catch((e: Error) => {
-            return Promise.reject(e);
-        })
-        return this.loadingPromise;
     }
 
     public destroy() {
@@ -84,9 +107,6 @@ export class Sound {
         this.source = this.context.createBufferSource();
         this.source.buffer = buffer;
         this.source.connect(this.context.destination);
-        this.source.onended = () => {
-            this.playing = false;
-        }
         return this.source;
     }
     

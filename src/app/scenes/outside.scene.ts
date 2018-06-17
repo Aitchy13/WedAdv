@@ -43,6 +43,11 @@ export class OutsideScene extends Scene {
     private guests: Guest[] = [];
 
     private menuSelectSound: Sound;
+    private startMenuSound: Sound;
+    private introSound: Sound;
+    private buildUpSound: Sound;
+    private enemySound: Sound;
+
     private pathfinder: PathFinder;
 
     private countdown: Countdown;
@@ -52,7 +57,8 @@ export class OutsideScene extends Scene {
     }
 
     public preload() {
-        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 5, this.game.assetLoader)
+        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 5, this.game.assetLoader);
+
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
@@ -102,6 +108,9 @@ export class OutsideScene extends Scene {
     }
 
     private showTitleScreen() {
+        this.startMenuSound = this.assetLoader.getSound("start-menu");
+        this.startMenuSound.loop();
+
         const durationModifier = 0.7;
         const cloudA = new Layer("cloud-a", 430, 190, this.assetLoader.getImage("cloud-1"), this.game.rootRenderer);
         const cloudATween = new Tween(cloudA).to(new Vector(470, 190), 8000 * durationModifier, Easing.linear).yoyo().repeat();
@@ -226,6 +235,7 @@ export class OutsideScene extends Scene {
 
         this.playButton.on("click", () => {
             this.menuSelectSound.play();
+            this.startMenuSound.stop();
             this.startSequence();
         });
 
@@ -252,12 +262,15 @@ export class OutsideScene extends Scene {
         this.groomSelection.hide();
         this.brideSelection.hide();
         this.playButton.hide();
+        this.startMenuSound.stop();
     }
 
     private startSequence() {
         this.hidePlayerSelectionScreen();
         this.renderLevel();
         
+        this.introSound = this.assetLoader.getSound("intro");
+        this.introSound.loop();
 
         this.game.camera.moveTo({ x: this.width / 2, y: this.selectedPlayer.y + 50 }, 4000, Easing.easeInOutCubic).then(() => {
             this.beginCeremony();
@@ -718,11 +731,19 @@ export class OutsideScene extends Scene {
             })
         }
 
+
+        this.buildUpSound = this.assetLoader.getSound("build-up");
+        this.enemySound = this.assetLoader.getSound("enemy");
+
         this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. Now, normally I would proceed to discuss the importance of love, kindness and sharing, but I've got <<INSERT REASON>>, so I'm going to skip on ahead. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
             return sleep(1000);
         }).then(() => {
             this.bride.faceDirection(Direction.South);
-            return this.game.dialogService.show("Noa nug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => sleep(1000));
+            return this.game.dialogService.show("Noa nug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => {
+                this.introSound.stop();
+                this.buildUpSound.loop();
+                return sleep(1000);
+            });
         }).then(() => {
             this.groom.faceDirection(Direction.South);
             this.guests.forEach((g) => g.faceDirection(g.x < this.width / 2 ? Direction.East : Direction.West));
@@ -741,6 +762,8 @@ export class OutsideScene extends Scene {
                 return undefined;
             })
         }).then(() => {
+            this.buildUpSound.stop();
+            this.enemySound.loop();
             this.groom.faceDirection(Direction.East);
             this.bride.faceDirection(Direction.West);
             return this.game.dialogService.show("I'll go get her, you stay here.", this.selectedPlayer);
@@ -756,6 +779,7 @@ export class OutsideScene extends Scene {
             this.selectedPlayer.enableControls();
             this.countdown.start();
             this.game.cache.addItem("countdown", this.countdown);
+            this.bride.faceDirection(Direction.South);
             this.guests.forEach(x => x.faceDirection(Direction.South));
         });
     }

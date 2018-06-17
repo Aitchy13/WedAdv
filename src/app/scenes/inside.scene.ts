@@ -120,6 +120,69 @@ export class InsideScene extends Scene {
             x: 700,
             y: 700
         }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        
+        new Guest({
+            name: "Another Guest",
+            gender: "female",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "female",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "female",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "female",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "male",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "male",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "male",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "male",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
+
+        new Guest({
+            name: "Another Guest",
+            gender: "male",
+            x: 780,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         const target = new Target({
             name: "Noa",

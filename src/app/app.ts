@@ -35,7 +35,11 @@ export class App {
             game.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg"),
             game.assetLoader.loadSound("pop", "src/sounds/pop-reduced.wav"),
             game.assetLoader.loadSound("blip", "src/sounds/blip.wav"),
-            game.assetLoader.loadSound("bring", "src/sounds/bring.wav")
+            game.assetLoader.loadSound("bring", "src/sounds/bring.wav"),
+            game.assetLoader.loadSound("intro", "src/sounds/intro.mp3"),
+            game.assetLoader.loadSound("start-menu", "src/sounds/start-menu.mp3"),
+            game.assetLoader.loadSound("build-up", "src/sounds/build-up.wav"),
+            game.assetLoader.loadSound("enemy", "src/sounds/enemy.mp3")
         ] as any).then(() => {
             game.start();
         })
