@@ -153,6 +153,8 @@ export class Dialog implements IRenderable {
     private openSound: Sound;
     private continueSound: Sound;
     private closeSound: Sound;
+    private typeSound: Sound;
+    private typeEndSound: Sound;
 
     private boundKeyupHandler: (evt: KeyboardInputEvent) => void;
 
@@ -182,6 +184,12 @@ export class Dialog implements IRenderable {
 
         this.closeSound = this.assetLoader.getSound("menu-close");
         this.closeSound.load();
+
+        this.typeSound = this.assetLoader.getSound("pop");
+        this.typeSound.load();
+
+        this.typeEndSound = this.assetLoader.getSound("bring");
+        this.typeEndSound.load();
         
 
         // this.textX calculated when setting text
@@ -236,7 +244,10 @@ export class Dialog implements IRenderable {
         if (this.avatar) {
             this.avatar.stopTalking();
         }
-        this.closeSound.play();
+        // this.closeSound.play();
+        if (this.animatingTextInterval) {
+            clearInterval(this.animatingTextInterval);
+        }
         this.triggerEventHandlers("close");
         return this;
     }
@@ -339,6 +350,7 @@ export class Dialog implements IRenderable {
         this.activeTextSnippet = _.map(this.activeTextSnippet, x => "");
         this.animatingTextInterval = setInterval(() => {
             this.activeTextSnippet[lineNum] += snippetCopy[lineNum][characterPosition];
+            this.typeSound.play();
             if (this.activeTextSnippet[lineNum].length < snippetCopy[lineNum].length) {
                 characterPosition++;
                 return;
@@ -349,6 +361,7 @@ export class Dialog implements IRenderable {
                 return;
             }
             clearInterval(this.animatingTextInterval);
+            this.typeEndSound.play();
             if (callback) {
                 callback();
             }

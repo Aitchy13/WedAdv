@@ -21,7 +21,7 @@ export class Sound {
 
     public play(startTime: number = 0, stopTime?: number): Promise<void> {
         if (this.playing || this.started) {
-            return Promise.resolve();
+            this.stop();
         }
         return this.load().then(() => {
             this.source.start(startTime);
@@ -44,11 +44,11 @@ export class Sound {
     }
 
     public stop(): Promise<void> {
-        if (!this.playing || !this.started) {
-            return Promise.resolve();
+        if (this.playing || this.started) {
+            this.source.stop();
+            this.playing = false;
+            return;
         }
-        this.source.stop();
-        this.playing = false;
     }
 
     public load(): Promise<ISoundLoadResponse> {
