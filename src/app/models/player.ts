@@ -84,23 +84,6 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         }
     }
 
-    public faceDirection(direction: Direction) {
-        switch (direction) {
-            case Direction.North:
-                this.spriteSheet.setDefaultFrame("north-stand");
-                break;
-            case Direction.East:
-                this.spriteSheet.setDefaultFrame("east-stand");
-                break;
-            case Direction.South:
-                this.spriteSheet.setDefaultFrame("south-stand");
-                break;
-            case Direction.West:
-                this.spriteSheet.setDefaultFrame("west-stand");
-                break;
-        }
-    }
-
     public beforeRender(ctx: CanvasRenderingContext2D, delta: number) {
         if (this.lastMovedDirection !== Direction.None && this.interactables.length > 0) {
             const detectionSize: number = 50;
@@ -123,10 +106,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             }
             this.detectedInteractable = _.find(this.interactables, x => CollisionDetector.hasCollision(x, detectionArea));
             if (this.detectedInteractable) {
-                detectionArea.setColor("green");
                 this.addInterableLabel(this.detectedInteractable, ctx, delta);
-            } else {
-                detectionArea.setColor("red");
             }
             detectionArea.render(ctx, delta);
         }

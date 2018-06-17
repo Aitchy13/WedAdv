@@ -17,6 +17,7 @@ export class App {
 
         Promise.all([
             game.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
+            game.assetLoader.loadSpriteSheet("female-guest", "src/sprites/female-guest.png", "src/sprites/female-guest.json"),
             game.assetLoader.loadSpriteSheet("bride", "src/sprites/bride.png", "src/sprites/bride.json"),
             game.assetLoader.loadSpriteSheet("bride-dialog", "src/sprites/bride-dialog.png", "src/sprites/bride-dialog.json"),
             game.assetLoader.loadSpriteSheet("groom", "src/sprites/groom.png", "src/sprites/groom.json"),

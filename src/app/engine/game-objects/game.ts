@@ -52,7 +52,7 @@ export class Game {
         this.uiRenderer = new Renderer(this.uiCanvas.context, this.window, this.logger, this.time);
         this.assetLoader = new AssetLoader(this.logger);
 
-        this.dialogService = new DialogService(this.keyboardInput, this.uiRenderer, this.window, this.assetLoader);
+        this.dialogService = new DialogService(this.keyboardInput, this.uiRenderer, this.uiCanvas, this.assetLoader);
 
         this.sceneManager = new SceneManager(this.logger, this, this.assetLoader);
         

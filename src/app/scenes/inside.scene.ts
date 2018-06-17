@@ -100,26 +100,26 @@ export class InsideScene extends Scene {
             x.show();
         });
 
-        // new Guest({
-        //     name: "James Aitchison",
-        //     clothing: "blue-suit",
-        //     x: 200,
-        //     y: 200
-        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        new Guest({
+            name: "James Aitchison",
+            gender: "male",
+            x: 200,
+            y: 200
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
-        // new Guest({
-        //     name: "Some Guest",
-        //     clothing: "blue-suit",
-        //     x: 500,
-        //     y: 550
-        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        new Guest({
+            name: "Some Guest",
+            gender: "female",
+            x: 500,
+            y: 550
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
-        // new Guest({
-        //     name: "Another Guest",
-        //     clothing: "blue-suit",
-        //     x: 700,
-        //     y: 700
-        // }, this.assetLoader, this.game.rootRenderer, pathfinder);
+        new Guest({
+            name: "Another Guest",
+            gender: "female",
+            x: 700,
+            y: 700
+        }, this.assetLoader, this.game.rootRenderer, pathfinder);
 
         const target = new Target({
             name: "Noa",

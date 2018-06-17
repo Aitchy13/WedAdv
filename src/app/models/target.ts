@@ -52,6 +52,7 @@ export class Target extends Character implements IRenderable, ICanTalk {
         this.spriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.dialogSpriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.setAnimations();
+        this.show();
     }
 
     public beforeRender() {
@@ -75,10 +76,14 @@ export class Target extends Character implements IRenderable, ICanTalk {
         this.hidingSpot = this.hidingSpots[MathsUtility.randomIntegerRange(0, this.hidingSpots.length - 1)];
         this.hidingSpot.hiddenObject = this;
         if (animate) {
-            this.runTo({ x: this.hidingSpot.x - 1, y: this.hidingSpot.y - 1 });
+            this.runTo({ x: this.hidingSpot.x - 1, y: this.hidingSpot.y - 1 }).then(() => {
+                this.remove();
+            })
         } else {
             this.move(this.hidingSpot.x, this.hidingSpot.y, PositionStrategy.Absolute);
-        }        
+            this.remove();
+        }
+
     }
 
     public runAway() {
@@ -94,6 +99,7 @@ export class Target extends Character implements IRenderable, ICanTalk {
     }
 
     public runTo(coordinate: ICoordinate, onComplete?: () => void) {
+        this.show();
         return new Promise((resolve) => {
             this.goTo(coordinate, 150, () => {
                 if (onComplete) {

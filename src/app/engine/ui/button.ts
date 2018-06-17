@@ -107,8 +107,8 @@ export class Button implements IRenderable {
 
     private onClick(evt: MouseInputEvent) {
         const mouse = {
-            x: evt.event.x,
-            y: evt.event.y,
+            x: evt.event.offsetX,
+            y: evt.event.offsetY,
             width: 5,
             height: 5
         }
@@ -120,8 +120,8 @@ export class Button implements IRenderable {
 
     private onMouseMove(evt: MouseInputEvent) {
         const mouse = {
-            x: evt.event.x,
-            y: evt.event.y,
+            x: evt.event.offsetX,
+            y: evt.event.offsetY,
             width: 5,
             height: 5
         }

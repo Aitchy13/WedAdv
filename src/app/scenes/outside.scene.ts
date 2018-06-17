@@ -19,6 +19,7 @@ import { Pastor } from "../models/pastor";
 import { Direction } from "../engine/core/core.models";
 import { Target } from "../models/target";
 import { Countdown } from "../models/countdown";
+import { Guest } from "../models/guest";
 
 export class OutsideScene extends Scene {
 
@@ -39,6 +40,7 @@ export class OutsideScene extends Scene {
     private pastor: Pastor;
     private ring: Ring;
     private target: Target;
+    private guests: Guest[] = [];
 
     private menuSelectSound: Sound;
     private pathfinder: PathFinder;
@@ -50,7 +52,7 @@ export class OutsideScene extends Scene {
     }
 
     public preload() {
-        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 260, 30, 60 * 5, this.game.assetLoader)
+        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 5, this.game.assetLoader)
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
             this.assetLoader.loadImage("cloud-1", "src/sprites/cloud-1.png"),
@@ -69,6 +71,8 @@ export class OutsideScene extends Scene {
 
     public render() {
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
+        this.game.camera.x = this.width / 2;
+        this.game.camera.y = this.game.rootCanvas.height / 2;
 
         const sky = new Rectangle(this.width, 934, 0, 0);
         sky.gradient = [["#b1e0f2", 1], ["#7d9bf2", 0]];
@@ -139,18 +143,20 @@ export class OutsideScene extends Scene {
         const cloudJTween = new Tween(cloudJ).to(new Vector(200, 380), 8400, Easing.easeInOutCubic).yoyo().repeat();
         cloudJTween.start();
 
+        const yOffset = this.game.uiCanvas.height < 600 ? - 280 : 0;
+
 
         const gameTitleTexture = this.assetLoader.getImage("game-title");
-        this.gameTitle = new Layer("game-title", (this.game.rootCanvas.width / 2) - gameTitleTexture.width / 2, 300, gameTitleTexture, this.game.rootRenderer);
+        this.gameTitle = new Layer("game-title", (this.game.uiCanvas.width / 2) - gameTitleTexture.width / 2, 300 + yOffset, gameTitleTexture, this.game.uiRenderer);
 
         const startButtonTexture = this.assetLoader.getImage("start-button");
         this.startButton = new Button({
             width: 216,
             height: 60,
-            x: (this.game.rootCanvas.width / 2) - startButtonTexture.width / 2,
-            y: 476,
+            x: (this.game.uiCanvas.width / 2) - startButtonTexture.width / 2,
+            y: 476 + yOffset,
             texture: this.assetLoader.getImage("start-button")
-        }, this.game.mouseInput, this.game.rootRenderer);
+        }, this.game.mouseInput, this.game.uiRenderer);
         this.menuSelectSound = this.assetLoader.getSound("menu-select");
         this.menuSelectSound.load();
         this.startButton.on("click", () => {
@@ -166,8 +172,10 @@ export class OutsideScene extends Scene {
     }
 
     private showPlayerSelection() {
+        const yOffset = this.game.uiCanvas.height < 600 ? - 280 : 0;
+
         const selectPlayerText = this.assetLoader.getImage("select-player-text");
-        this.instruction = new Layer("select-player-text", (this.game.rootCanvas.width / 2) - (selectPlayerText.width / 2), 300, selectPlayerText, this.game.rootRenderer);
+        this.instruction = new Layer("select-player-text", (this.game.uiCanvas.width / 2) - (selectPlayerText.width / 2), 300 + yOffset, selectPlayerText, this.game.uiRenderer);
 
         this.renderGroom();
         this.renderBride();
@@ -184,10 +192,10 @@ export class OutsideScene extends Scene {
         this.groomSelection = new Button({
             width: 158,
             height: 158,
-            x: (this.game.rootCanvas.width / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
-            y: 340,
+            x: (this.game.uiCanvas.width / 2) - (groomSelectionTexture.width / 2) - selectionOffset,
+            y: 340 + yOffset,
             texture: groomSelectionTexture
-        }, this.game.mouseInput, this.game.rootRenderer);
+        }, this.game.mouseInput, this.game.uiRenderer);
         this.groomSelection.on("click", () => {
             this.menuSelectSound.play();
             this.selectedPlayer = this.groom;
@@ -198,10 +206,10 @@ export class OutsideScene extends Scene {
         this.brideSelection = new Button({
             width: 158,
             height: 158,
-            x: (this.game.rootCanvas.width / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
-            y: 340,
+            x: (this.game.uiCanvas.width / 2) - (brideSelectionTexture.width / 2) + selectionOffset,
+            y: 340 + yOffset,
             texture: brideSelectionTexture
-        }, this.game.mouseInput, this.game.rootRenderer);
+        }, this.game.mouseInput, this.game.uiRenderer);
         this.brideSelection.on("click", () => {
             this.menuSelectSound.play();
             this.selectedPlayer = this.bride;
@@ -211,10 +219,10 @@ export class OutsideScene extends Scene {
         this.playButton = new Button({
             width: 216,
             height: 60,
-            x: (this.game.rootCanvas.width / 2) - playButtonTexture.width / 2,
-            y: 520,
+            x: (this.game.uiCanvas.width / 2) - playButtonTexture.width / 2,
+            y: 520 + yOffset,
             texture: this.assetLoader.getImage("play-button")
-        }, this.game.mouseInput, this.game.rootRenderer);
+        }, this.game.mouseInput, this.game.uiRenderer);
 
         this.playButton.on("click", () => {
             this.menuSelectSound.play();
@@ -226,7 +234,7 @@ export class OutsideScene extends Scene {
     private renderGroom() {
         this.groom = new Player({
             model: "groom",
-            x: (this.game.rootCanvas.width / 2) - (36 / 2) - 20,
+            x: (this.width / 2) - (36 / 2) - 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
     }
@@ -234,7 +242,7 @@ export class OutsideScene extends Scene {
     private renderBride() {
         this.bride = new Player({
             model: "bride",
-            x: (this.game.rootCanvas.width / 2) - (43 / 2) + 20,
+            x: (this.width / 2) - (43 / 2) + 20,
             y: 1157
         }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
     }
@@ -251,10 +259,7 @@ export class OutsideScene extends Scene {
         this.renderLevel();
         
 
-        this.game.camera.moveTo(this.selectedPlayer, 4000, Easing.easeInOutCubic).then(() => {
-            this.game.camera.follow(() => {
-                return new Vector(this.selectedPlayer.x, this.selectedPlayer.y);
-            });
+        this.game.camera.moveTo({ x: this.width / 2, y: this.selectedPlayer.y + 50 }, 4000, Easing.easeInOutCubic).then(() => {
             this.beginCeremony();
         });
     }
@@ -287,6 +292,396 @@ export class OutsideScene extends Scene {
         new Layer("pew-r", 223 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
         new Layer("pew-s", 414 + rightSectionSpacing, firstRowY + spacing * 4, this.assetLoader.getImage("pew"), this.game.rootRenderer);
 
+        const seatedRow1 = firstRowY - 40;
+        let seatedMinX = 250;
+
+        // Row 1 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 240,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        
+        // Row 2 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+         // Row 3 left
+         this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        // Row 3 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        // Row 4 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        seatedMinX = 850;
+
+        // Row 1 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 240,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        
+        // Row 2 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+         // Row 3 left
+         this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 2
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        // Row 3 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 3
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        // Row 4 left
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 50,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 100,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 190,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "female",
+            x: seatedMinX + 240,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+        this.guests.push(new Guest({
+            name: "Guest 1",
+            gender: "male",
+            x: seatedMinX + 290,
+            y: seatedRow1 + spacing * 4
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder));
+
+        this.guests.forEach(x => {
+            x.faceDirection(Direction.North);
+            x.wantsToWalk = () => false;
+        });
+
         const exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
         exit.beforeRender = () => {
             if (CollisionDetector.hasCollision(this.selectedPlayer, exit)) {
@@ -296,11 +691,11 @@ export class OutsideScene extends Scene {
         };
         this.game.rootRenderer.addObject(exit);
 
-        this.pastor = new Pastor((this.game.rootCanvas.width / 2) - (38 / 2), 1130, this.assetLoader, this.game.rootRenderer, this.pathfinder);
+        this.pastor = new Pastor((this.width / 2) - (38 / 2), 1130, this.assetLoader, this.game.rootRenderer, this.pathfinder);
         this.ring = new Ring(0, 0, this.assetLoader, this.game.rootRenderer);
         this.target = new Target({
             name: "Noa",
-            x: (this.game.rootCanvas.width / 2) - (30 / 2),
+            x: (this.width / 2) - (30 / 2),
             y:  this.height,
             player: this.selectedPlayer,
             hidingSpots: [],
@@ -324,13 +719,14 @@ export class OutsideScene extends Scene {
         }
 
         this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. Now, normally I would proceed to discuss the importance of love, kindness and sharing, but I've got <<INSERT REASON>>, so I'm going to skip on ahead. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
-            return sleep(2000);
+            return sleep(1000);
         }).then(() => {
             this.bride.faceDirection(Direction.South);
             return this.game.dialogService.show("Noa nug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => sleep(1000));
         }).then(() => {
             this.groom.faceDirection(Direction.South);
-            return this.target.runTo({ x: this.bride.x, y: this.bride.y + 200 });
+            this.guests.forEach((g) => g.faceDirection(g.x < this.width / 2 ? Direction.East : Direction.West));
+            return this.target.runTo({ x: this.bride.x, y: this.bride.y + 100 });
         }).then(() => {
             return this.game.dialogService.show("But he's my honey! You go find a man ... and I'll marry Harrison!", this.target);
         }).then(() => {
@@ -353,17 +749,21 @@ export class OutsideScene extends Scene {
         }).then(() => {
             return this.game.dialogService.show("I'm getting too old for this...", this.pastor);
         }).then(() => {
-            // TODO: Start timer
+            return this.game.camera.moveTo({ x: this.selectedPlayer.x + (this.selectedPlayer.width / 2), y: this.selectedPlayer.y + (this.selectedPlayer.height / 2) }, 300).then(() => {
+                this.game.camera.follow(() => new Vector(this.selectedPlayer.x + (this.selectedPlayer.width / 2), this.selectedPlayer.y + (this.selectedPlayer.height / 2)));
+            });
+        }).then(() => {
             this.selectedPlayer.enableControls();
             this.countdown.start();
             this.game.cache.addItem("countdown", this.countdown);
+            this.guests.forEach(x => x.faceDirection(Direction.South));
         });
     }
 
     private restoreScene() {
         this.selectedPlayer = this.game.cache.getItem("player");
         this.selectedPlayer.model === "groom" ? this.renderBride() : this.renderGroom();
-        this.selectedPlayer.move(this.game.rootCanvas.width / 2, this.height - 100, PositionStrategy.Absolute);
+        this.selectedPlayer.move(this.width / 2, this.height - 100, PositionStrategy.Absolute);
 
         this.renderLevel();
 

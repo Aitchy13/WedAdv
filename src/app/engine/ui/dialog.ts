@@ -10,6 +10,7 @@ import { Vector } from "../core/vector";
 import { Easing } from "../animation/easing";
 import { PositionStrategy } from "../physics/moveable";
 import { Sound } from "../audio/sound";
+import { Canvas } from "../core/canvas";
 
 export interface ICanTalk {
     name: string;
@@ -24,7 +25,7 @@ export class DialogService {
 
     private activeDialog: Dialog;
 
-    constructor(private keyboardInput: KeyboardInput, private renderer: Renderer, private window: Window, private assetLoader: AssetLoader) {
+    constructor(private keyboardInput: KeyboardInput, private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader) {
         
     }
 
@@ -33,7 +34,7 @@ export class DialogService {
             if (this.activeDialog) {
                 this.activeDialog.close();
             }
-            const dialog = new Dialog(this.renderer, this.window, this.assetLoader, this.keyboardInput);
+            const dialog = new Dialog(this.renderer, this.canvas, this.assetLoader, this.keyboardInput);
             if (character) {
                 dialog.setAvatar(character);
             }
@@ -162,8 +163,8 @@ export class Dialog implements IRenderable {
         "close": Function[];
     };
 
-     constructor(private renderer: Renderer, private window: Window, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput) {
-        this.shape = new Rectangle(this.width, this.height, (this.window.innerWidth / 2) - this.width / 2, this.window.innerHeight - this.height - 20);
+     constructor(private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput) {
+        this.shape = new Rectangle(this.width, this.height, (this.canvas.width / 2) - this.width / 2, this.canvas.height - this.height - 20);
         this.shape.imageTexture = this.assetLoader.getImage("dialog");
         this.x = this.shape.vertices[0].x;
         this.y = this.shape.vertices[0].y;

@@ -106,6 +106,23 @@ export class Character implements IRenderable, IMoveable {
         this.holding = undefined;
     }
 
+    public faceDirection(direction: Direction) {
+        switch (direction) {
+            case Direction.North:
+                this.spriteSheet.setDefaultFrame("north-stand");
+                break;
+            case Direction.East:
+                this.spriteSheet.setDefaultFrame("east-stand");
+                break;
+            case Direction.South:
+                this.spriteSheet.setDefaultFrame("south-stand");
+                break;
+            case Direction.West:
+                this.spriteSheet.setDefaultFrame("west-stand");
+                break;
+        }
+    }
+
     public render(ctx: CanvasRenderingContext2D, timeDelta: number) {
         let collidesWith: ICollidableShape;
         const previousX = this.x;

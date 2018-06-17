@@ -61,7 +61,7 @@ export function Moveable() {
             if (!path || path.length < 2) {
                 throw new Error("Path invalid");
             }
-            const lastTween = new Tween(this).to(path[path.length - 2], speed, easing);
+            const lastTween = new Tween(this).to(path[path.length - 1], speed, easing);
             lastTween.on("update", () => {
                 this.move(this.x, this.y, PositionStrategy.Absolute);
             });
