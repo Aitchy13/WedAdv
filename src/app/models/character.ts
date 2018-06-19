@@ -219,9 +219,8 @@ export class Character implements IRenderable, IMoveable {
         if (this.goingTo) {
             this.goingTo.stop();
         }
-        this.xVel = 0;
-        this.yVel = 0;
         this.spriteSheet.stopAnimation();
+        this.setVelocity(AxisDimension.XY, 0);
     }
 
     public getDirection(currentPosition: Vector, destination: Vector): Direction {

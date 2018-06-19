@@ -112,7 +112,7 @@ export class Target extends Character implements IRenderable, ICanTalk, IInterac
         this.x = spawnIn.x;
         this.y = spawnIn.y;
 
-        this.hidingSpot = undefined;
+        // this.hidingSpot = undefined;
         
         this.triggerEventHandlers("found");
     }

@@ -18,6 +18,7 @@ import { Door } from "../models/door";
 import { OutsideScene } from "./outside.scene";
 import { Countdown } from "../models/countdown";
 import { Sound } from "../engine/audio/sound";
+import { Direction } from "../engine/core/core.models";
 
 export class InsideScene extends Scene {
 
@@ -60,7 +61,8 @@ export class InsideScene extends Scene {
 
         this.player = this.game.cache.getItem<Player>("player");
         Validation.isTrue(this.player instanceof Player, "No player found in cache");
-        this.player.move(450, 205, PositionStrategy.Absolute);
+        this.player.move(450, 180, PositionStrategy.Absolute);
+        this.player.faceDirection(Direction.South);
         this.game.rootRenderer.addObject(this.player);
 
         this.game.camera.setBoundaries(0, this.width, 0, this.height);
@@ -89,9 +91,22 @@ export class InsideScene extends Scene {
         const table6 = new Table("table6", 820, 640, this.assetLoader, this.game.rootRenderer);
         tables.push(table6);
 
-        const topWallBoundary = new Rectangle(this.width, 200, 0, 0);
-        navGrid.addBlockedGeometry("top-wall", topWallBoundary);
-        this.player.addCollidable(topWallBoundary);
+        const topBoundary = new Rectangle(this.width, 160, 0, 0);
+        const leftBoundary = new Rectangle(10, this.height, 0, 0);
+        const rightBoundary = new Rectangle(10, this.height, this.width - 10, 0);
+        const bottomBoundary = new Rectangle(this.width, 10, 0, this.height - 10);
+
+        this.player.addCollidable(topBoundary);
+        this.player.addCollidable(leftBoundary);
+        this.player.addCollidable(rightBoundary);
+        this.player.addCollidable(bottomBoundary);
+
+        navGrid.addBlockedGeometry("top-wall", topBoundary);
+        navGrid.addBlockedGeometry("left-wall", leftBoundary);
+        navGrid.addBlockedGeometry("right-wall", rightBoundary);
+        navGrid.addBlockedGeometry("bottom-wall", bottomBoundary);
+
+        this.player.addCollidable(topBoundary);
 
         this.exit = new Door("door-1", 411, 86, this.game.sceneManager);
         this.exit.setExit(OutsideScene);
@@ -255,7 +270,7 @@ export class InsideScene extends Scene {
         this.enemySound.stop();
         this.player.removeInteractables();
         this.game.dialogService.show("Waaaaaaaaaaaaaaaa... you caught me! I guess I'll have to find another Harrison...", this.target).then(() => {
-            return this.target.runTo({ x: this.exit.x, y: this.exit.y + 160 });
+            return this.target.runTo({ x: this.exit.x + 50, y: this.exit.y + 120 });
         }).then(() => {
             this.target.remove();
             this.player.enableControls();

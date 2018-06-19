@@ -11,6 +11,7 @@ import { Easing } from "../animation/easing";
 import { PositionStrategy } from "../physics/moveable";
 import { Sound } from "../audio/sound";
 import { Canvas } from "../core/canvas";
+import { Gesture } from "./gesture";
 
 export interface ICanTalk {
     name: string;
@@ -25,7 +26,7 @@ export class DialogService {
 
     private activeDialog: Dialog;
 
-    constructor(private keyboardInput: KeyboardInput, private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader) {
+    constructor(private keyboardInput: KeyboardInput, private gesture: Gesture, private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader) {
         
     }
 
@@ -34,7 +35,7 @@ export class DialogService {
             if (this.activeDialog) {
                 this.activeDialog.close();
             }
-            const dialog = new Dialog(this.renderer, this.canvas, this.assetLoader, this.keyboardInput);
+            const dialog = new Dialog(this.renderer, this.canvas, this.assetLoader, this.keyboardInput, this.gesture);
             if (character) {
                 dialog.setAvatar(character);
             }
@@ -157,6 +158,7 @@ export class Dialog implements IRenderable {
     private typeEndSound: Sound;
 
     private boundKeyupHandler: (evt: KeyboardInputEvent) => void;
+    private boundGestureHandler: (evt: any) => void;
 
     private visible: boolean = false;
 
@@ -165,7 +167,7 @@ export class Dialog implements IRenderable {
         "close": Function[];
     };
 
-     constructor(private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput) {
+     constructor(private renderer: Renderer, private canvas: Canvas, private assetLoader: AssetLoader, private keyboardInput: KeyboardInput, private gesture: Gesture) {
         this.shape = new Rectangle(this.width, this.height, (this.canvas.width / 2) - this.width / 2, this.canvas.height - this.height - 20);
         this.shape.imageTexture = this.assetLoader.getImage("dialog");
         this.x = this.shape.vertices[0].x;
@@ -226,6 +228,7 @@ export class Dialog implements IRenderable {
         this.renderer.addObject(this);
         this.cycleSnippet();
         this.bindKeyboardEvents();
+        this.bindGestureEvents();
         this.openSound.play();
         if (this.avatar) {
             this.avatar.startTalking();
@@ -241,6 +244,7 @@ export class Dialog implements IRenderable {
         this.visible = false;
         this.renderer.removeObject(this); 
         this.unbindKeyboardEvents();
+        this.unbindGestureEvents();
         if (this.avatar) {
             this.avatar.stopTalking();
         }
@@ -316,6 +320,18 @@ export class Dialog implements IRenderable {
 
     private unbindKeyboardEvents() {
         this.keyboardInput.unbind("keyup", this.boundKeyupHandler);
+    }
+
+    private bindGestureEvents() {
+        this.boundGestureHandler = () => {
+            this.cycleSnippet();
+        }
+        this.boundGestureHandler.bind(this);
+        this.gesture.on("tap", this.boundGestureHandler);
+    }
+
+    private unbindGestureEvents() {
+        this.gesture.off("tap", this.boundGestureHandler);
     }
 
     private createTextSnippets(text: string, maxWidth: number): string[][] {

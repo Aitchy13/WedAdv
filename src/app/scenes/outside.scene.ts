@@ -46,18 +46,24 @@ export class OutsideScene extends Scene {
     private startMenuSound: Sound;
     private introSound: Sound;
     private buildUpSound: Sound;
-    private enemySound: Sound;
 
     private pathfinder: PathFinder;
 
     private countdown: Countdown;
+    private exit: Rectangle;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
     }
 
     public preload() {
-        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 2, this.game.assetLoader);
+        this.countdown = this.game.cache.getItem("countdown");
+        if (!this.countdown) {
+            this.countdown = new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 2, this.game.assetLoader);
+            this.countdown.on("complete", () => {
+                this.gameOver();
+            });
+        }
 
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
@@ -246,7 +252,8 @@ export class OutsideScene extends Scene {
             model: "groom",
             x: (this.width / 2) - (36 / 2) - 20,
             y: 1157
-        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput, this.game.gesture);
+        this.groom.disableControls();
     }
 
     private renderBride() {
@@ -254,7 +261,8 @@ export class OutsideScene extends Scene {
             model: "bride",
             x: (this.width / 2) - (43 / 2) + 20,
             y: 1157
-        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput);
+        }, this.assetLoader, this.game.rootRenderer, this.pathfinder, this.game.keyboardInput, this.game.gesture);
+        this.bride.disableControls();
     }
 
     private hidePlayerSelectionScreen() {
@@ -695,14 +703,14 @@ export class OutsideScene extends Scene {
             x.wantsToWalk = () => false;
         });
 
-        const exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
-        exit.beforeRender = () => {
-            if (CollisionDetector.hasCollision(this.selectedPlayer, exit)) {
+        this.exit = new Rectangle(150, 2, (this.width / 2) - 150 / 2, this.height - 2);
+        this.exit.beforeRender = () => {
+            if (CollisionDetector.hasCollision(this.selectedPlayer, this.exit)) {
                 this.game.sceneManager.load(InsideScene);
                 this.game.cache.addItem("player", this.selectedPlayer);
             }
         };
-        this.game.rootRenderer.addObject(exit);
+        this.game.rootRenderer.addObject(this.exit);
 
         this.pastor = new Pastor((this.width / 2) - (38 / 2), 1130, this.assetLoader, this.game.rootRenderer, this.pathfinder);
         this.ring = new Ring(0, this.height, this.assetLoader, this.game.rootRenderer);
@@ -716,8 +724,14 @@ export class OutsideScene extends Scene {
         this.target.hold(this.ring);
 
         const topBoundary = new Rectangle(this.width, 50, 0, 1050);
+        const leftBoundary = new Rectangle(10, 800, 0, 1050);
+        const rightBoundary = new Rectangle(10, 800, this.width - 10, 1050);
+        const bottomBoundary = new Rectangle(this.width, 10, 0, this.height + 5);
+        
         this.selectedPlayer.addCollidable(topBoundary);
-        this.game.rootRenderer.addObject(topBoundary);
+        this.selectedPlayer.addCollidable(leftBoundary);
+        this.selectedPlayer.addCollidable(rightBoundary);
+        this.selectedPlayer.addCollidable(bottomBoundary);
 
         this.game.uiRenderer.addObject(this.countdown);
     }
@@ -797,6 +811,8 @@ export class OutsideScene extends Scene {
         const alternativePlayer = this.bride === this.selectedPlayer ? this.groom : this.bride;
         this.selectedPlayer.addInteractable(alternativePlayer);
 
+        this.exit.beforeRender = () => {};
+
         alternativePlayer.on("ring-returned", () => {
             this.onRingReturned();
         });
@@ -805,12 +821,12 @@ export class OutsideScene extends Scene {
     private onRingReturned() {
         this.countdown.stop();
         this.game.dialogService.show("My hero!!", this.selectedPlayer === this.bride ? this.groom : this.bride).then(() => {
-            this.game.window.confirm("GAME OVER");
-            this.resetGame();
+            this.gameOver();
         });
     }
 
-    private resetGame() {
+    private gameOver() {
+        this.game.window.confirm("GAME OVER");
         this.game.window.location.reload();
     }
 

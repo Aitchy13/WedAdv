@@ -16,6 +16,7 @@ import { Target } from "./target";
 import { Table } from "./table";
 import { Ring } from "./ring";
 import { Door } from "./door";
+import { Gesture } from "../engine/ui/gesture";
 
 export class IPlayerOptions extends ICharacterOptions {
     model: PlayerModel;
@@ -51,7 +52,9 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         "ring-returned": Function[]
     };
 
-    constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
+    private movementSensitivity: number = 3;
+
+    constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput, public gesture: Gesture) {
         super(renderer, pathFinder, {
             width: options.model === "bride" ? 43 : 36,
             height: options.model === "bride" ? 77 : 79,
@@ -246,72 +249,123 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             if (!this.controlsEnabled) {
                 return;
             }
-            const sensitivity = 3;
             switch (evt.event.key) {
                 case "w":
                 case "ArrowUp":
-                    this.setVelocity(AxisDimension.Y, -sensitivity);
-                    this.spriteSheet.setDefaultFrame("north-stand");
-                    this.spriteSheet.playAnimation("walk-north");
-                    // this.walkSound.loop();
-                    this.lastMovedDirection = Direction.North;
+                    this.moveUp();
                     break;
                 case "s":
                 case "ArrowDown":
-                    this.setVelocity(AxisDimension.Y, sensitivity);
-                    this.spriteSheet.setDefaultFrame("south-stand");
-                    this.spriteSheet.playAnimation("walk-south");
-                    // this.walkSound.loop();
-                    this.lastMovedDirection = Direction.South;
+                    this.moveDown();
                     break;
                 case "a":
                 case "ArrowLeft":
-                    this.setVelocity(AxisDimension.X, -sensitivity);
-                    this.spriteSheet.setDefaultFrame("west-stand");
-                    this.spriteSheet.playAnimation("walk-west");
-                    // this.walkSound.loop();
-                    this.lastMovedDirection = Direction.West;
+                    this.moveLeft();
                     break;
                 case "d":
                 case "ArrowRight":
-                    this.setVelocity(AxisDimension.X, sensitivity);
-                    this.spriteSheet.setDefaultFrame("east-stand");
-                    this.spriteSheet.playAnimation("walk-east");
-                    // this.walkSound.loop();
-                    this.lastMovedDirection = Direction.East;
+                    this.moveRight();
                     break;
                 case "e":
-                    if (this.detectedInteractable) {
-                        if (this.detectedInteractable instanceof Target) {
-                            this.detectedInteractable.onInteraction("catch", this);
-                        }
-                        if (this.detectedInteractable instanceof Table) {
-                            this.detectedInteractable.onInteraction("check-for-target", this);
-                            return;
-                        }
-                        if (this.detectedInteractable instanceof Player) {
-                            this.detectedInteractable.onInteraction("return-ring", this, undefined);
-                        }
-                        if (this.detectedInteractable instanceof Ring) {
-                            this.hold(this.detectedInteractable);
-                            return;
-                        }
-                        if (this.detectedInteractable instanceof Door) {
-                            if (this.holding) {
-                                this.detectedInteractable.exit();
-                            }
-                        }
-                    }
+                    this.interact();
+                    break;
             }
         });
         this.keyboardInput.on("keyup", () => {
+            this.stopMovement();
+            // this.walkSound.stop();
+        });
+        this.gesture.on("swipedown", () => {
             if (!this.controlsEnabled) {
                 return;
             }
-            this.setVelocity(AxisDimension.XY, 0);
-            this.spriteSheet.stopAnimation();
-            // this.walkSound.stop();
+            this.stopMovement();
+            this.moveDown();
         });
+        this.gesture.on("swipeup", () => {
+            if (!this.controlsEnabled) {
+                return;
+            }
+            this.stopMovement();
+            this.moveUp();
+        });
+        this.gesture.on("swipeleft", () => {
+            if (!this.controlsEnabled) {
+                return;
+            }
+            this.stopMovement();
+            this.moveLeft();
+        });
+        this.gesture.on("swiperight", () => {
+            if (!this.controlsEnabled) {
+                return;
+            }
+            this.stopMovement();
+            this.moveRight();
+        });
+        this.gesture.on("tap", () => {
+            if (!this.controlsEnabled) {
+                return;
+            }
+            this.stopMovement();
+            this.interact();
+        });
+    }
+
+    private moveUp() {
+        this.setVelocity(AxisDimension.Y, -this.movementSensitivity);
+        this.spriteSheet.setDefaultFrame("north-stand");
+        this.spriteSheet.playAnimation("walk-north");
+        // this.walkSound.loop();
+        this.lastMovedDirection = Direction.North;
+    }
+
+    private moveDown() {
+        this.setVelocity(AxisDimension.Y, this.movementSensitivity);
+        this.spriteSheet.setDefaultFrame("south-stand");
+        this.spriteSheet.playAnimation("walk-south");
+        // this.walkSound.loop();
+        this.lastMovedDirection = Direction.South;
+    }
+
+    private moveLeft() {
+        this.setVelocity(AxisDimension.X, -this.movementSensitivity);
+        this.spriteSheet.setDefaultFrame("west-stand");
+        this.spriteSheet.playAnimation("walk-west");
+        // this.walkSound.loop();
+        this.lastMovedDirection = Direction.West;
+    }
+
+    private moveRight() {
+        this.setVelocity(AxisDimension.X, this.movementSensitivity);
+        this.spriteSheet.setDefaultFrame("east-stand");
+        this.spriteSheet.playAnimation("walk-east");
+        // this.walkSound.loop();
+        this.lastMovedDirection = Direction.East;
+    }
+
+    private interact() {
+        if (this.detectedInteractable) {
+            if (this.detectedInteractable instanceof Target) {
+                this.detectedInteractable.onInteraction("catch", this);
+            }
+            if (this.detectedInteractable instanceof Table) {
+                this.detectedInteractable.onInteraction("check-for-target", this);
+                return;
+            }
+            if (this.detectedInteractable instanceof Player) {
+                this.detectedInteractable.onInteraction("return-ring", this, undefined);
+            }
+            if (this.detectedInteractable instanceof Ring) {
+                this.hold(this.detectedInteractable);
+                return;
+            }
+            if (this.detectedInteractable instanceof Door) {
+                if (this.holding) {
+                    this.detectedInteractable.exit();
+                }
+            }
+        }
     }
 
     private triggerEventHandlers(eventName: PlayerEventName) {

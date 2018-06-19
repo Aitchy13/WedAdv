@@ -6,7 +6,7 @@ import { IRenderable } from "../engine/rendering/renderer";
 import { BitmapCharacter } from "../engine/ui/font/bitmap-character";
 import { Rectangle } from "../engine/game-objects/rectangle";
 
-export type CountdownEventName = "start" | "stop" | "tick";
+export type CountdownEventName = "start" | "stop" | "tick" | "complete";
 
 export interface ICountdownFontOverride {
     key: string;
@@ -28,6 +28,7 @@ export class Countdown implements IRenderable {
         "start": Function[]
         "stop": Function[]
         "tick": Function[]
+        "complete": Function[]
     };
 
 
@@ -35,7 +36,8 @@ export class Countdown implements IRenderable {
         this.eventHandlers = {
             "start": [],
             "stop": [],
-            "tick": []
+            "tick": [],
+            "complete": []
         };
         this.startTime = this.currentTime;
     }
@@ -80,8 +82,9 @@ export class Countdown implements IRenderable {
 
     public tick() {
         this.currentTime--;
-        if (this.currentTime === 0) {
+        if (this.currentTime === -1) {
             this.stop();
+            this.triggerEventHandlers("complete");
             return;
         }
         this.onTickEnd();

@@ -10,6 +10,7 @@ import { Camera } from "../rendering/camera";
 import { Canvas } from "../core/canvas";
 import { DialogService } from "../ui/dialog";
 import { GameCache } from "../cache/game-cache";
+import { Gesture } from "../ui/gesture";
 
 export class Game {
 
@@ -26,6 +27,7 @@ export class Game {
     public camera: Camera;
     public dialogService: DialogService;
     public cache: GameCache;
+    public gesture: Gesture;
 
     public rootCanvas: Canvas;
     public uiCanvas: Canvas;
@@ -52,7 +54,9 @@ export class Game {
         this.uiRenderer = new Renderer(this.uiCanvas.context, this.window, this.logger, this.time);
         this.assetLoader = new AssetLoader(this.logger);
 
-        this.dialogService = new DialogService(this.keyboardInput, this.uiRenderer, this.uiCanvas, this.assetLoader);
+        this.gesture = new Gesture(this.uiCanvas);
+
+        this.dialogService = new DialogService(this.keyboardInput, this.gesture, this.uiRenderer, this.uiCanvas, this.assetLoader);
 
         this.sceneManager = new SceneManager(this.logger, this, this.assetLoader);
         
