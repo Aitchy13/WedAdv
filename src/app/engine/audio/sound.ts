@@ -1,76 +1,65 @@
 import axios from "axios";
 
-interface ISoundLoadResponse {
-    buffer: AudioBuffer,
-    source: AudioBufferSourceNode
-};
-
 export class Sound {
 
     private context: AudioContext;
     private source: AudioBufferSourceNode;
-    private playing: boolean = false;
-    private started: boolean = false;
     private buffer: AudioBuffer;
-    private loadingPromise: Promise<ISoundLoadResponse>;
+    private loadingPromise: Promise<AudioBuffer>;
+    private ended: boolean = false;
 
     constructor(public readonly key: string, public readonly path: string) {
         (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
         this.context = new AudioContext();
     }
 
-    public play(startTime: number = 0, stopTime?: number): Promise<void> {
+    public play(startTime: number = 0, stopTime?: number) {
         try {
-            if (this.playing || this.started) {
+            if (!this.buffer) {
+                throw new Error("Load the sound before playing");
+            }
+            if (this.source) {
                 this.stop();
             }
-            return this.load().then(() => {
-                if (this.playing || this.started)  {
-                    return;
-                }
-                this.source.start(startTime);
-                if (stopTime) {
-                    this.source.stop(this.context.currentTime + stopTime);
-                }
-                this.playing = true;
-            });
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    public loop(): Promise<void> {
-        try {
-            if (this.playing) {
-                return Promise.resolve();
+            this.initSource(this.buffer);
+            this.source.start(startTime);
+            if (stopTime) {
+                this.source.stop(this.context.currentTime + stopTime);
             }
-            return this.load().then(() => {
-                this.source.loop = true;
-                if (this.playing) {
-                    return;
-                }
-                this.source.start();
-                this.playing = true;
-            });
         } catch (e) {
             console.error(e);
         }
     }
 
-    public stop(): Promise<void> {
+    public loop() {
         try {
-            // if (this.playing || this.started) {
-                this.source.stop();
-                this.playing = false;
-                return Promise.resolve();
-            // }
+            if (!this.buffer) {
+                throw new Error("Load the sound before playing");
+            }
+            if (this.source) {
+                this.stop();
+            }
+            this.initSource(this.buffer);
+            this.source.loop = true;
+            this.source.start();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public stop(){
+        try {
+            if (!this.source) {
+                return;
+            }
+            this.source.stop();
         } catch (e) {
             console.error(e);
         }
         
     }
 
-    public load(): Promise<ISoundLoadResponse> {
+    public load(): Promise<AudioBuffer> {
         try {
             if (this.loadingPromise) {
                 return this.loadingPromise;
@@ -81,13 +70,9 @@ export class Sound {
                 return this.context.decodeAudioData(response.data);
             }).then(buffer => {
                 this.buffer = buffer;
-                return this.initSource(buffer);
             }).then(() => {
                 this.loadingPromise = undefined;
-                return {
-                    buffer: this.buffer,
-                    source: this.source
-                };
+                return this.buffer;
             }).catch((e: Error) => {
                 return Promise.reject(e);
             })
@@ -106,6 +91,9 @@ export class Sound {
     private initSource(buffer: AudioBuffer): AudioBufferSourceNode {
         this.source = this.context.createBufferSource();
         this.source.buffer = buffer;
+        this.source.onended = () => {
+            this.ended = true;
+        }
         this.source.connect(this.context.destination);
         return this.source;
     }

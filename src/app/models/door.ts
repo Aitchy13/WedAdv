@@ -1,17 +1,16 @@
 import { Rectangle } from "../engine/game-objects/rectangle";
-import { IInteractable } from "./player";
+import { IInteractable, Player } from "./player";
 import { IHidingSpot, Target } from "./target";
 import { Type } from "../engine/core/core.models";
 import { Scene } from "../engine/game-objects/scene";
 import { SceneManager } from "../engine/game-objects/scene-manager";
 
-export class Door implements IInteractable, IHidingSpot {
+export class Door implements IInteractable {
 
     public name: string = "Door";
     public width: number = 146;
     public height: number = 113;
     public shape: Rectangle;
-    public hiddenObject: Target;
 
     private exitScene: Type<Scene>;
 
@@ -34,11 +33,7 @@ export class Door implements IInteractable, IHidingSpot {
     }
 
     public onInteraction(evtName: string, interactor: IInteractable) {
-        switch (evtName) {
-            case "exit":
-                interactor.onInteraction(evtName, this, this.hiddenObject);
-                break;
-        }
+
     }
 
 }

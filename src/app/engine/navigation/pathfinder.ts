@@ -6,6 +6,8 @@ import { Vector } from "../core/vector";
 import { Renderer } from "../rendering/renderer";
 import { MathsUtility } from "../utilities/maths";
 import { ICoordinate } from "../core/core.models";
+import { Rectangle } from "../game-objects/rectangle";
+import { CollisionDetector } from "../detectors/collision-detector";
 
 export enum PathFinderAlgorithm {
     None,
@@ -16,7 +18,7 @@ export class PathFinder {
 
     private finder: PF.Finder;
     private debugEnabled: boolean = false;
-    constructor(private grid: NavGrid, private renderer: Renderer, private algorithm?: PathFinderAlgorithm) {
+    constructor(public grid: NavGrid, private renderer: Renderer, private algorithm?: PathFinderAlgorithm) {
         this.algorithm = !algorithm ? PathFinderAlgorithm.AStarFinder : algorithm;
         this.setFinder(this.algorithm);
     }
@@ -26,7 +28,7 @@ export class PathFinder {
         const scaledDownTo = new Vector(to.x, to.y).divide(this.grid.cellSize);
 
         const path = this.finder.findPath(Math.floor(scaledDownFrom.x), Math.floor(scaledDownFrom.y), Math.floor(scaledDownTo.x), Math.floor(scaledDownTo.y), new PF.Grid(this.grid.generateBinaryMatrix()));
-        if (path.length < 2) {
+        if (path.length === 0) {
             throw new Error("No path found");
         }
         
@@ -50,6 +52,36 @@ export class PathFinder {
         const cells = includeBlocked ? this.grid.getCells() : this.grid.getUnblockedCells();
         const closestCell = _.find(cells, d => d.x === minX && d.y === minY);
         return closestCell;
+    }
+
+    public getSurroundingCells(coord: ICoordinate, radius: number = 1, includeBlocked?: boolean) {
+        const surroundingArea = this.getSurroundingArea(coord, radius, includeBlocked);
+        const cells = includeBlocked ? this.grid.getCells()  : this.grid.getUnblockedCells()
+
+        return _.chain(cells)
+            .map(d => new Rectangle(this.grid.cellSize, this.grid.cellSize, d.x, d.y))
+            .filter(d => CollisionDetector.hasCollision(d, surroundingArea))
+            .map(d => this.getCellClosestTo({ x: d.x, y: d.y }, includeBlocked))
+            .value();
+    }
+
+    public getSurroundingArea(coord: ICoordinate, radius: number = 1, includeBlocked?: boolean): Rectangle {
+        const centerCell = this.getCellClosestTo(coord, includeBlocked);
+        const topLeftRadiusVect = new Vector(centerCell.x - (this.grid.cellSize  * radius), centerCell.y - (this.grid.cellSize * radius));
+        if (topLeftRadiusVect.x < 0) {
+            topLeftRadiusVect.x = 0;
+        } else if (topLeftRadiusVect.x > this.grid.width) {
+            topLeftRadiusVect.x = this.grid.width - this.grid.cellSize;
+        }
+        if (topLeftRadiusVect.y < 0) {
+            topLeftRadiusVect.y = 0;
+        } else if (topLeftRadiusVect.y > this.grid.height) {
+            topLeftRadiusVect.y = this.grid.height - this.grid.cellSize;
+        }
+
+        let length: number = this.grid.cellSize * ((radius * 2) + 1);
+
+        return new Rectangle(length, length, topLeftRadiusVect.x, topLeftRadiusVect.y);
     }
 
     public debug(enable: boolean) {

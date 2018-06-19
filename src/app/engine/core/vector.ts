@@ -30,6 +30,13 @@ export class Vector implements ICoordinate {
     //     return this;
     // }
 
+    public calculateDistance(vector: Vector) {
+        const a = this.x - vector.x;
+        const b = this.y - vector.y;
+
+        return Math.sqrt( a * a + b * b );
+    }
+
     public add(vector: Vector) {
         return new Vector(this.x + vector.x, this.y + vector.y);
     }

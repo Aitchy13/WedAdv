@@ -281,7 +281,9 @@ export class Dialog implements IRenderable {
             }
             this.activeTextSnippet = this.textSnippets[this.currentSnippetIndex];
             this.stopLetterAnimation();
-            this.avatar.startTalking();
+            if (this.avatar) {
+                this.avatar.startTalking();
+            }
             this.startLetterAnimation(this.activeTextSnippet, () => {
                 this.avatar.stopTalking();
                 if (this.currentSnippetIndex < this.textSnippets.length - 1) {

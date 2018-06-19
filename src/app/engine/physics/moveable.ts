@@ -56,9 +56,9 @@ export function Moveable() {
             this.y = this.vertices[0].y;
         }
 
-        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function, onStart?: Function): void {
+        target.prototype.movePath = function(path: Vector[], speed: number = 1000, easing: IEasingFunc = Easing.linear, onComplete?: Function, onUpdate?: Function, onStart?: Function, onStop?: Function): Tween {
             let i = path.length;
-            if (!path || path.length < 2) {
+            if (!path || path.length === 0) {
                 throw new Error("Path invalid");
             }
             const lastTween = new Tween(this).to(path[path.length - 1], speed, easing);
@@ -93,7 +93,11 @@ export function Moveable() {
             if (_.isFunction(onStart)) {
                 tween.on("start", onStart);
             }
+            if (_.isFunction(onStop)) {
+                tween.on("stop", onStop);
+            }
             tween.start();
+            return tween;
         }
 
         target.prototype.getVelocity = function() {

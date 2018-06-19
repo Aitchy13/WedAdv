@@ -9,6 +9,7 @@ import { SpriteSheet } from "../engine/textures/sprite-texture";
 import { PathFinder } from "../engine/navigation/pathfinder";
 import { ICoordinate, Direction } from "../engine/core/core.models";
 import { ICollidableShape, CollisionDetector } from "../engine/detectors/collision-detector";
+import { Tween } from "../engine/animation/tween";
 
 export class ICharacterOptions {
     name?: string;
@@ -45,10 +46,11 @@ export class Character implements IRenderable, IMoveable {
     
     public vertices: Vector[];
     public move: (x: number, y: number, positionStrategy: PositionStrategy) => void;
-    public movePath: (path: Vector[], duration?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function) => void;
+    public movePath: (path: Vector[], duration?: number, easing?: IEasingFunc, onComplete?: Function, onUpdate?: Function, onStop?: Function) => Tween;
     public getVelocity: () => { x: number, y: number };
     public setVelocity: (dimension: AxisDimension, value: number) => this;
     public adjustVelocity: (dimension: AxisDimension, value: number) => this;
+    public goingTo: Tween;
 
     public lastMovedDirection: Direction;
 
@@ -174,7 +176,7 @@ export class Character implements IRenderable, IMoveable {
         this.isWalking = true;
         try {
             const path = this.pathFinder.findPath(new Vector(this.x, this.y), new Vector(coordinate.x, coordinate.y));
-            this.movePath(path, duration, undefined, () => {
+            this.goingTo = this.movePath(path, duration, undefined, () => {
                 this.isWalking = false;
                 if (onComplete) {
                     onComplete();
@@ -204,11 +206,22 @@ export class Character implements IRenderable, IMoveable {
                 if (direction !== Direction.None) {
                     this.lastMovedDirection = direction;
                 }
+            }, () => {
+                this.isWalking = false;
             });
         } catch (e) {
             console.error(e);
+            this.isWalking = false;
         }
-        
+    }
+
+    public stopMovement() {
+        if (this.goingTo) {
+            this.goingTo.stop();
+        }
+        this.xVel = 0;
+        this.yVel = 0;
+        this.spriteSheet.stopAnimation();
     }
 
     public getDirection(currentPosition: Vector, destination: Vector): Direction {

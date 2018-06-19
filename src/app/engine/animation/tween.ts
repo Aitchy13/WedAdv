@@ -18,6 +18,7 @@ export class Tween {
         "update": Function[];
         "complete": Function[];
     };
+    private chainedTo: Tween;
 
     // TODO: RENAME COORDINATE TO SOMETHING BETTER
 
@@ -34,6 +35,9 @@ export class Tween {
 
     public stop() {
         this.extTweenObj.stop();
+        if (this.chainedTo) {
+            this.chainedTo.stop();
+        }
         return this;
     }
 
@@ -52,6 +56,7 @@ export class Tween {
 
     public chain(tween: Tween) {
         this.extTweenObj.chain(tween.extTweenObj);
+        this.chainedTo = tween;
         return this;
     }
 

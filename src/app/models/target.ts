@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import { Character, ICharacterOptions } from "./character";
 import { AssetLoader } from "../engine/textures/asset-loader";
 import { Renderer, IRenderable } from "../engine/rendering/renderer";
@@ -10,6 +12,8 @@ import { PositionStrategy } from "../engine/physics/moveable";
 import { Rectangle } from "../engine/game-objects/rectangle";
 import { ICanTalk } from "../engine/ui/dialog";
 import { SpriteSheet } from "../engine/textures/sprite-texture";
+import { ICell } from "../engine/navigation/nav-grid";
+import { IInteractable } from "./player";
 
 export interface ITargetOptions extends ICharacterOptions {
     name: string;
@@ -29,14 +33,27 @@ export interface IHidingSpot {
     hiddenObject: Target;
 }
 
-export class Target extends Character implements IRenderable, ICanTalk {
+export type TargetEventName = "caught" | "found";
+
+interface IFurthestCell {
+    distance: number;
+    cell: ICell;
+}
+
+export class Target extends Character implements IRenderable, ICanTalk, IInteractable {
 
     public dialogSpriteSheet: SpriteSheet;
+    public hidingSpot: IHidingSpot;
 
     private player: Character;
     private hidingSpots: IHidingSpot[];
-    private hidingSpot: IHidingSpot;
-    private caught: boolean;
+    private caught: boolean = false;
+    private found: boolean = false;
+
+    private eventHandlers: {
+        "caught": Function[];
+        "found": Function[];
+    };
 
     constructor(public options: ITargetOptions, public textureLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder) {
         super(renderer, pathFinder, {
@@ -49,6 +66,11 @@ export class Target extends Character implements IRenderable, ICanTalk {
         this.player = options.player;
         this.hidingSpots = options.hidingSpots;
 
+        this.eventHandlers = {
+            "caught": [],
+            "found": []
+        };
+
         this.spriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.dialogSpriteSheet = this.textureLoader.getSpriteSheet("noa", true);
         this.setAnimations();
@@ -56,17 +78,32 @@ export class Target extends Character implements IRenderable, ICanTalk {
     }
 
     public beforeRender() {
-        if (!this.caught && CollisionDetector.hasCollision(this.player, this)) {
-            this.remove();
-            this.caught = true;
-            // alert(`You caught ${this.name}!`);
-            this.stopHolding();
+        if (this.caught) {
+            this.caught = false;
+            this.onCaught();
+            return;
+        } else if (this.hidingSpot && this.found) {
+            this.found = false;
+            this.onFound();
         }
-        if (this.hidingSpot && CollisionDetector.hasCollision(this.player, this.hidingSpot)) {
-            this.y = this.hidingSpot.y - 50;
-            this.hidingSpot = undefined;
-            this.runAway();
+    }
+
+    public on(eventName: TargetEventName, callback: Function) {
+        this.eventHandlers[eventName].push(callback);
+    }
+
+    public onInteraction(evtName: string, interactor: IInteractable) {
+        switch (evtName) {
+            case "catch":
+                this.onCaught();
+                break;
         }
+    }
+
+    public onFound() {
+        this.y = this.hidingSpot.y - 50;
+        this.hidingSpot = undefined;
+        this.triggerEventHandlers("found");
     }
 
     public hideIn(animate?: boolean) {
@@ -83,18 +120,16 @@ export class Target extends Character implements IRenderable, ICanTalk {
             this.move(this.hidingSpot.x, this.hidingSpot.y, PositionStrategy.Absolute);
             this.remove();
         }
-
     }
 
     public runAway() {
-        const unblockedCells = this.pathFinder.getAvailableCoordinates();
-        const randomAvailableCell = unblockedCells[MathsUtility.randomIntegerRange(0, unblockedCells.length - 1)];
-        this.runTo(randomAvailableCell, () => {
-            if (MathsUtility.probability(0.1)) {
-                this.hideIn()
-            } else {
-                this.runAway();
-            }
+        const furthest = this.findCoordAwayFrom(new Vector(this.player.x, this.player.y));
+
+        this.pathFinder.grid.removeBlockedGeometry("player");
+        this.pathFinder.grid.addBlockedGeometry("player", this.pathFinder.getSurroundingArea(this.player, 1, true));
+
+        this.runTo(furthest.cell, () => {
+            this.runAway();
         });
     }
 
@@ -119,11 +154,39 @@ export class Target extends Character implements IRenderable, ICanTalk {
         this.dialogSpriteSheet.stopAnimation();
     }
 
-    private findCoordAwayFrom(awayFrom: Vector) {
-        const unblockedCells = this.pathFinder.getAvailableCoordinates();
-        const playerCell = this.pathFinder.getCellClosestTo(this.player);
+    private triggerEventHandlers(eventName: TargetEventName) {
+        if (this.eventHandlers[eventName].length === 0) {
+            return;
+        }
+        for (const handler of this.eventHandlers[eventName]) {
+            handler();
+        }
+    }
+    
+    private onCaught() {
+        this.stopHolding();
+        this.stopMovement();
+        this.pathFinder.grid.removeBlockedGeometry("player");
+        this.triggerEventHandlers("caught");
+    }
 
-        
+    private findCoordAwayFrom(awayFrom: Vector): IFurthestCell {
+        const unblockedCells = this.pathFinder.getAvailableCoordinates();
+        const awayFromCell = this.pathFinder.getCellClosestTo(awayFrom, true);
+
+        const awayFromVector = new Vector(awayFromCell.x, awayFromCell.y);
+
+        const furthest: IFurthestCell = _.reduce(unblockedCells, (memo: any, d) => {
+            const distance = awayFromVector.calculateDistance(new Vector(d.x, d.y));
+            if (distance > memo.distance) {
+                return {
+                    distance,
+                    cell: d
+                };
+            }
+            return memo;
+        }, { cell: undefined, distance: 0 });
+        return furthest;
     }
 
     private setAnimations() {

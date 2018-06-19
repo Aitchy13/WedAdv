@@ -705,7 +705,7 @@ export class OutsideScene extends Scene {
         this.game.rootRenderer.addObject(exit);
 
         this.pastor = new Pastor((this.width / 2) - (38 / 2), 1130, this.assetLoader, this.game.rootRenderer, this.pathfinder);
-        this.ring = new Ring(0, 0, this.assetLoader, this.game.rootRenderer);
+        this.ring = new Ring(0, this.height, this.assetLoader, this.game.rootRenderer);
         this.target = new Target({
             name: "Noa",
             x: (this.width / 2) - (30 / 2),
@@ -733,7 +733,6 @@ export class OutsideScene extends Scene {
 
 
         this.buildUpSound = this.assetLoader.getSound("build-up");
-        this.enemySound = this.assetLoader.getSound("enemy");
 
         this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. Now, normally I would proceed to discuss the importance of love, kindness and sharing, but I've got <<INSERT REASON>>, so I'm going to skip on ahead. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
             return sleep(1000);
@@ -762,8 +761,6 @@ export class OutsideScene extends Scene {
                 return undefined;
             })
         }).then(() => {
-            this.buildUpSound.stop();
-            this.enemySound.loop();
             this.groom.faceDirection(Direction.East);
             this.bride.faceDirection(Direction.West);
             return this.game.dialogService.show("I'll go get her, you stay here.", this.selectedPlayer);
@@ -788,12 +785,32 @@ export class OutsideScene extends Scene {
         this.selectedPlayer = this.game.cache.getItem("player");
         this.selectedPlayer.model === "groom" ? this.renderBride() : this.renderGroom();
         this.selectedPlayer.move(this.width / 2, this.height - 100, PositionStrategy.Absolute);
+        this.ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
+        this.selectedPlayer.hold(this.ring);
 
         this.renderLevel();
 
         this.game.camera.follow(() => new Vector(this.selectedPlayer.x, this.selectedPlayer.y));
 
         this.game.rootRenderer.addObject(this.selectedPlayer);
+
+        const alternativePlayer = this.bride === this.selectedPlayer ? this.groom : this.bride;
+        this.selectedPlayer.addInteractable(alternativePlayer);
+
+        alternativePlayer.on("ring-returned", () => {
+            this.onRingReturned();
+        });
+    }
+
+    private onRingReturned() {
+        this.countdown.stop();
+        this.game.dialogService.show("My hero!! Game over...", this.selectedPlayer === this.bride ? this.groom : this.bride).then(() => {
+            this.showCredits();
+        });
+    }
+
+    private showCredits() {
+
     }
 
 }

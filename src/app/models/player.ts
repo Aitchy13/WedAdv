@@ -34,6 +34,8 @@ export interface IInteractable {
 
 export type PlayerModel = "groom" | "bride";
 
+export type PlayerEventName = "ring-returned";
+
 export class Player extends Character implements IRenderable, ICanTalk, IInteractable {
 
     public dialogSpriteSheet: SpriteSheet;
@@ -43,6 +45,12 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
     private interactables: IInteractable[] = [];
     private detectedInteractable: IInteractable;
 
+    private controlsEnabled: boolean = false;
+
+    private eventHandlers: {
+        "ring-returned": Function[]
+    };
+
     constructor(public options: IPlayerOptions, public assetLoader: AssetLoader, public renderer: Renderer, public pathFinder: PathFinder, public keyboardInput: KeyboardInput) {
         super(renderer, pathFinder, {
             width: options.model === "bride" ? 43 : 36,
@@ -51,8 +59,14 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             y: options.y
         } as ICharacterOptions);
 
+        this.eventHandlers = {
+            "ring-returned": []
+        };
+
         this.model = options.model;
         this.name = options.model === "bride" ? "Hannah" : "Harry";
+
+        this.bindControls();
 
         this.setSpriteSheet(this.model);
         this.setAnimations(this.model);
@@ -70,6 +84,10 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         });
     }
 
+    public on(evtName: PlayerEventName, callback: Function) {
+        this.eventHandlers[evtName].push(callback);
+    }
+
     public onInteraction(evtName: string, interactor: IInteractable, data: any) {
         switch (evtName) {
             case "hold":
@@ -78,9 +96,13 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             case "check-for-target":
                 const target = data instanceof Target ? data : undefined;
                 if (target) {
-                    target.runAway();
+                    target.onFound();
                 }
                 break;
+            case "return-ring":
+                if (interactor instanceof Player && interactor.holding) {
+                    this.triggerEventHandlers("ring-returned");
+                }
         }
     }
 
@@ -117,10 +139,11 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         const labelHeight = 20;
         const midX = interactable.x + (interactable.width / 2) - (labelWidth / 2);
 
-        const label = new Rectangle(50, 15, midX, interactable.y - labelHeight - 20);
+        const label = new Rectangle(80, 30, midX, interactable.y - labelHeight - 20);
         label.setColor("black");
         label.text = interactable.name;
         label.textColor = "#ffffff";
+        label.textFontSize = "13px";
         label.render(ctx, delta);
     }
 
@@ -187,7 +210,42 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
     }
 
     public enableControls(): Player {
+        this.controlsEnabled = true;
+        return this;
+    }
+
+    public disableControls() {
+        this.controlsEnabled = false;
+        return this;
+    }
+
+    public addInteractable(interactable: IInteractable) {
+        if (!interactable) {
+            throw new Error("No interactable specified");
+        }
+        if (_.findIndex(this.interactables, x => x === interactable) !== -1) {
+            throw new Error("Interactable has already been added");
+        }
+        this.interactables.push(interactable);
+    }
+
+    public removeInteractable(interactable: IInteractable) {
+        const index = _.findIndex(this.interactables, x => x === interactable);
+        if (index === -1) {
+            return;
+        }
+        this.interactables.splice(index, 1);
+    }
+
+    public removeInteractables() {
+        this.interactables = [];
+    }
+
+    private bindControls() {
         this.keyboardInput.on("keydown", evt => {
+            if (!this.controlsEnabled) {
+                return;
+            }
             const sensitivity = 2.5;
             switch (evt.event.key) {
                 case "w":
@@ -224,48 +282,46 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     break;
                 case "e":
                     if (this.detectedInteractable) {
+                        if (this.detectedInteractable instanceof Target) {
+                            this.detectedInteractable.onInteraction("catch", this);
+                        }
                         if (this.detectedInteractable instanceof Table) {
                             this.detectedInteractable.onInteraction("check-for-target", this);
                             return;
+                        }
+                        if (this.detectedInteractable instanceof Player) {
+                            this.detectedInteractable.onInteraction("return-ring", this, undefined);
                         }
                         if (this.detectedInteractable instanceof Ring) {
                             this.hold(this.detectedInteractable);
                             return;
                         }
                         if (this.detectedInteractable instanceof Door) {
-                            this.detectedInteractable.exit();
+                            if (this.holding) {
+                                this.detectedInteractable.exit();
+                            }
                         }
                     }
             }
         });
         this.keyboardInput.on("keyup", () => {
+            if (!this.controlsEnabled) {
+                return;
+            }
             this.setVelocity(AxisDimension.XY, 0);
             this.spriteSheet.stopAnimation();
             this.walkSound.stop();
         });
-        return this;
     }
 
-    public addInteractable(interactable: IInteractable) {
-        if (!interactable) {
-            throw new Error("No interactable specified");
-        }
-        if (_.findIndex(this.interactables, x => x === interactable) !== -1) {
-            throw new Error("Interactable has already been added");
-        }
-        this.interactables.push(interactable);
-    }
-
-    public removeInteractable(interactable: IInteractable) {
-        const index = _.findIndex(this.interactables, x => x === interactable);
-        if (index === -1) {
+    private triggerEventHandlers(eventName: PlayerEventName) {
+        if (this.eventHandlers[eventName].length === 0) {
             return;
         }
-        this.interactables.splice(index, 1);
+        for (const handler of this.eventHandlers[eventName]) {
+            handler();
+        }
     }
 
-    public removeInteractables() {
-        this.interactables = [];
-    }
 
 }

@@ -12,7 +12,7 @@ export interface INavGridConfig {
     cellSize?: number;
 }
 
-interface ICell {
+export interface ICell {
     blockedBy: string;
     x: number;
     y: number;
@@ -25,7 +25,7 @@ export class NavGrid {
     public height: number;
     public x: number = 0;
     public y: number = 0;
-    public cellSize: number = 40;
+    public readonly cellSize: number = 40;
 
     private blockedRectangles: {
         [key: string]: Rectangle
@@ -94,6 +94,11 @@ export class NavGrid {
             throw new Error("A geometry with that key has already been specified");
         }
         this.blockedRectangles[key] = rect;
+        this.generate();
+    }
+
+    public removeBlockedGeometry(key: string) {
+        delete this.blockedRectangles[key];
         this.generate();
     }
 
