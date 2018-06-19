@@ -246,14 +246,14 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             if (!this.controlsEnabled) {
                 return;
             }
-            const sensitivity = 2.5;
+            const sensitivity = 3;
             switch (evt.event.key) {
                 case "w":
                 case "ArrowUp":
                     this.setVelocity(AxisDimension.Y, -sensitivity);
                     this.spriteSheet.setDefaultFrame("north-stand");
                     this.spriteSheet.playAnimation("walk-north");
-                    this.walkSound.loop();
+                    // this.walkSound.loop();
                     this.lastMovedDirection = Direction.North;
                     break;
                 case "s":
@@ -261,7 +261,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.setVelocity(AxisDimension.Y, sensitivity);
                     this.spriteSheet.setDefaultFrame("south-stand");
                     this.spriteSheet.playAnimation("walk-south");
-                    this.walkSound.loop();
+                    // this.walkSound.loop();
                     this.lastMovedDirection = Direction.South;
                     break;
                 case "a":
@@ -269,7 +269,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.setVelocity(AxisDimension.X, -sensitivity);
                     this.spriteSheet.setDefaultFrame("west-stand");
                     this.spriteSheet.playAnimation("walk-west");
-                    this.walkSound.loop();
+                    // this.walkSound.loop();
                     this.lastMovedDirection = Direction.West;
                     break;
                 case "d":
@@ -277,7 +277,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
                     this.setVelocity(AxisDimension.X, sensitivity);
                     this.spriteSheet.setDefaultFrame("east-stand");
                     this.spriteSheet.playAnimation("walk-east");
-                    this.walkSound.loop();
+                    // this.walkSound.loop();
                     this.lastMovedDirection = Direction.East;
                     break;
                 case "e":
@@ -310,7 +310,7 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
             }
             this.setVelocity(AxisDimension.XY, 0);
             this.spriteSheet.stopAnimation();
-            this.walkSound.stop();
+            // this.walkSound.stop();
         });
     }
 

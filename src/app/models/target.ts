@@ -102,7 +102,18 @@ export class Target extends Character implements IRenderable, ICanTalk, IInterac
 
     public onFound() {
         this.y = this.hidingSpot.y - 50;
+        const spawnableCells = this.pathFinder.getSurroundingCells(this.hidingSpot, 1);
+        const randomNumberInRange = MathsUtility.randomIntegerRange(0, spawnableCells.length - 1);
+
+        const spawnIn = spawnableCells[randomNumberInRange];
+        if (!spawnIn) {
+            throw new Error("No spawnable cell found");
+        }
+        this.x = spawnIn.x;
+        this.y = spawnIn.y;
+
         this.hidingSpot = undefined;
+        
         this.triggerEventHandlers("found");
     }
 
@@ -136,7 +147,7 @@ export class Target extends Character implements IRenderable, ICanTalk, IInterac
     public runTo(coordinate: ICoordinate, onComplete?: () => void) {
         this.show();
         return new Promise((resolve) => {
-            this.goTo(coordinate, 150, () => {
+            this.goTo(coordinate, 120, () => {
                 if (onComplete) {
                     onComplete();
                 } else {

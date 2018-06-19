@@ -252,6 +252,7 @@ export class InsideScene extends Scene {
         this.player.stopMovement();
         this.player.disableControls();
         this.countdown.stop();
+        this.enemySound.stop();
         this.player.removeInteractables();
         this.game.dialogService.show("Waaaaaaaaaaaaaaaa... you caught me! I guess I'll have to find another Harrison...", this.target).then(() => {
             return this.target.runTo({ x: this.exit.x, y: this.exit.y + 160 });
@@ -261,7 +262,6 @@ export class InsideScene extends Scene {
             this.player.addInteractable(this.ring);
             this.player.addInteractable(this.exit);
             this.countdown.start();
-            this.enemySound.stop();
         });
     }
 

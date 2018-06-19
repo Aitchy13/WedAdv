@@ -57,7 +57,7 @@ export class OutsideScene extends Scene {
     }
 
     public preload() {
-        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 5, this.game.assetLoader);
+        this.countdown = this.game.cache.getItem("countdown") ? this.game.cache.getItem("countdown") : new Countdown(this.game.uiCanvas.width - 230, 30, 60 * 2, this.game.assetLoader);
 
         return Promise.all([
             this.assetLoader.loadImage("outdoor-scene-background", "src/sprites/outdoor-scene.png"),
@@ -734,11 +734,11 @@ export class OutsideScene extends Scene {
 
         this.buildUpSound = this.assetLoader.getSound("build-up");
 
-        this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. Now, normally I would proceed to discuss the importance of love, kindness and sharing, but I've got <<INSERT REASON>>, so I'm going to skip on ahead. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
+        this.game.dialogService.show("We are gathered here today to witness the marriage between ... Harrison Steel and Hannah Moody. So without further a due, could the ring bearer please present the rings?", this.pastor).then(() => {
             return sleep(1000);
         }).then(() => {
             this.bride.faceDirection(Direction.South);
-            return this.game.dialogService.show("Noa nug ... its time for mom to marry Harrison... and we're gonna need those rings to do it!", this.bride).then(() => {
+            return this.game.dialogService.show("Noa nug ... mom needs those rings to marry Harrison!", this.bride).then(() => {
                 this.introSound.stop();
                 this.buildUpSound.loop();
                 return sleep(1000);
@@ -750,7 +750,7 @@ export class OutsideScene extends Scene {
         }).then(() => {
             return this.game.dialogService.show("But he's my honey! You go find a man ... and I'll marry Harrison!", this.target);
         }).then(() => {
-            return this.game.dialogService.show("hahahahahaha", this.groom);
+            return this.game.dialogService.show("ha ha ha ha ha ha", this.groom);
         }).then(() => {
             return this.game.dialogService.show("He's mine too! We've already talked about this ... Get over here with the rings!", this.bride);
         }).then(() => {
@@ -765,7 +765,7 @@ export class OutsideScene extends Scene {
             this.bride.faceDirection(Direction.West);
             return this.game.dialogService.show("I'll go get her, you stay here.", this.selectedPlayer);
         }).then(() => {
-            return this.game.dialogService.show("Ok, but hurry ... you've got 5 minutes until I get cold feet ... (seriously, the timer starts soon)", this.selectedPlayer.model === "bride" ? this.groom : this.bride);
+            return this.game.dialogService.show("Ok, but hurry ... you've got 2 minutes until I get cold feet ... (seriously, the timer starts soon)", this.selectedPlayer.model === "bride" ? this.groom : this.bride);
         }).then(() => {
             return this.game.dialogService.show("I'm getting too old for this...", this.pastor);
         }).then(() => {
@@ -804,13 +804,14 @@ export class OutsideScene extends Scene {
 
     private onRingReturned() {
         this.countdown.stop();
-        this.game.dialogService.show("My hero!! Game over...", this.selectedPlayer === this.bride ? this.groom : this.bride).then(() => {
-            this.showCredits();
+        this.game.dialogService.show("My hero!!", this.selectedPlayer === this.bride ? this.groom : this.bride).then(() => {
+            this.game.window.confirm("GAME OVER");
+            this.resetGame();
         });
     }
 
-    private showCredits() {
-
+    private resetGame() {
+        this.game.window.location.reload();
     }
 
 }

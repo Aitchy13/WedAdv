@@ -66,7 +66,7 @@ export class PathFinder {
     }
 
     public getSurroundingArea(coord: ICoordinate, radius: number = 1, includeBlocked?: boolean): Rectangle {
-        const centerCell = this.getCellClosestTo(coord, includeBlocked);
+        const centerCell = this.getCellClosestTo(coord, true);
         const topLeftRadiusVect = new Vector(centerCell.x - (this.grid.cellSize  * radius), centerCell.y - (this.grid.cellSize * radius));
         if (topLeftRadiusVect.x < 0) {
             topLeftRadiusVect.x = 0;
