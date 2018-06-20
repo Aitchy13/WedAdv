@@ -29,10 +29,10 @@ export class App {
             game.assetLoader.loadSound("running", "src/sounds/running.wav"),
             game.assetLoader.loadSound("menu-open", "src/sounds/menu-open.wav"),
             game.assetLoader.loadSound("menu-close", "src/sounds/menu-close.wav"),
-            game.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.ogg"),
+            game.assetLoader.loadSound("mouseclick", "src/sounds/mouseclick1.wav"),
             game.assetLoader.loadSpriteSheet("vicar", "src/sprites/vicar.png", "src/sprites/vicar.json"),
             game.assetLoader.loadSpriteSheet("countdown", "src/sprites/countdown.png", "src/sprites/countdown.json"),
-            game.assetLoader.loadSound("menu-select", "src/sounds/click3.ogg"),
+            game.assetLoader.loadSound("menu-select", "src/sounds/click3.wav"),
             game.assetLoader.loadSound("pop", "src/sounds/pop-reduced.wav"),
             game.assetLoader.loadSound("blip", "src/sounds/blip.wav"),
             game.assetLoader.loadSound("bring", "src/sounds/bring.wav"),
@@ -42,9 +42,7 @@ export class App {
             game.assetLoader.loadSound("enemy", "src/sounds/enemy.mp3")
         ] as any).then(() => {
             game.start();
-        })
-        
-
+        });
         
     }
 

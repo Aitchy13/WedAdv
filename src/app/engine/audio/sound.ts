@@ -67,7 +67,13 @@ export class Sound {
             this.loadingPromise = axios.get<ArrayBuffer>(this.path, {
                 responseType: "arraybuffer"
             }).then(response => {
-                return this.context.decodeAudioData(response.data);
+                return new Promise<AudioBuffer>((resolve, reject) => {
+                    this.context.decodeAudioData(response.data, (val) => {
+                        return resolve(val);
+                    }, (err) => {
+                        return reject(err);
+                    });
+                });
             }).then(buffer => {
                 this.buffer = buffer;
             }).then(() => {

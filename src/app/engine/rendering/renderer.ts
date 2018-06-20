@@ -19,7 +19,8 @@ export class Renderer {
     private animationFrameLoopId: number;
 
     constructor(public context: CanvasRenderingContext2D, private window: Window, private logger: Logger, private time: Time, private camera?: Camera) {
-        this.animationFrame = this.window.requestAnimationFrame;
+        (this.window as any)["requestAnimFrame"] = this.window.requestAnimationFrame ||
+                                            this.window.webkitRequestAnimationFrame;
         if (this.camera) {
             this.camera.ctx = this.context;
         }
@@ -46,7 +47,7 @@ export class Renderer {
     }
 
     public start() {
-        this.animationFrameLoopId = this.window.requestAnimationFrame(this.start.bind(this));
+        this.animationFrameLoopId = (this.window as any)["requestAnimFrame"](this.start.bind(this));
         this.render();
     }
 

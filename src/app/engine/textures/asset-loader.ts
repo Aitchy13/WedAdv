@@ -21,7 +21,7 @@ export class AssetLoader {
 
     constructor(private logger: Logger) {}
 
-    public loadSound(key: string, path: string): Promise<Sound> {
+    public loadSound(key: string, path: string): Promise<any> {
         const existingSound = _.find(this.sounds, x => x.key === key);
         if (existingSound) {
             return Promise.resolve(existingSound);
@@ -32,6 +32,9 @@ export class AssetLoader {
         return sound.load().then(x => {
             this.sounds.push(sound);
             return sound;
+        }).catch(e => {
+            this.logger.error(e);
+            return Promise.reject(e);
         });
     }
 
@@ -46,6 +49,9 @@ export class AssetLoader {
             const texture = new ImageTexture(key, image);
             this.images.push(texture);
             return texture;
+        }).catch(e => {
+            this.logger.error(e);
+            return Promise.reject(e);
         });
     }
 
@@ -80,7 +86,7 @@ export class AssetLoader {
             });
         }).catch((e: Error) => {
             this.logger.error(e);
-            throw e;
+            return Promise.reject(e);
         });        
     }
 

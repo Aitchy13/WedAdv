@@ -1,3 +1,5 @@
+import "promise-polyfill/src/polyfill";
+
 import { App } from "./app/app";
 import "./styles/style.scss";
 
