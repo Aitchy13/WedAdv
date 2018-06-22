@@ -15,6 +15,9 @@ export class App {
             bootstrap: OutsideScene
         });
 
+        const htmlElement = game.document.getElementsByTagName("html")[0];
+        htmlElement.className = "loading";
+
         Promise.all([
             game.assetLoader.loadSpriteSheet("male-guest-blue", "src/sprites/male-guest-blue.png", "src/sprites/male-guest-blue.json"),
             game.assetLoader.loadSpriteSheet("female-guest", "src/sprites/female-guest.png", "src/sprites/female-guest.json"),
@@ -41,6 +44,7 @@ export class App {
             game.assetLoader.loadSound("build-up", "src/sounds/build-up.wav"),
             game.assetLoader.loadSound("enemy", "src/sounds/enemy.mp3")
         ] as any).then(() => {
+            htmlElement.className = undefined;
             game.start();
         });
         

@@ -37,10 +37,12 @@ module.exports = {
             template: "./src/index.html"
         }),
         new UglifyJSPlugin({
-            sourceMap: true
-        }),
-        new webpack.DefinePlugin({
-            "process.env.NODE_ENV": JSON.stringify("production")
+            sourceMap: true,
+            uglifyOptions: {
+                ecma: 8,
+                safari10: true,
+                mangle: false
+            }
         })
     ]
 }

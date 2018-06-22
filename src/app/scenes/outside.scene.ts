@@ -797,7 +797,6 @@ export class OutsideScene extends Scene {
 
     private restoreScene() {
         this.selectedPlayer = this.game.cache.getItem("player");
-        this.selectedPlayer.model === "groom" ? this.renderBride() : this.renderGroom();
         this.selectedPlayer.move(this.width / 2, this.height - 100, PositionStrategy.Absolute);
         this.ring = new Ring(this.game.rootCanvas.width / 2, 1000, this.assetLoader, this.game.rootRenderer);
         this.selectedPlayer.hold(this.ring);

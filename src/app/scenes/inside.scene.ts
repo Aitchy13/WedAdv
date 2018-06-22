@@ -31,6 +31,7 @@ export class InsideScene extends Scene {
     public countdown: Countdown;
     public exit: Door;
     public ring: Ring;
+    public tables: Table[];
 
     private enemySound: Sound;
 
@@ -72,24 +73,24 @@ export class InsideScene extends Scene {
 
         new Layer("background", 0, 0, this.assetLoader.getImage("indoor-scene-background"), this.game.rootRenderer);
 
-        const tables: Table[] = [];
+        this.tables = [];
         const table1 = new Table("table1", 120, 320, this.assetLoader, this.game.rootRenderer);
-        tables.push(table1);
+        this.tables.push(table1);
 
         const table2 = new Table("table2", 120, 640, this.assetLoader, this.game.rootRenderer);
-        tables.push(table2);
+        this.tables.push(table2);
 
         const table3 = new Table("table3", 460, 320, this.assetLoader, this.game.rootRenderer);
-        tables.push(table3);
+        this.tables.push(table3);
 
         const table4 = new Table("table4", 460, 640, this.assetLoader, this.game.rootRenderer);
-        tables.push(table4);
+        this.tables.push(table4);
 
         const table5 = new Table("table5", 820, 320, this.assetLoader, this.game.rootRenderer);
-        tables.push(table5);
+        this.tables.push(table5);
 
         const table6 = new Table("table6", 820, 640, this.assetLoader, this.game.rootRenderer);
-        tables.push(table6);
+        this.tables.push(table6);
 
         const topBoundary = new Rectangle(this.width, 160, 0, 0);
         const leftBoundary = new Rectangle(10, this.height, 0, 0);
@@ -113,7 +114,7 @@ export class InsideScene extends Scene {
 
         const hidingSpots: IHidingSpot[] = [];
 
-        tables.forEach(x => {
+        this.tables.forEach(x => {
             this.player.addCollidable(x);
             this.player.addInteractable(x);
             hidingSpots.push(x);
@@ -255,6 +256,7 @@ export class InsideScene extends Scene {
     private onTargetFound() {
         this.assetLoader.getSound("build-up").stop();
         this.enemySound.loop();
+        this.tables.forEach(x => this.player.removeInteractable(x));
         this.player.stopMovement();
         this.player.disableControls();
         this.game.dialogService.show("Ha ha you found me, but you can't catch me!", this.target).then(() => {

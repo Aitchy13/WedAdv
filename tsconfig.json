@@ -1,7 +1,8 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "target": "es2015",
+        "target": "es5",
+        "lib": ["dom", "es6"],
         "allowJs": true,
         "module": "es6",
         "moduleResolution": "node",
