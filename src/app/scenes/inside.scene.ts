@@ -34,6 +34,7 @@ export class InsideScene extends Scene {
     public tables: Table[];
 
     private enemySound: Sound;
+    private completionSound: Sound;
 
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
         super();
@@ -212,7 +213,7 @@ export class InsideScene extends Scene {
         // let targetPathFinder = new PathFinder(targetGrid, this.game.rootRenderer);
 
         this.enemySound = this.assetLoader.getSound("enemy");
-        this.enemySound.load();
+        this.completionSound = this.assetLoader.getSound("happy");
 
         this.target = new Target({
             name: "Noa",
@@ -270,6 +271,7 @@ export class InsideScene extends Scene {
         this.player.disableControls();
         this.countdown.stop();
         this.enemySound.stop();
+        this.completionSound.play();
         this.player.removeInteractables();
         this.game.dialogService.show("Waaaaaaaaaaaaaaaa... you caught me! I guess I'll have to find another Harrison...", this.target).then(() => {
             return this.target.runTo({ x: this.exit.x + 50, y: this.exit.y + 120 });

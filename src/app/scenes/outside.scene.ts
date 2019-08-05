@@ -173,7 +173,6 @@ export class OutsideScene extends Scene {
             texture: this.assetLoader.getImage("start-button")
         }, this.game.mouseInput, this.game.uiRenderer);
         this.menuSelectSound = this.assetLoader.getSound("menu-select");
-        this.menuSelectSound.load();
         this.startButton.on("click", () => {
             this.menuSelectSound.play();
             this.hideTitleScreen();
@@ -807,19 +806,26 @@ export class OutsideScene extends Scene {
 
         this.game.rootRenderer.addObject(this.selectedPlayer);
 
-        const alternativePlayer = this.bride === this.selectedPlayer ? this.groom : this.bride;
-        this.selectedPlayer.addInteractable(alternativePlayer);
+        if (this.selectedPlayer.model === "bride") {
+            this.renderGroom();
+            this.selectedPlayer.addInteractable(this.groom);
+            this.groom.on("ring-returned", () => {
+                this.onRingReturned();
+            });
+        } else {
+            this.renderBride();
+            this.selectedPlayer.addInteractable(this.bride);
+            this.bride.on("ring-returned", () => {
+                this.onRingReturned();
+            });
+        }
 
         this.exit.beforeRender = () => {};
-
-        alternativePlayer.on("ring-returned", () => {
-            this.onRingReturned();
-        });
     }
 
     private onRingReturned() {
         this.countdown.stop();
-        this.game.dialogService.show("My hero!!", this.selectedPlayer === this.bride ? this.groom : this.bride).then(() => {
+        this.game.dialogService.show("My hero!!", this.selectedPlayer.model === "bride" ? this.groom : this.bride).then(() => {
             this.gameOver();
         });
     }

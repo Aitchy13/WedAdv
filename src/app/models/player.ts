@@ -75,7 +75,6 @@ export class Player extends Character implements IRenderable, ICanTalk, IInterac
         this.setAnimations(this.model);
 
         this.walkSound = this.assetLoader.getSound("running");
-        this.walkSound.load();
 
     }
 

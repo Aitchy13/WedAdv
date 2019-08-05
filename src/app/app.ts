@@ -42,7 +42,8 @@ export class App {
             game.assetLoader.loadSound("intro", "src/sounds/intro.mp3"),
             game.assetLoader.loadSound("start-menu", "src/sounds/start-menu.mp3"),
             game.assetLoader.loadSound("build-up", "src/sounds/build-up.wav"),
-            game.assetLoader.loadSound("enemy", "src/sounds/enemy.mp3")
+            game.assetLoader.loadSound("enemy", "src/sounds/enemy.mp3"),
+            game.assetLoader.loadSound("happy", "src/sounds/happy.mp3")
         ] as any).then(() => {
             htmlElement.className = undefined;
             game.start();

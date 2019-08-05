@@ -179,19 +179,14 @@ export class Dialog implements IRenderable {
         };
 
         this.openSound = this.assetLoader.getSound("menu-open");
-        this.openSound.load();
 
         this.continueSound = this.assetLoader.getSound("mouseclick");
-        this.continueSound.load();
 
         this.closeSound = this.assetLoader.getSound("menu-close");
-        this.closeSound.load();
 
         this.typeSound = this.assetLoader.getSound("pop");
-        this.typeSound.load();
 
         this.typeEndSound = this.assetLoader.getSound("bring");
-        this.typeEndSound.load();
         
 
         // this.textX calculated when setting text
